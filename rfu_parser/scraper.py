@@ -39,10 +39,6 @@ class RFUParser:
         """Crawl the RFU website to dynamically resolve a team's division ID and fetch its full season table & fixtures."""
         if not team_name or not season:
             return None
-            
-        # Cooldown pause to prevent immediate WAF rate-limiting after autocomplete queries
-        import time
-        time.sleep(1.2)
 
         # 1. Resolve Team Name to Team ID
         search_url = f"https://www.englandrugby.com/api/fixtures-and-result/search?name={quote(team_name)}"
@@ -70,9 +66,6 @@ class RFUParser:
 
         # Format season (e.g. 2025/2026 -> 2025-2026)
         formatted_season = season.replace("/", "-").strip()
-
-        # Pause to let WAF cool down
-        time.sleep(1.5)
 
         # 2. Query team matches for that season to extract the division ID
         team_season_url = f"https://www.englandrugby.com/fixtures-and-results/search-results?team={team_id}&season={formatted_season}"
@@ -107,9 +100,6 @@ class RFUParser:
         except Exception as e:
             print("CRAWLER ERROR (step 2 - extract):", e)
             return None
-
-        # Pause to let WAF cool down
-        time.sleep(1.5)
 
         # 3. Fetch and parse the full division data
         try:

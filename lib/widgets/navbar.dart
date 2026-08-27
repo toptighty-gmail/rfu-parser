@@ -17,6 +17,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
   final VoidCallback onOpenPosterPrint;
+  final VoidCallback? onOpenTeamsDirectory;
 
   const Navbar({
     super.key,
@@ -33,6 +34,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
     required this.onOpenPosterPrint,
+    this.onOpenTeamsDirectory,
   });
 
   @override
@@ -181,9 +183,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
 
-                // Actions / Print / Admin Controls
+                // Actions / Print / Teams Directory / Admin Controls
                 Row(
                   children: [
+                    // Teams Directory Button
+                    if (onOpenTeamsDirectory != null)
+                      IconButton(
+                        tooltip: 'All RFU Teams Directory',
+                        icon: const Icon(Icons.shield_outlined, color: AppTheme.goldAccent),
+                        onPressed: onOpenTeamsDirectory,
+                      ),
                     // Print Booklet Button
                     IconButton(
                       tooltip: 'A4 Booklet View',

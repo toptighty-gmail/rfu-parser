@@ -11,6 +11,7 @@ import '../widgets/fixture_list.dart';
 import '../widgets/admin_dialog.dart';
 import '../widgets/add_fixture_dialog.dart';
 import '../widgets/logo_upload_dialog.dart';
+import '../widgets/teams_directory_dialog.dart';
 import 'booklet_print_view.dart';
 import 'poster_print_view.dart';
 
@@ -157,10 +158,14 @@ class _HomeViewState extends State<HomeView> {
         },
         onTeamSelected: (selectedTeam) {
           if (selectedTeam.trim().isNotEmpty) {
-            _searchController.text = selectedTeam;
+            setState(() {
+              _selectedDivision = 'ALL / Select Division';
+              _searchController.text = selectedTeam;
+            });
             _loadData(queryTeam: selectedTeam.trim());
           }
         },
+        onOpenTeamsDirectory: _openTeamsDirectory,
         isAdmin: _isAdmin,
         onAdminToggle: _toggleAdmin,
         onAddFixture: _openAddFixtureDialog,
@@ -385,6 +390,21 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
             ),
+    );
+  }
+
+  void _openTeamsDirectory() {
+    showDialog(
+      context: context,
+      builder: (_) => TeamsDirectoryDialog(
+        onSelectTeam: (team) {
+          setState(() {
+            _selectedDivision = 'ALL / Select Division';
+            _searchController.text = team;
+          });
+          _loadData(queryTeam: team);
+        },
+      ),
     );
   }
 

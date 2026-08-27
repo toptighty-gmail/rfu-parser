@@ -30,6 +30,28 @@ class ApiService {
     return null;
   }
 
+  static Future<bool> verifyAdminPassword(String password) async {
+    // 1. Try serverless backend verification
+    try {
+      final uri = Uri.parse('$baseUrl/admin/login');
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'password': password}),
+      ).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final resData = json.decode(response.body);
+        if (resData['success'] == true) return true;
+      }
+    } catch (e) {
+      print('Admin backend verification fallback: $e');
+    }
+
+    // 2. Fallback local verification
+    return password.trim() == 'rugby2026';
+  }
+
   static Future<List<Map<String, dynamic>>> suggestTeams(String query) async {
     if (query.trim().length < 3) return [];
     try {

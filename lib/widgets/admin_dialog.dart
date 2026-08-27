@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class AdminDialog extends StatefulWidget {
-  final Function(String password) onLogin;
+  final Future<void> Function(String password) onLogin;
 
   const AdminDialog({super.key, required this.onLogin});
 
@@ -76,12 +76,12 @@ class _AdminDialogState extends State<AdminDialog> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final password = _passController.text.trim();
     if (password.isNotEmpty) {
       setState(() => _isLoading = true);
-      widget.onLogin(password);
-      Navigator.of(context).pop();
+      await widget.onLogin(password);
+      if (mounted) Navigator.of(context).pop();
     }
   }
 }

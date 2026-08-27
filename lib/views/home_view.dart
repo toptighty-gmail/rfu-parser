@@ -140,6 +140,77 @@ class _HomeViewState extends State<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Dedicated Admin Mode Control Banner
+                  if (_isAdmin)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppTheme.emeraldAccent.withValues(alpha: 0.2), AppTheme.goldAccent.withValues(alpha: 0.2)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppTheme.emeraldAccent, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.shield, color: AppTheme.emeraldAccent, size: 22),
+                              SizedBox(width: 10),
+                              Text(
+                                'ADMIN MODE ACTIVE',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.emeraldAccent,
+                                  letterSpacing: 1.2,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            children: [
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.emeraldAccent,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.add_circle, size: 18),
+                                label: const Text('Add Friendly Fixture', style: TextStyle(fontWeight: FontWeight.bold)),
+                                onPressed: () => _openAddFixtureDialog(),
+                              ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.goldAccent,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.cloud_upload, size: 18),
+                                label: const Text('Upload Team Logo', style: TextStyle(fontWeight: FontWeight.bold)),
+                                onPressed: _openUploadLogoDialog,
+                              ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.rubyAccent,
+                                  side: const BorderSide(color: AppTheme.rubyAccent),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.lock_open, size: 16),
+                                label: const Text('Logout Admin'),
+                                onPressed: _toggleAdmin,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
                   // Division Banner
                   Container(
                     width: double.infinity,
@@ -231,17 +302,28 @@ class _HomeViewState extends State<HomeView> {
     } else {
       showDialog(
         context: context,
-        builder: (_) => AdminDialog(
-          onLogin: (pass) {
-            if (pass == 'rugby2026') {
+        builder: (dialogCtx) => AdminDialog(
+          onLogin: (pass) async {
+            final isValid = await ApiService.verifyAdminPassword(pass);
+            if (isValid) {
               setState(() => _isAdmin = true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Admin Mode Authenticated Successfully!')),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Admin Mode Authenticated Successfully! You can now add friendly fixtures and upload logos.'),
+                    backgroundColor: AppTheme.emeraldAccent,
+                  ),
+                );
+              }
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Invalid Admin Password')),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Invalid Admin Password. Please enter "rugby2026" or your custom password.'),
+                    backgroundColor: AppTheme.rubyAccent,
+                  ),
+                );
+              }
             }
           },
         ),

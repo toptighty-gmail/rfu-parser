@@ -118,7 +118,10 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
 
   void _selectTeam(String teamName) {
     _textController.text = teamName;
-    setState(() => _showMenu = false);
+    setState(() {
+      _showMenu = false;
+      _suggestions = [];
+    });
     _focusNode.unfocus();
     widget.onTeamSelected(teamName);
   }
@@ -182,7 +185,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
           ),
         ),
 
-        // Responsive Dropdown Menu directly attached in hierarchy
+        // Responsive Dropdown Menu with instant onTapDown handler
         if (_showMenu && _suggestions.isNotEmpty)
           Container(
             width: widget.width,
@@ -209,18 +212,28 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
                 final item = _suggestions[index];
                 final teamName = item['name'] ?? item['team_name'] ?? '';
 
-                return ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.sports_rugby, size: 18, color: AppTheme.goldAccent),
-                  title: Text(
-                    teamName,
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                return InkWell(
+                  onTapDown: (_) => _selectTeam(teamName),
+                  onTap: () => _selectTeam(teamName),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.sports_rugby, size: 18, color: AppTheme.goldAccent),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            teamName,
+                            style: const TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  onTap: () => _selectTeam(teamName),
                 );
               },
             ),

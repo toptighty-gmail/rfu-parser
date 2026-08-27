@@ -6,12 +6,14 @@ class DivisionData {
   final String season;
   final List<StandingEntry> standings;
   final List<Fixture> fixtures;
+  final String? sourceUrl;
 
   DivisionData({
     required this.divisionName,
     required this.season,
     required this.standings,
     required this.fixtures,
+    this.sourceUrl,
   });
 
   factory DivisionData.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class DivisionData {
       season: json['season'] ?? '2025-2026',
       standings: standingsList,
       fixtures: fixturesList,
+      sourceUrl: json['source_url'],
     );
   }
 }

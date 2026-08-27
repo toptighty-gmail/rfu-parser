@@ -67,6 +67,7 @@ class RFUDataResult:
     season: str
     standings: List[LeagueTableEntry] = field(default_factory=list)
     fixtures: List[Fixture] = field(default_factory=list)
+    source_url: str = ""
 
     def filter_by_team(self, team_name: str) -> "RFUDataResult":
         tokens = [t.lower() for t in team_name.strip().split() if len(t) > 1]
@@ -85,7 +86,8 @@ class RFUDataResult:
             division_name=self.division_name,
             season=self.season,
             standings=matched_standings,
-            fixtures=matched_fixtures
+            fixtures=matched_fixtures,
+            source_url=self.source_url
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,5 +95,6 @@ class RFUDataResult:
             "division_name": self.division_name,
             "season": self.season,
             "standings": [s.to_dict() for s in self.standings],
-            "fixtures": [f.to_dict() for f in self.fixtures]
+            "fixtures": [f.to_dict() for f in self.fixtures],
+            "source_url": self.source_url
         }

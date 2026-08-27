@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../services/api_service.dart';
@@ -22,13 +23,35 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final List<String> _divisions = [
+    'ALL / Select Division',
+    'Gallagher Premiership',
+    'RFU Championship',
+    'National 1',
+    'National 2 West',
+    'National 2 East',
+    'National 2 North',
     'Regional 1 Tribute South West',
+    'Regional 1 South East',
+    'Regional 1 Midlands',
+    'Regional 1 North West',
+    'Regional 1 North East',
     'Regional 2 Tribute Severn',
+    'Regional 2 Tribute South West',
     'Counties 1 Tribute Western West',
+    'Counties 1 Tribute Southern South',
+    'Counties 1 Tribute Somerset',
     'Counties 2 Tribute Somerset',
+    'Counties 2 Tribute Devon',
+    'Counties 2 Tribute Cornwall',
+    'Counties 3 Tribute Ale Devon South & West',
+    'Counties 3 Tribute Somerset',
+    'Counties 3 Tribute Cornwall',
+    'Counties 4 Tribute Devon',
+    'Counties 4 Tribute Somerset',
+    'PWR Premiership Women',
   ];
 
-  String _selectedDivision = 'Regional 1 Tribute South West';
+  String _selectedDivision = 'ALL / Select Division';
   final TextEditingController _searchController = TextEditingController();
   
   bool _isLoading = false;
@@ -55,14 +78,18 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _loadData({String? queryTeam}) async {
     setState(() => _isLoading = true);
 
+    final targetDivision = _selectedDivision == 'ALL / Select Division' ? null : _selectedDivision;
+
     // 1. Fetch live or sample data from Python scraper API
     DivisionData? data = await ApiService.fetchDivisionData(
-      division: queryTeam == null ? _selectedDivision : null,
+      division: queryTeam == null ? targetDivision : null,
       team: queryTeam,
     );
 
     // 2. Fetch custom fixtures from Supabase database
-    final customFixtures = await SupabaseService.fetchCustomFixtures(_selectedDivision);
+    final customFixtures = await SupabaseService.fetchCustomFixtures(
+      targetDivision ?? 'General',
+    );
 
     if (data != null) {
       // Merge custom fixtures into fixtures list
@@ -75,7 +102,7 @@ class _HomeViewState extends State<HomeView> {
     } else {
       // Fallback empty container with custom fixtures if offline
       data = DivisionData(
-        divisionName: _selectedDivision,
+        divisionName: targetDivision ?? 'RFU Leagues',
         season: '2025-2026',
         standings: [],
         fixtures: customFixtures,
@@ -127,7 +154,7 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   CircularProgressIndicator(color: AppTheme.goldAccent),
                   SizedBox(height: 16),
-                  Text('Loading RFU League Data & Fixtures...', style: TextStyle(color: AppTheme.textMuted)),
+                  Text('Crawling RFU League Data & Live Fixtures...', style: TextStyle(color: AppTheme.textMuted)),
                 ],
               ),
             )
@@ -210,7 +237,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ),
 
-                  // Division Banner
+                  // Division Banner with Source URL Badge
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -218,24 +245,67 @@ class _HomeViewState extends State<HomeView> {
                     decoration: AppTheme.glassBoxDecoration(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _divisionData?.divisionName ?? _selectedDivision,
-                              style: TextStyle(
-                                fontSize: isDesktop ? 22 : 17,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.goldAccent,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _divisionData?.divisionName ?? _selectedDivision,
+                                style: TextStyle(
+                                  fontSize: isDesktop ? 22 : 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.goldAccent,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Season: ${_divisionData?.season ?? "2025-2026"}',
-                              style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                'Season: ${_divisionData?.season ?? "2025-2026"}',
+                                style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                              ),
+                              if (_divisionData?.sourceUrl != null && _divisionData!.sourceUrl!.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                InkWell(
+                                  onTap: () async {
+                                    final uri = Uri.parse(_divisionData!.sourceUrl!);
+                                    if (await canLaunchUrl(uri)) {
+                                      await launchUrl(uri);
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.darkBg,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.35)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.link, size: 15, color: AppTheme.goldAccent),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            'Parsing Source URL: ${_divisionData!.sourceUrl}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.goldAccent,
+                                              decoration: TextDecoration.underline,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.refresh, color: AppTheme.goldAccent),

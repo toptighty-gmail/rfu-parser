@@ -56,8 +56,14 @@ class RFUParser:
             if not teams_list:
                 return None
             
-            # Use the first resolved team match
-            team_id = teams_list[0].get("_id")
+            # Match exact team variation if possible, otherwise fallback to first match
+            selected_team = teams_list[0]
+            target_clean = team_name.strip().lower()
+            for t in teams_list:
+                if t.get("name", "").strip().lower() == target_clean:
+                    selected_team = t
+                    break
+            team_id = selected_team.get("_id")
         except Exception as e:
             print("CRAWLER ERROR (step 1 - resolve exception):", e)
             return None
@@ -444,12 +450,15 @@ class RFUParser:
                 division_name=table_data.division_name,
                 season=table_data.season,
                 standings=table_data.entries,
-                fixtures=fixtures_data
+                fixtures=fixtures_data,
+                source_url=url
             )
         except Exception as e:
             if not fallback_on_fail:
                 raise e
-            return self.get_sample_data()
+            res = self.get_sample_data()
+            res.source_url = url
+            return res
 
     def compute_form_for_teams(self, standings: List[LeagueTableEntry], fixtures: List[Fixture]):
         """Compute recent match outcomes (W/D/L) for each team based on completed fixtures."""

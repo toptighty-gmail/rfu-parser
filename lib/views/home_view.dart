@@ -51,7 +51,16 @@ class _HomeViewState extends State<HomeView> {
     'PWR Premiership Women',
   ];
 
+  final List<String> _seasons = [
+    '2025-2026',
+    '2024-2025',
+    '2023-2024',
+    '2022-2023',
+    '2021-2022',
+  ];
+
   String _selectedDivision = 'ALL / Select Division';
+  String _selectedSeason = '2025-2026';
   final TextEditingController _searchController = TextEditingController();
   
   bool _isLoading = false;
@@ -80,10 +89,11 @@ class _HomeViewState extends State<HomeView> {
 
     final targetDivision = _selectedDivision == 'ALL / Select Division' ? null : _selectedDivision;
 
-    // 1. Fetch live or sample data from Python scraper API
+    // 1. Fetch live or sample data from Python scraper API for selected season
     DivisionData? data = await ApiService.fetchDivisionData(
       division: queryTeam == null ? targetDivision : null,
       team: queryTeam,
+      season: _selectedSeason,
     );
 
     // 2. Fetch custom fixtures from Supabase database
@@ -103,7 +113,7 @@ class _HomeViewState extends State<HomeView> {
       // Fallback empty container with custom fixtures if offline
       data = DivisionData(
         divisionName: targetDivision ?? 'RFU Leagues',
-        season: '2025-2026',
+        season: _selectedSeason,
         standings: [],
         fixtures: customFixtures,
       );
@@ -132,6 +142,16 @@ class _HomeViewState extends State<HomeView> {
               _searchController.clear();
             });
             _loadData();
+          }
+        },
+        selectedSeason: _selectedSeason,
+        seasons: _seasons,
+        onSeasonChanged: (newSeason) {
+          if (newSeason != null) {
+            setState(() {
+              _selectedSeason = newSeason;
+            });
+            _loadData(queryTeam: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null);
           }
         },
         onTeamSelected: (selectedTeam) {
@@ -261,7 +281,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Season: ${_divisionData?.season ?? "2025-2026"}',
+                                'Season: ${_divisionData?.season ?? _selectedSeason}',
                                 style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
                               ),
                               if (_divisionData?.sourceUrl != null && _divisionData!.sourceUrl!.isNotEmpty) ...[

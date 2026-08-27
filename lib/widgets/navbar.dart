@@ -7,6 +7,9 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedDivision;
   final List<String> divisions;
   final ValueChanged<String?> onDivisionChanged;
+  final String selectedSeason;
+  final List<String> seasons;
+  final ValueChanged<String?> onSeasonChanged;
   final ValueChanged<String> onTeamSelected;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
@@ -20,6 +23,9 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.selectedDivision,
     required this.divisions,
     required this.onDivisionChanged,
+    required this.selectedSeason,
+    required this.seasons,
+    required this.onSeasonChanged,
     required this.onTeamSelected,
     required this.isAdmin,
     required this.onAdminToggle,
@@ -98,14 +104,15 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ],
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 20),
 
-          // Division Dropdown Selector & Team Search Autocomplete
+          // Division Selector, Season Selector, & Team Search Autocomplete
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
+                  // Division Selector
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
@@ -118,7 +125,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                         value: divisions.contains(selectedDivision) ? selectedDivision : (divisions.isNotEmpty ? divisions.first : null),
                         dropdownColor: AppTheme.surfaceBg,
                         icon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
-                        style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                        style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
                         items: divisions.map((div) {
                           return DropdownMenuItem(
                             value: div,
@@ -129,11 +136,37 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
 
-                  // Real-Time Team Search Autocomplete Dropdown
+                  // Season Dropdown Selector
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.4)),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: seasons.contains(selectedSeason) ? selectedSeason : (seasons.isNotEmpty ? seasons.first : '2025-2026'),
+                        dropdownColor: AppTheme.surfaceBg,
+                        icon: const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
+                        style: const TextStyle(color: AppTheme.goldAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                        items: seasons.map((s) {
+                          return DropdownMenuItem(
+                            value: s,
+                            child: Text('Season $s'),
+                          );
+                        }).toList(),
+                        onChanged: onSeasonChanged,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Real-Time Team Search Autocomplete Dropdown Overlay
                   TeamSearchAutocomplete(
-                    width: isDesktop ? 260 : 180,
+                    width: isDesktop ? 250 : 180,
                     onTeamSelected: onTeamSelected,
                   ),
                 ],

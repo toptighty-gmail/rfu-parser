@@ -3,7 +3,10 @@ import 'package:http/http.dart' as http;
 import '../models/division_data.dart';
 
 class ApiService {
-  static const String baseUrl = '/api';
+  static Uri _buildUri(String path, [Map<String, String>? queryParams]) {
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return Uri.base.resolve('/api$cleanPath').replace(queryParameters: queryParams);
+  }
 
   static Future<DivisionData?> fetchDivisionData({
     String? division,
@@ -12,14 +15,14 @@ class ApiService {
     String? url,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl/parse').replace(queryParameters: {
+      final uri = _buildUri('/parse', {
         if (division != null && division.isNotEmpty) 'division': division,
         if (team != null && team.isNotEmpty) 'team': team,
         if (season != null && season.isNotEmpty) 'season': season,
         if (url != null && url.isNotEmpty) 'url': url,
       });
 
-      final response = await http.get(uri).timeout(const Duration(seconds: 12));
+      final response = await http.get(uri).timeout(const Duration(seconds: 14));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return DivisionData.fromJson(data);
@@ -33,7 +36,7 @@ class ApiService {
   static Future<bool> verifyAdminPassword(String password) async {
     // 1. Try serverless backend verification
     try {
-      final uri = Uri.parse('$baseUrl/admin/login');
+      final uri = _buildUri('/admin/login');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -55,7 +58,7 @@ class ApiService {
   static Future<List<Map<String, dynamic>>> suggestTeams(String query) async {
     if (query.trim().length < 2) return [];
     try {
-      final uri = Uri.parse('$baseUrl/suggest-teams?q=${Uri.encodeComponent(query)}');
+      final uri = _buildUri('/suggest-teams', {'q': query.trim()});
       final response = await http.get(uri).timeout(const Duration(seconds: 6));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

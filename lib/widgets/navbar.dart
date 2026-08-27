@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/app_config.dart';
 import '../theme/app_theme.dart';
-import 'team_search_autocomplete.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedDivision;
@@ -10,6 +9,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedSeason;
   final List<String> seasons;
   final ValueChanged<String?> onSeasonChanged;
+  final String? searchedTeam;
   final ValueChanged<String> onTeamSelected;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
@@ -17,7 +17,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
   final VoidCallback onOpenPosterPrint;
-  final VoidCallback? onOpenTeamsDirectory;
+  final VoidCallback onOpenTeamsDirectory;
 
   const Navbar({
     super.key,
@@ -27,6 +27,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.selectedSeason,
     required this.seasons,
     required this.onSeasonChanged,
+    this.searchedTeam,
     required this.onTeamSelected,
     required this.isAdmin,
     required this.onAdminToggle,
@@ -34,7 +35,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
     required this.onOpenPosterPrint,
-    this.onOpenTeamsDirectory,
+    required this.onOpenTeamsDirectory,
   });
 
   @override
@@ -43,6 +44,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
+    final hasSearchedTeam = searchedTeam != null && searchedTeam!.trim().isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
@@ -115,7 +117,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(width: 20),
 
-                // Division Selector, Season Selector, & Team Search Autocomplete
+                // Division Selector, Season Selector, & Team Search Button
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -173,26 +175,41 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         const SizedBox(width: 12),
 
-                        // Real-Time Team Search Autocomplete Dropdown Overlay
-                        TeamSearchAutocomplete(
-                          width: isDesktop ? 250 : 180,
-                          onTeamSelected: onTeamSelected,
+                        // Prominent Search RFU Team Modal Dialog Trigger Button
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.darkBg,
+                            foregroundColor: hasSearchedTeam ? Colors.black : AppTheme.textPrimary,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            side: BorderSide(
+                              color: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.cardBorder,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          icon: Icon(
+                            Icons.search,
+                            size: 18,
+                            color: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
+                          ),
+                          label: Text(
+                            hasSearchedTeam ? 'Team: ${searchedTeam!.trim()}' : 'Search RFU Team...',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: hasSearchedTeam ? Colors.black : AppTheme.textPrimary,
+                            ),
+                          ),
+                          onPressed: onOpenTeamsDirectory,
                         ),
                       ],
                     ),
                   ),
                 ),
 
-                // Actions / Print / Teams Directory / Admin Controls
+                // Actions / Print / Admin Controls
                 Row(
                   children: [
-                    // Teams Directory Button
-                    if (onOpenTeamsDirectory != null)
-                      IconButton(
-                        tooltip: 'All RFU Teams Directory',
-                        icon: const Icon(Icons.shield_outlined, color: AppTheme.goldAccent),
-                        onPressed: onOpenTeamsDirectory,
-                      ),
                     // Print Booklet Button
                     IconButton(
                       tooltip: 'A4 Booklet View',

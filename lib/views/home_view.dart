@@ -156,6 +156,7 @@ class _HomeViewState extends State<HomeView> {
             _loadData(queryTeam: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null);
           }
         },
+        searchedTeam: _searchController.text.trim(),
         onTeamSelected: (selectedTeam) {
           if (selectedTeam.trim().isNotEmpty) {
             setState(() {

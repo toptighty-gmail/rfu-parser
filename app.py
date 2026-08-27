@@ -304,19 +304,37 @@ def delete_custom_fixture(fixture_id):
     return jsonify({"success": True})
 
 @app.route("/api/parse", methods=["GET"])
+@app.route("/parse", methods=["GET"])
 def api_parse():
     url = request.args.get("url", "").strip()
     team = request.args.get("team", "").strip()
-    season = request.args.get("season", "").strip()
+    season = request.args.get("season", "2025-2026").strip()
+    division = request.args.get("division", "").strip()
 
+    data = None
     if url:
         data = rfu_parser.fetch_and_parse(url)
+    elif team:
+        cache_key = f"{team.lower()}_{season}"
+        crawled = crawl_cache.get(cache_key)
+        if not crawled:
+            try:
+                crawled = rfu_parser.crawl_team_season(team, season)
+                if crawled:
+                    crawl_cache.set(cache_key, crawled)
+            except Exception as e:
+                safe_print("Live crawl exception:", e)
+                crawled = None
+        data = crawled or rfu_parser.get_sample_data(team_query=team, season_query=season)
+    elif division:
+        data = rfu_parser.get_sample_data(division_query=division, season_query=season)
     else:
-        data = rfu_parser.get_sample_data(team_query=team, season_query=season)
+        data = rfu_parser.get_sample_data(season_query=season)
 
-    return jsonify(data.to_dict())
+    return jsonify(data.to_dict() if data else {})
 
 @app.route("/api/export/csv", methods=["GET"])
+@app.route("/export/csv", methods=["GET"])
 def api_export_csv():
     team = request.args.get("team", "").strip()
     season = request.args.get("season", "").strip()
@@ -326,6 +344,7 @@ def api_export_csv():
     return send_file(file_path, as_attachment=True, download_name="rfu_standings.csv")
 
 @app.route("/api/suggest-teams")
+@app.route("/suggest-teams")
 def suggest_teams():
     q = request.args.get("q", "").strip().lower()
     if len(q) < 2:
@@ -350,8 +369,9 @@ def suggest_teams():
             res_data["data"] = items_sorted
             suggestions_cache.set(q, res_data)
             return jsonify(res_data)
-    except Exception:
-        pass
+    except Exception as e:
+        safe_print("Suggest teams error:", e)
+
     return jsonify({"status": "error", "data": []})
 
 

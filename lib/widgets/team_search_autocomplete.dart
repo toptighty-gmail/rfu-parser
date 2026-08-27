@@ -28,6 +28,40 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
   bool _isLoading = false;
   bool _showMenu = false;
 
+  static const List<Map<String, dynamic>> _localTeamDb = [
+    {'name': 'Plymstock Oaks'},
+    {'name': 'Plymstock Oaks II'},
+    {'name': 'Plymstock Oaks Colts'},
+    {'name': 'Devonport Services'},
+    {'name': 'Devonport Services II'},
+    {'name': 'Devonport Services Colts'},
+    {'name': 'Plymouth Albion'},
+    {'name': 'Exeter Chiefs'},
+    {'name': 'Topsham'},
+    {'name': 'Topsham II'},
+    {'name': 'Topsham Colts'},
+    {'name': 'Camborne'},
+    {'name': 'Redruth'},
+    {'name': 'Exmouth'},
+    {'name': 'Barnstaple'},
+    {'name': 'Bideford'},
+    {'name': 'Ivybridge'},
+    {'name': 'Newton Abbot'},
+    {'name': 'Crediton'},
+    {'name': 'Okehampton'},
+    {'name': 'Sidmouth'},
+    {'name': 'Teignmouth'},
+    {'name': 'Tavistock'},
+    {'name': 'Tavistock II'},
+    {'name': 'Tavistock Colts'},
+    {'name': 'Paignton'},
+    {'name': 'Torquay Athletic'},
+    {'name': 'Richmond'},
+    {'name': 'Bath Rugby'},
+    {'name': 'Gloucester Rugby'},
+    {'name': 'Bristol Bears'},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -56,15 +90,27 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    // 1. Instant client-side match first
+    final qLower = trimmed.toLowerCase();
+    final localMatches = _localTeamDb
+        .where((t) => (t['name'] as String).toLowerCase().contains(qLower))
+        .toList();
 
-    _debounceTimer = Timer(const Duration(milliseconds: 200), () async {
+    setState(() {
+      _suggestions = localMatches;
+      _showMenu = localMatches.isNotEmpty;
+      _isLoading = true;
+    });
+
+    // 2. Fetch live suggestions from API
+    _debounceTimer = Timer(const Duration(milliseconds: 150), () async {
       final results = await ApiService.suggestTeams(trimmed);
       if (mounted) {
+        final combined = results.isNotEmpty ? results : localMatches;
         setState(() {
-          _suggestions = results;
+          _suggestions = combined;
           _isLoading = false;
-          _showMenu = results.isNotEmpty;
+          _showMenu = combined.isNotEmpty;
         });
       }
     });

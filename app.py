@@ -343,6 +343,8 @@ def api_export_csv():
     DataExporter.to_csv_standings(data, file_path)
     return send_file(file_path, as_attachment=True, download_name="rfu_standings.csv")
 
+from rfu_parser.teams_db import search_teams_fallback
+
 @app.route("/api/suggest-teams")
 @app.route("/suggest-teams")
 def suggest_teams():
@@ -360,19 +362,24 @@ def suggest_teams():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
+    items = []
     try:
-        r = requests.get(search_url, headers=headers, timeout=5)
+        r = requests.get(search_url, headers=headers, timeout=4)
         if r.status_code == 200:
             res_data = r.json()
             items = res_data.get("data", [])
-            items_sorted = sorted(items, key=lambda x: x.get("name", "").lower())
-            res_data["data"] = items_sorted
-            suggestions_cache.set(q, res_data)
-            return jsonify(res_data)
     except Exception as e:
         safe_print("Suggest teams error:", e)
 
-    return jsonify({"status": "error", "data": []})
+    if items:
+        items_sorted = sorted(items, key=lambda x: x.get("name", "").lower())
+        res = {"status": "success", "data": items_sorted}
+        suggestions_cache.set(q, res)
+        return jsonify(res)
+
+    # Instant fallback to local RFU teams DB
+    fallback_items = search_teams_fallback(q)
+    return jsonify({"status": "success", "data": fallback_items})
 
 
 if __name__ == "__main__":

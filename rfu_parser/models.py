@@ -19,7 +19,14 @@ class LeagueTableEntry:
     logo_url: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["loss_bonus"] = self.lose_bonus
+        d["pos"] = self.position
+        d["pts"] = self.points
+        d["pf"] = self.points_for
+        d["pa"] = self.points_against
+        d["pd"] = self.points_diff
+        return d
 
 @dataclass
 class LeagueTable:

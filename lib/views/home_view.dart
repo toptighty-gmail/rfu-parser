@@ -63,6 +63,7 @@ class _HomeViewState extends State<HomeView> {
 
   String _selectedDivision = 'ALL / Select Division';
   String _selectedSeason = '2025-2026';
+  String _activeTab = 'All'; // 'All', 'Standings', 'Fixtures'
   final TextEditingController _searchController = TextEditingController();
   
   bool _isLoading = false;
@@ -127,6 +128,40 @@ class _HomeViewState extends State<HomeView> {
         _isLoading = false;
       });
     }
+  }
+
+  Widget _buildTabButton(String tabId, String label, IconData icon) {
+    final isActive = _activeTab == tabId;
+    return InkWell(
+      onTap: () => setState(() => _activeTab = tabId),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppTheme.goldAccent : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isActive ? Colors.black : AppTheme.textMuted,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                color: isActive ? Colors.black : AppTheme.textMuted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -271,7 +306,7 @@ class _HomeViewState extends State<HomeView> {
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 24),
+                        margin: const EdgeInsets.only(bottom: 20),
                         decoration: AppTheme.glassBoxDecoration(),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -346,8 +381,41 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
 
-                      // Main Content Grid: Standings (Left) & Fixtures (Right)
-                      if (isDesktop)
+                      // View Selection Tab Toggle Bar
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.darkBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.cardBorder),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildTabButton('All', '⚡ Both Views', Icons.dashboard),
+                            const SizedBox(width: 4),
+                            _buildTabButton('Standings', '📊 League Standings', Icons.table_chart),
+                            const SizedBox(width: 4),
+                            _buildTabButton('Fixtures', '📅 Fixtures & Results', Icons.event),
+                          ],
+                        ),
+                      ),
+
+                      // Main Content Area (Conditional Tab View Rendering)
+                      if (_activeTab == 'Standings')
+                        StandingsTable(
+                          standings: _divisionData?.standings ?? [],
+                          highlightedTeam: _searchController.text.trim(),
+                        )
+                      else if (_activeTab == 'Fixtures')
+                        FixtureList(
+                          fixtures: _divisionData?.fixtures ?? [],
+                          isAdmin: _isAdmin,
+                          onEditFixture: (f) => _openAddFixtureDialog(existing: f),
+                          onDeleteFixture: _deleteFixture,
+                        )
+                      else if (isDesktop)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

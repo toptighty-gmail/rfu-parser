@@ -328,7 +328,7 @@ def api_export_csv():
 @app.route("/api/suggest-teams")
 def suggest_teams():
     q = request.args.get("q", "").strip().lower()
-    if len(q) < 3:
+    if len(q) < 2:
         return jsonify({"status": "success", "data": []})
 
     cached_res = suggestions_cache.get(q)

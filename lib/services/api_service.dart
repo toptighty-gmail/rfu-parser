@@ -53,7 +53,7 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> suggestTeams(String query) async {
-    if (query.trim().length < 3) return [];
+    if (query.trim().length < 2) return [];
     try {
       final uri = Uri.parse('$baseUrl/suggest-teams?q=${Uri.encodeComponent(query)}');
       final response = await http.get(uri).timeout(const Duration(seconds: 6));

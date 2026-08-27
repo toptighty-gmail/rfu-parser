@@ -107,11 +107,10 @@ class _HomeViewState extends State<HomeView> {
             _loadData();
           }
         },
-        searchController: _searchController,
-        onSearchSubmitted: () {
-          final q = _searchController.text.trim();
-          if (q.isNotEmpty) {
-            _loadData(queryTeam: q);
+        onTeamSelected: (selectedTeam) {
+          if (selectedTeam.trim().isNotEmpty) {
+            _searchController.text = selectedTeam;
+            _loadData(queryTeam: selectedTeam.trim());
           }
         },
         isAdmin: _isAdmin,

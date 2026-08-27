@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../config/app_config.dart';
 import '../theme/app_theme.dart';
+import 'team_search_autocomplete.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedDivision;
   final List<String> divisions;
   final ValueChanged<String?> onDivisionChanged;
-  final TextEditingController searchController;
-  final VoidCallback onSearchSubmitted;
+  final ValueChanged<String> onTeamSelected;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
   final VoidCallback onAddFixture;
@@ -20,8 +20,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.selectedDivision,
     required this.divisions,
     required this.onDivisionChanged,
-    required this.searchController,
-    required this.onSearchSubmitted,
+    required this.onTeamSelected,
     required this.isAdmin,
     required this.onAdminToggle,
     required this.onAddFixture,
@@ -40,7 +39,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceBg.withOpacity(0.95),
+        color: AppTheme.surfaceBg.withValues(alpha: 0.95),
         border: const Border(bottom: BorderSide(color: AppTheme.cardBorder, width: 1)),
       ),
       child: Row(
@@ -51,7 +50,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.goldAccent.withOpacity(0.15),
+                  color: AppTheme.goldAccent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 26),
@@ -76,9 +75,9 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.goldAccent.withOpacity(0.15),
+                          color: AppTheme.goldAccent.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.goldAccent.withOpacity(0.4), width: 1),
+                          border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.4), width: 1),
                         ),
                         child: const Text(
                           AppConfig.version,
@@ -101,7 +100,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           ),
           const SizedBox(width: 24),
 
-          // Division Dropdown Selector
+          // Division Dropdown Selector & Team Search Autocomplete
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -132,26 +131,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   const SizedBox(width: 16),
 
-                  // Search Bar for Team
-                  SizedBox(
-                    width: isDesktop ? 240 : 160,
-                    child: TextField(
-                      controller: searchController,
-                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'Search Team...',
-                        hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        fillColor: AppTheme.darkBg,
-                        filled: true,
-                        prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted, size: 18),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppTheme.cardBorder),
-                        ),
-                      ),
-                      onSubmitted: (_) => onSearchSubmitted(),
-                    ),
+                  // Real-Time Team Search Autocomplete Dropdown
+                  TeamSearchAutocomplete(
+                    width: isDesktop ? 260 : 180,
+                    onTeamSelected: onTeamSelected,
                   ),
                 ],
               ),

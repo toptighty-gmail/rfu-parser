@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/app_config.dart';
 import '../theme/app_theme.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
@@ -44,7 +45,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: Row(
         children: [
-          // Brand Logo / Title
+          // Brand Logo / Title & Version Badge
           Row(
             children: [
               Container(
@@ -60,17 +61,38 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'RFU HUB',
-                    style: TextStyle(
-                      fontSize: isDesktop ? 22 : 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                      color: AppTheme.goldAccent,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        AppConfig.appName,
+                        style: TextStyle(
+                          fontSize: isDesktop ? 20 : 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          color: AppTheme.goldAccent,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.goldAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppTheme.goldAccent.withOpacity(0.4), width: 1),
+                        ),
+                        child: const Text(
+                          AppConfig.version,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.goldAccent,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const Text(
-                    'Fixtures & Standings',
+                    AppConfig.appSubTitle,
                     style: TextStyle(fontSize: 11, color: AppTheme.textMuted),
                   ),
                 ],

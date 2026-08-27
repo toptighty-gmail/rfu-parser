@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, send_file, session
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, session
 from rfu_parser.scraper import RFUParser
 from rfu_parser.exporter import DataExporter
 from rfu_parser.storage import CustomFixtureStorage
@@ -44,8 +44,24 @@ rfu_parser = RFUParser()
 suggestions_cache = SimpleCache(ttl_seconds=3600)  # 1 hour
 crawl_cache = SimpleCache(ttl_seconds=600)        # 10 minutes
 
+FLUTTER_WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "web")
+
 @app.route("/")
 def index():
+    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
+        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
+    return render_template("index.html")
+
+@app.route("/<path:path>")
+def serve_flutter_static(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "API route not found"}), 404
+    full_path = os.path.join(FLUTTER_WEB_DIR, path)
+    if os.path.exists(full_path) and os.path.isfile(full_path):
+        return send_from_directory(FLUTTER_WEB_DIR, path)
+    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
+        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
+    return jsonify({"error": "Not found"}), 404
     url = request.args.get("url", "").strip()
     team = request.args.get("team", "").strip()
     season = request.args.get("season", "").strip()

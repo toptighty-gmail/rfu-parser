@@ -5,7 +5,7 @@ import '../models/division_data.dart';
 class ApiService {
   static Uri _buildUri(String path, [Map<String, String>? queryParams]) {
     final cleanPath = path.startsWith('/') ? path : '/$path';
-    return Uri.base.resolve('/api$cleanPath').replace(queryParameters: queryParams);
+    return Uri.base.resolve(cleanPath).replace(queryParameters: queryParams);
   }
 
   static Future<DivisionData?> fetchDivisionData({

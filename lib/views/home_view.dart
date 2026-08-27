@@ -12,6 +12,7 @@ import '../widgets/admin_dialog.dart';
 import '../widgets/add_fixture_dialog.dart';
 import '../widgets/logo_upload_dialog.dart';
 import '../widgets/teams_directory_dialog.dart';
+import '../widgets/divisions_directory_dialog.dart';
 import 'booklet_print_view.dart';
 import 'poster_print_view.dart';
 
@@ -172,14 +173,12 @@ class _HomeViewState extends State<HomeView> {
       appBar: Navbar(
         selectedDivision: _selectedDivision,
         divisions: _divisions,
-        onDivisionChanged: (newDiv) {
-          if (newDiv != null) {
-            setState(() {
-              _selectedDivision = newDiv;
-              _searchController.clear();
-            });
-            _loadData();
-          }
+        onDivisionSelected: (newDiv) {
+          setState(() {
+            _selectedDivision = newDiv;
+            _searchController.clear();
+          });
+          _loadData();
         },
         selectedSeason: _selectedSeason,
         seasons: _seasons,
@@ -201,7 +200,12 @@ class _HomeViewState extends State<HomeView> {
             _loadData(queryTeam: selectedTeam.trim());
           }
         },
+        onOpenDivisionsDirectory: _openDivisionsDirectory,
         onOpenTeamsDirectory: _openTeamsDirectory,
+        onParseLeague: () {
+          final queryTeam = _searchController.text.trim();
+          _loadData(queryTeam: queryTeam.isNotEmpty ? queryTeam : null);
+        },
         isAdmin: _isAdmin,
         onAdminToggle: _toggleAdmin,
         onAddFixture: _openAddFixtureDialog,
@@ -459,6 +463,23 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
             ),
+    );
+  }
+
+  void _openDivisionsDirectory() {
+    showDialog(
+      context: context,
+      builder: (_) => DivisionsDirectoryDialog(
+        divisions: _divisions,
+        selectedDivision: _selectedDivision,
+        onSelectDivision: (div) {
+          setState(() {
+            _selectedDivision = div;
+            _searchController.clear();
+          });
+          _loadData();
+        },
+      ),
     );
   }
 

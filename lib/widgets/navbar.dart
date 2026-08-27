@@ -5,37 +5,41 @@ import '../theme/app_theme.dart';
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedDivision;
   final List<String> divisions;
-  final ValueChanged<String?> onDivisionChanged;
+  final ValueChanged<String> onDivisionSelected;
   final String selectedSeason;
   final List<String> seasons;
   final ValueChanged<String?> onSeasonChanged;
   final String? searchedTeam;
   final ValueChanged<String> onTeamSelected;
+  final VoidCallback onOpenDivisionsDirectory;
+  final VoidCallback onOpenTeamsDirectory;
+  final VoidCallback onParseLeague;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
   final VoidCallback onAddFixture;
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
   final VoidCallback onOpenPosterPrint;
-  final VoidCallback onOpenTeamsDirectory;
 
   const Navbar({
     super.key,
     required this.selectedDivision,
     required this.divisions,
-    required this.onDivisionChanged,
+    required this.onDivisionSelected,
     required this.selectedSeason,
     required this.seasons,
     required this.onSeasonChanged,
     this.searchedTeam,
     required this.onTeamSelected,
+    required this.onOpenDivisionsDirectory,
+    required this.onOpenTeamsDirectory,
+    required this.onParseLeague,
     required this.isAdmin,
     required this.onAdminToggle,
     required this.onAddFixture,
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
     required this.onOpenPosterPrint,
-    required this.onOpenTeamsDirectory,
   });
 
   @override
@@ -45,6 +49,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
     final hasSearchedTeam = searchedTeam != null && searchedTeam!.trim().isNotEmpty;
+    final hasSelectedDivision = selectedDivision != 'ALL / Select Division';
 
     return Container(
       decoration: BoxDecoration(
@@ -117,35 +122,38 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(width: 20),
 
-                // Division Selector, Season Selector, & Team Search Button
+                // Division Selector, Season Selector, Team Search, & Parse Button
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        // Division Selector
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          decoration: BoxDecoration(
-                            color: AppTheme.darkBg,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppTheme.cardBorder),
+                        // Division Selection Button (Opens DivisionsDirectoryDialog)
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.darkBg,
+                            foregroundColor: hasSelectedDivision ? Colors.black : AppTheme.textPrimary,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            side: BorderSide(
+                              color: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.cardBorder,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: divisions.contains(selectedDivision) ? selectedDivision : (divisions.isNotEmpty ? divisions.first : null),
-                              dropdownColor: AppTheme.surfaceBg,
-                              icon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
-                              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
-                              items: divisions.map((div) {
-                                return DropdownMenuItem(
-                                  value: div,
-                                  child: Text(div),
-                                );
-                              }).toList(),
-                              onChanged: onDivisionChanged,
+                          icon: Icon(
+                            Icons.emoji_events,
+                            size: 18,
+                            color: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
+                          ),
+                          label: Text(
+                            hasSelectedDivision ? 'Div: $selectedDivision' : 'Select Division...',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: hasSelectedDivision ? Colors.black : AppTheme.textPrimary,
                             ),
                           ),
+                          onPressed: onOpenDivisionsDirectory,
                         ),
                         const SizedBox(width: 12),
 
@@ -175,7 +183,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         const SizedBox(width: 12),
 
-                        // Prominent Search RFU Team Modal Dialog Trigger Button
+                        // Search RFU Team Button (Opens TeamsDirectoryDialog)
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.darkBg,
@@ -201,6 +209,24 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                             ),
                           ),
                           onPressed: onOpenTeamsDirectory,
+                        ),
+                        const SizedBox(width: 12),
+
+                        // Explicit PARSE LEAGUE Action Button
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.goldAccent,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 4,
+                          ),
+                          icon: const Icon(Icons.play_arrow, size: 20, color: Colors.black),
+                          label: const Text(
+                            'PARSE LEAGUE',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.8),
+                          ),
+                          onPressed: onParseLeague,
                         ),
                       ],
                     ),

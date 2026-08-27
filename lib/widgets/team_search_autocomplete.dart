@@ -27,6 +27,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
   List<Map<String, dynamic>> _suggestions = [];
   bool _isLoading = false;
   bool _showMenu = false;
+  bool _isSelecting = false;
 
   static const List<Map<String, dynamic>> _localTeamDb = [
     {'name': 'Plymstock Oaks'},
@@ -79,6 +80,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
   }
 
   void _onQueryChanged(String query) {
+    if (_isSelecting) return;
     _debounceTimer?.cancel();
     final trimmed = query.trim();
     if (trimmed.length < 2) {
@@ -104,8 +106,9 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
 
     // 2. Fetch live suggestions from API
     _debounceTimer = Timer(const Duration(milliseconds: 150), () async {
+      if (_isSelecting) return;
       final results = await ApiService.suggestTeams(trimmed);
-      if (mounted) {
+      if (mounted && !_isSelecting) {
         final combined = results.isNotEmpty ? results : localMatches;
         setState(() {
           _suggestions = combined;
@@ -117,13 +120,17 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
   }
 
   void _selectTeam(String teamName) {
+    _isSelecting = true;
+    _debounceTimer?.cancel();
     _textController.text = teamName;
     setState(() {
-      _showMenu = false;
       _suggestions = [];
+      _showMenu = false;
+      _isLoading = false;
     });
     _focusNode.unfocus();
     widget.onTeamSelected(teamName);
+    Future.microtask(() => _isSelecting = false);
   }
 
   @override
@@ -185,7 +192,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
           ),
         ),
 
-        // Responsive Dropdown Menu with instant onTapDown handler
+        // Responsive Dropdown Menu with instant onTap handler
         if (_showMenu && _suggestions.isNotEmpty)
           Container(
             width: widget.width,

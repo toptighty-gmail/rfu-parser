@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+debug_log.txt
+
+# Environment & Secrets
+.env
+.env.local
+
+# Data storage local files
+custom_fixtures.json
+custom_logos.json
+*.csv
+output.json
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+ephemeral/
+.pub-cache/
+.pub/
+
+# IDE / System
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+Thumbs.db

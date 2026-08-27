@@ -1,0 +1,1226 @@
+:root {
+    --bg-dark: #0f172a;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --bg-card-border: rgba(255, 255, 255, 0.1);
+    --accent-green: #10b981;
+    --accent-emerald: #059669;
+    --accent-gold: #f59e0b;
+    --accent-blue: #3b82f6;
+    --accent-rose: #f43f5e;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* Header & Glass Navbar */
+header {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 2rem;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-badge {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.title-group h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.title-group p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--accent-green);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Control Bar & URL Scraper Form */
+.controls-card {
+    position: relative;
+    z-index: 50;
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.url-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.input-field {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.input-field:focus {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-emerald));
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bg-card-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.tab-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn.active {
+    background: var(--accent-green);
+    color: #ffffff;
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Sub-Tabs for Fixtures & Results Filter */
+.sub-tabs {
+    display: flex;
+    gap: 0.35rem;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--bg-card-border);
+}
+
+.sub-tab-btn {
+    padding: 0.4rem 1.1rem;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.sub-tab-btn:hover {
+    color: #ffffff;
+}
+
+.sub-tab-btn.active {
+    background: var(--accent-gold);
+    color: #0f172a;
+}
+
+/* Data Tables & Cards */
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 2rem;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th {
+    padding: 1rem 1.25rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--bg-card-border);
+}
+
+td {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+tbody tr {
+    transition: var(--transition);
+}
+
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Toggle hiding rule for Form column (13th column) */
+body.hide-form-column th:nth-child(13),
+body.hide-form-column td:nth-child(13) {
+    display: none !important;
+}
+
+.pos-badge {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.team-cell {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.pts-cell {
+    font-weight: 700;
+    color: var(--accent-green);
+    font-size: 1.05rem;
+}
+
+.form-badges {
+    display: flex;
+    gap: 4px;
+}
+
+.form-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.form-W { background: var(--accent-green); color: #ffffff; }
+.form-L { background: var(--accent-rose); color: #ffffff; }
+.form-D { background: var(--accent-gold); color: #000000; }
+
+/* Fixture Grid (Screen) - Redesigned to horizontal rows */
+.fixtures-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.fixture-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--bg-card-border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    transition: var(--transition);
+    gap: 1.5rem;
+}
+
+.fixture-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.fixture-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    width: 30%;
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.fixture-match {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 70%;
+    margin-bottom: 0;
+}
+
+.fixture-team {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #ffffff;
+    width: 40%;
+}
+
+.home { text-align: right; }
+.away { text-align: left; }
+
+.score-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--bg-card-border);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 700;
+    margin: 0 1.25rem;
+    color: var(--accent-gold);
+    min-width: 65px;
+    text-align: center;
+    font-size: 0.95rem;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Hide venue on screen to match print list spacing */
+.fixture-venue {
+    display: none;
+}
+
+/* Outcome color-coding for screen fixture cards (dark glassmorphic theme) */
+.fixture-card.win {
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-left: 5px solid var(--accent-green);
+    background: rgba(16, 185, 129, 0.06);
+}
+
+.fixture-card.loss {
+    border: 1px solid rgba(244, 63, 94, 0.25);
+    border-left: 5px solid var(--accent-rose);
+    background: rgba(244, 63, 94, 0.06);
+}
+
+.fixture-card.draw {
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 5px solid var(--accent-gold);
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.fixture-card.spotlight {
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-left: 5px solid var(--accent-gold);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.fixture-card:not(.win):not(.loss):not(.draw):not(.spotlight) {
+    border-left: 5px solid var(--text-muted);
+}
+
+.team-search-container {
+    position: relative;
+    z-index: 1100 !important;
+}
+
+.fixture-result-badge {
+    display: none;
+}
+
+.print-header {
+    display: none;
+}
+
+/* Autocomplete suggestion dropdown styling */
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #0f172a;
+    border: 1px solid var(--bg-card-border);
+    border-radius: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0 0;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+}
+.suggestions-list li {
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    transition: background 0.2s ease, color 0.2s ease;
+    text-align: left;
+}
+.suggestions-list li:hover {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-gold);
+}
+.suggestions-list li:last-child {
+    border-bottom: none;
+}
+
+.hidden,
+.js-hidden {
+    display: none !important;
+}
+
+.print-only-a4 {
+    display: none !important;
+}
+
+/* Print Styling for A3 Poster Outputs */
+@media print {
+    /* Hide all web-only headers, control panels, search filters, action buttons, and admin edit/delete controls */
+    header, 
+    .controls-card, 
+    .fixtures-header-row .sub-tabs, 
+    form, 
+    .btn, 
+    a.btn,
+    .status-badge,
+    .highlight-banner,
+    .fixture-venue,
+    .admin-fixture-actions,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        background-image: none !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 7.5pt !important;
+    }
+
+    .container {
+        display: block !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Convert print-grid to a 2-column landscape grid layout */
+    .print-grid {
+        display: grid !important;
+        grid-template-columns: 44% 53% !important;
+        gap: 3% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Elegant Print Header with Logo */
+    .print-header {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 1.25rem !important;
+        margin-bottom: 0.5cm !important;
+        border-bottom: 3px double #0f172a !important;
+        padding-bottom: 0.4rem !important;
+    }
+    .print-logo {
+        display: block !important;
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 6px !important;
+        border: 1px solid #cbd5e1 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .print-title-text {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+    }
+    .print-header h1.print-spotlight {
+        font-size: 1.5rem !important;
+        font-weight: 900 !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        letter-spacing: 0.5px !important;
+        line-height: 1.1 !important;
+        border: none !important;
+        padding-bottom: 0 !important;
+        text-transform: uppercase !important;
+    }
+    .print-header h2.print-division {
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        color: #334155 !important;
+        margin: 0.1rem 0 0 0 !important;
+        border: none !important;
+        padding-bottom: 0 !important;
+    }
+    .print-header h3.print-season {
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        margin: 0.05rem 0 0 0 !important;
+    }
+
+    /* Format Standings & Fixtures side-by-side as clean modern cards */
+    #standings-section, 
+    #fixtures-section {
+        display: block !important;
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
+        padding: 0.85rem !important;
+        border-radius: 8px !important;
+        height: max-content !important;
+    }
+
+    /* Force all standings rows to show in print (even if hidden by JS filter on-screen) */
+    #standings-body tr,
+    #standings-body tr.js-hidden {
+        display: table-row !important;
+    }
+
+    #standings-body tr:nth-child(even) {
+        background-color: #f8fafc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Adjust typography colors for printing */
+    h2 {
+        color: #0f172a !important;
+        border-bottom: 1.5px solid #0f172a !important;
+        padding-bottom: 0.25rem !important;
+        margin-top: 0 !important;
+        margin-bottom: 0.5rem !important;
+        font-size: 0.95rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+
+    th {
+        border-bottom: 2px solid #0f172a !important;
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+        font-weight: 700 !important;
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.7rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    td {
+        border-bottom: 1px solid #e2e8f0 !important;
+        color: #1e293b !important;
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* High-contrast highlight for target team row */
+    tr[style*="background"] {
+        background-color: #fef3c7 !important;
+        color: #92400e !important;
+        font-weight: 700 !important;
+        border-left: 5px solid #d97706 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Form Dot Badge Printing */
+    .form-badges {
+        display: flex !important;
+        gap: 2px !important;
+    }
+
+    .form-dot {
+        display: inline-block !important;
+        width: 13px !important;
+        height: 13px !important;
+        line-height: 13px !important;
+        text-align: center !important;
+        font-size: 7px !important;
+        font-weight: 700 !important;
+        border-radius: 50% !important;
+        color: #ffffff !important;
+    }
+
+    .form-W { background-color: #16a34a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .form-D { background-color: #ca8a04 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .form-L { background-color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* Fixtures layout styling - compact single-line flow */
+    .round-group {
+        page-break-inside: avoid;
+        margin-bottom: 0.15rem !important;
+    }
+
+    /* Hide the h3 round headers if we show rounds inside the line card */
+    .round-group h3.round-title {
+        display: none !important;
+    }
+
+    .fixtures-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    .fixture-card {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        padding: 0.25rem 0.5rem !important;
+        page-break-inside: avoid;
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .fixture-card:nth-child(even) {
+        background-color: #f8fafc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Special border highlight if it is the target team's card */
+    .fixture-card[style*="border"] {
+        border-left: 4px solid #d97706 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        background-color: #fffbef !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .fixture-header {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        margin: 0 !important;
+        font-size: 0.65rem !important;
+        color: #64748b !important;
+        min-width: 140px !important;
+        border: none !important;
+        padding: 0 !important;
+        font-weight: 500 !important;
+    }
+
+    .fixture-match {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        margin: 0 !important;
+        flex: 1 !important;
+    }
+
+    .fixture-team {
+        font-size: 0.75rem !important;
+    }
+
+    .fixture-team.home {
+        text-align: right !important;
+        width: 130px !important;
+        color: #334155 !important;
+    }
+
+    .fixture-team.away {
+        text-align: left !important;
+        width: 130px !important;
+        color: #334155 !important;
+    }
+
+    .score-badge {
+        border: 1px solid #cbd5e1 !important;
+        background: #f1f5f9 !important;
+        padding: 0.05rem 0.2rem !important;
+        min-width: 45px !important;
+        font-size: 0.75rem !important;
+        margin: 0 0.5rem !important;
+        border-radius: 4px !important;
+        text-align: center !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Page size configurations */
+    @page {
+        size: auto;
+        margin: 10mm;
+    }
+
+    body.print-mode-a4 {
+        font-size: 8.5pt !important;
+        padding: 5mm !important;
+    }
+    
+    body.print-mode-a4 .print-grid {
+        display: block !important;
+        float: none !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Mobile & A4 Print Mode Page Breaks */
+    @media print and (max-width: 768px) {
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+        
+        #standings-section {
+            display: block !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            break-after: always !important;
+            margin-bottom: 1cm !important;
+        }
+
+        #fixtures-section {
+            display: block !important;
+            page-break-before: always !important;
+            break-before: page !important;
+            break-before: always !important;
+            margin-top: 0 !important;
+        }
+
+        .mobile-print-break {
+            display: block !important;
+            clear: both !important;
+            page-break-before: always !important;
+            break-before: page !important;
+        }
+    }
+
+    /* Standard Print Mode (PC / A3 Poster): natural flow without unwanted page breaks */
+    body:not(.print-mode-a4):not(.print-mobile) .mobile-print-break {
+        display: none !important;
+    }
+
+    /* A4 Booklet Mode: Enforce clean page split */
+    body.print-mode-a4 #standings-section {
+        display: block !important;
+        clear: both !important;
+        float: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        break-after: always !important;
+        height: auto !important;
+        margin-bottom: 1.5cm !important;
+        width: 100% !important;
+        background: #ffffff !important;
+    }
+    
+    body.print-mode-a4 #fixtures-section {
+        display: block !important;
+        clear: both !important;
+        float: none !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        break-before: always !important;
+        height: auto !important;
+        margin-top: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+    }
+
+    body.print-mode-a4 .mobile-print-break {
+        display: block !important;
+        clear: both !important;
+        float: none !important;
+        position: static !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        break-before: always !important;
+    }
+
+    /* Prevent trailing blank pages across all print engines */
+    html, body {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+
+    *:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Cover Page Header with Compact Poster-style Badge Prominence */
+    body.print-mode-a4 .print-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+        padding-bottom: 0.8rem !important;
+        margin-bottom: 0.8rem !important;
+        gap: 0.4rem !important;
+    }
+    
+    body.print-mode-a4 .print-logo {
+        width: 90px !important;
+        height: 90px !important;
+        border-radius: 50% !important;
+        border: 3px solid #d97706 !important;
+        margin-bottom: 0.3rem !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+    }
+    
+    body.print-mode-a4 .print-title-text {
+        align-items: center !important;
+    }
+    
+    body.print-mode-a4 .print-header h1.print-spotlight {
+        font-size: 1.8rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 1px !important;
+        color: #0f172a !important;
+        margin-bottom: 0.2rem !important;
+    }
+
+    body.print-mode-a4 .print-header h2.print-division {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        margin-bottom: 0.15rem !important;
+    }
+
+    body.print-mode-a4 .print-header h3.print-season {
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        color: #64748b !important;
+    }
+
+    /* Hide vertical spacing round headers to collapse list into flat layout */
+    body.print-mode-a4 .round-title {
+        display: none !important;
+    }
+    body.print-mode-a4 .round-group {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Standings Table fit-to-page without scrollbars or overflow issues */
+    body.print-mode-a4 .table-wrapper {
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    body.print-mode-a4 th {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 4px 6px !important;
+        border: none !important;
+        font-size: 7.5pt !important;
+    }
+    
+    body.print-mode-a4 td {
+        padding: 4px 6px !important;
+        font-size: 7.5pt !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+    
+    body.print-mode-a4 tr[style*="background"] {
+        background-color: #fffbeb !important;
+        color: #92400e !important;
+        border-left: 6px solid #d97706 !important;
+        font-weight: 700 !important;
+    }
+
+    body.print-mode-a4 .form-dot {
+        width: 14px !important;
+        height: 14px !important;
+        font-size: 6.5pt !important;
+        line-height: 14px !important;
+        margin: 0 1px !important;
+        border-radius: 3px !important;
+    }
+
+    /* Full-width Horizontal Match Cards List Layout */
+    body.print-mode-a4 .fixtures-grid {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    body.print-mode-a4 .fixture-card {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 4px !important;
+        padding: 4px 10px !important;
+        margin-bottom: 3px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body.print-mode-a4 .fixture-header {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        width: 35% !important;
+        font-size: 6pt !important; /* Brought down to prevent wrapping */
+        color: #475569 !important;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        font-weight: 600 !important;
+        min-width: unset !important;
+        white-space: nowrap !important;
+    }
+
+    body.print-mode-a4 .fixture-header span {
+        white-space: nowrap !important;
+    }
+
+    body.print-mode-a4 .fixture-match {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 65% !important; /* Takes all remaining width for team names */
+        margin: 0 !important;
+    }
+
+    body.print-mode-a4 .fixture-team {
+        font-size: 7.5pt !important;
+        font-weight: 500 !important;
+        color: #1e293b !important;
+        width: 40% !important;
+    }
+
+    body.print-mode-a4 .fixture-team.home {
+        text-align: right !important;
+        width: 40% !important;
+    }
+
+    body.print-mode-a4 .fixture-team.away {
+        text-align: left !important;
+        width: 40% !important;
+    }
+
+    body.print-mode-a4 .fixture-team[style*="color"] {
+        font-weight: 700 !important;
+        color: #b45309 !important; /* Rich gold highlight */
+    }
+
+    body.print-mode-a4 .score-badge {
+        border: 1px solid #cbd5e1 !important;
+        background: #e2e8f0 !important;
+        padding: 1px 6px !important;
+        width: 54px !important;
+        min-width: 54px !important;
+        font-size: 7.5pt !important;
+        margin: 0 8px !important;
+        border-radius: 4px !important;
+        text-align: center !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+
+
+    /* Outcome row coloring */
+    body.print-mode-a4 .fixture-card.win {
+        border: 1px solid #16a34a !important;
+        border-left: 5px solid #16a34a !important;
+        background-color: #f0fdf4 !important;
+    }
+
+    body.print-mode-a4 .fixture-card.loss {
+        border: 1px solid #dc2626 !important;
+        border-left: 5px solid #dc2626 !important;
+        background-color: #fef2f2 !important;
+    }
+
+    body.print-mode-a4 .fixture-card.draw {
+        border: 1px solid #ca8a04 !important;
+        border-left: 5px solid #ca8a04 !important;
+        background-color: #fef9c3 !important;
+    }
+
+    body.print-mode-a4 .fixture-card.spotlight {
+        border: 1px solid #ca8a04 !important;
+        border-left: 5px solid #ca8a04 !important;
+        background-color: #fef9c3 !important;
+    }
+
+    body.print-mode-a4 .fixture-card:not(.win):not(.loss):not(.draw):not(.spotlight) {
+        border: 1px solid #cbd5e1 !important;
+        border-left: 5px solid #94a3b8 !important;
+        background-color: #f8fafc !important;
+    }
+
+    /* Compact fixture card dimensions for A4 print mode */
+    body.print-mode-a4 .fixture-card {
+        padding: 0.35rem 0.6rem !important;
+        margin-bottom: 0.35rem !important;
+        min-height: auto !important;
+        box-shadow: none !important;
+    }
+    body.print-mode-a4 .fixture-header {
+        font-size: 7.5pt !important;
+        margin-bottom: 0.15rem !important;
+    }
+    body.print-mode-a4 .fixture-team {
+        font-size: 8pt !important;
+    }
+    body.print-mode-a4 .score-badge {
+        padding: 0.2rem 0.65rem !important;
+        font-size: 8.5pt !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        min-width: max-content !important;
+        margin: 0 0.5rem !important;
+    }
+    body.print-mode-a4 .round-group {
+        margin-bottom: 0.75rem !important;
+    }
+    body.print-mode-a4 .round-title {
+        font-size: 9.5pt !important;
+        margin-bottom: 0.35rem !important;
+        padding-bottom: 0.15rem !important;
+    }
+
+    /* Enforce JS hidden state in print mode to solve the duplicate team cards bug */
+    .js-hidden,
+    body.print-mode-a4 .js-hidden,
+    body.print-mode-a3 .js-hidden {
+        display: none !important;
+    }
+
+    body.print-mode-a4 td.team-cell {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+    }
+    
+    body.print-mode-a4 td.team-cell img {
+        width: 16px !important;
+        height: 16px !important;
+        margin-right: 4px !important;
+    }
+}
+
+/* Modal Overlay & Dialog Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-card {
+    background: #1e293b;
+    border: 1px solid var(--bg-card-border);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.75rem;
+}
+
+.close-modal-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.close-modal-btn:hover {
+    color: var(--accent-rose);
+}

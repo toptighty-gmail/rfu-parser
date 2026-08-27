@@ -64,7 +64,7 @@ class _HomeViewState extends State<HomeView> {
 
   String _selectedDivision = 'ALL / Select Division';
   String _selectedSeason = '2025-2026';
-  String _activeTab = 'All'; // 'All', 'Standings', 'Fixtures'
+  String _activeTab = 'Standings'; // 'Standings', 'Fixtures'
   final TextEditingController _searchController = TextEditingController();
   
   bool _isLoading = false;
@@ -126,6 +126,10 @@ class _HomeViewState extends State<HomeView> {
     if (mounted) {
       setState(() {
         _divisionData = data;
+        // Highlight crawled division name in header division selector as well
+        if (data != null && data.divisionName.isNotEmpty && data.divisionName != 'RFU Leagues') {
+          _selectedDivision = data.divisionName;
+        }
         _isLoading = false;
       });
     }
@@ -137,7 +141,7 @@ class _HomeViewState extends State<HomeView> {
       onTap: () => setState(() => _activeTab = tabId),
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? AppTheme.goldAccent : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -150,7 +154,7 @@ class _HomeViewState extends State<HomeView> {
               size: 16,
               color: isActive ? Colors.black : AppTheme.textMuted,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
@@ -194,7 +198,6 @@ class _HomeViewState extends State<HomeView> {
         onTeamSelected: (selectedTeam) {
           if (selectedTeam.trim().isNotEmpty) {
             setState(() {
-              _selectedDivision = 'ALL / Select Division';
               _searchController.text = selectedTeam;
             });
             _loadData(queryTeam: selectedTeam.trim());
@@ -385,7 +388,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
 
-                      // View Selection Tab Toggle Bar
+                      // View Selection 2-Tab Bar (Standings vs Fixtures)
                       Container(
                         margin: const EdgeInsets.only(bottom: 20),
                         padding: const EdgeInsets.all(4),
@@ -397,8 +400,6 @@ class _HomeViewState extends State<HomeView> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildTabButton('All', '⚡ Both Views', Icons.dashboard),
-                            const SizedBox(width: 4),
                             _buildTabButton('Standings', '📊 League Standings', Icons.table_chart),
                             const SizedBox(width: 4),
                             _buildTabButton('Fixtures', '📅 Fixtures & Results', Icons.event),
@@ -406,57 +407,24 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
 
-                      // Main Content Area (Conditional Tab View Rendering)
-                      if (_activeTab == 'Standings')
-                        StandingsTable(
-                          standings: _divisionData?.standings ?? [],
-                          highlightedTeam: _searchController.text.trim(),
-                        )
-                      else if (_activeTab == 'Fixtures')
-                        FixtureList(
-                          fixtures: _divisionData?.fixtures ?? [],
-                          isAdmin: _isAdmin,
-                          onEditFixture: (f) => _openAddFixtureDialog(existing: f),
-                          onDeleteFixture: _deleteFixture,
-                        )
-                      else if (isDesktop)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: StandingsTable(
-                                standings: _divisionData?.standings ?? [],
-                                highlightedTeam: _searchController.text.trim(),
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              flex: 6,
-                              child: FixtureList(
-                                fixtures: _divisionData?.fixtures ?? [],
-                                isAdmin: _isAdmin,
-                                onEditFixture: (f) => _openAddFixtureDialog(existing: f),
-                                onDeleteFixture: _deleteFixture,
-                              ),
-                            ),
-                          ],
+                      // Main Content Area (100% Full Width Rendering per Tab)
+                      if (_activeTab == 'Fixtures')
+                        SizedBox(
+                          width: double.infinity,
+                          child: FixtureList(
+                            fixtures: _divisionData?.fixtures ?? [],
+                            isAdmin: _isAdmin,
+                            onEditFixture: (f) => _openAddFixtureDialog(existing: f),
+                            onDeleteFixture: _deleteFixture,
+                          ),
                         )
                       else
-                        Column(
-                          children: [
-                            StandingsTable(
-                              standings: _divisionData?.standings ?? [],
-                              highlightedTeam: _searchController.text.trim(),
-                            ),
-                            const SizedBox(height: 24),
-                            FixtureList(
-                              fixtures: _divisionData?.fixtures ?? [],
-                              isAdmin: _isAdmin,
-                              onEditFixture: (f) => _openAddFixtureDialog(existing: f),
-                              onDeleteFixture: _deleteFixture,
-                            ),
-                          ],
+                        SizedBox(
+                          width: double.infinity,
+                          child: StandingsTable(
+                            standings: _divisionData?.standings ?? [],
+                            highlightedTeam: _searchController.text.trim(),
+                          ),
                         ),
                     ],
                   ),
@@ -489,7 +457,6 @@ class _HomeViewState extends State<HomeView> {
       builder: (_) => TeamsDirectoryDialog(
         onSelectTeam: (team) {
           setState(() {
-            _selectedDivision = 'ALL / Select Division';
             _searchController.text = team;
           });
           _loadData(queryTeam: team);

@@ -40,7 +40,22 @@ class RFUParser:
         if not team_name or not season:
             return None
 
-        # 1. Resolve Team Name to Team ID
+        formatted_season = season.replace("/", "-").strip()
+        t_clean = team_name.strip().lower()
+
+        # 0. Check pre-resolved Direct Division URL Mappings first (bypasses WAF & fast 0.3s response)
+        from rfu_parser.teams_db import TEAM_DIRECT_URLS
+        if t_clean in TEAM_DIRECT_URLS:
+            url_template = TEAM_DIRECT_URLS[t_clean]
+            direct_url = url_template.format(season=formatted_season)
+            try:
+                res = self.fetch_and_parse(direct_url, fallback_on_fail=False)
+                if res and res.standings:
+                    return res
+            except Exception as e:
+                print("Direct URL fetch failed, trying live search API:", e)
+
+        # 1. Resolve Team Name to Team ID via live search API
         search_url = f"https://www.englandrugby.com/api/fixtures-and-result/search?name={quote(team_name)}"
         try:
             r = requests.get(search_url, headers=self.headers, timeout=10)

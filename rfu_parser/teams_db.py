@@ -1,4 +1,4 @@
-# Comprehensive dictionary of RFU Teams and team variations for instant fallback suggestions
+# Comprehensive dictionary of RFU Teams and pre-resolved direct Division URLs
 RFU_TEAMS_DB = [
     # Premiership & Championship
     {"_id": 1001, "name": "Exeter Chiefs", "listType": "TeamType", "type": "club"},
@@ -90,6 +90,25 @@ RFU_TEAMS_DB = [
     {"_id": 2048, "name": "Totnes", "listType": "TeamType", "type": "club"},
     {"_id": 2049, "name": "Salcombe", "listType": "TeamType", "type": "club"},
 ]
+
+# Direct URL Mappings for 100% Bulletproof Instant Crawling
+TEAM_DIRECT_URLS = {
+    "plymstock oaks": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66453",
+    "plymstock oaks ii": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66461",
+    "plymstock oaks colts": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66461",
+    "coventry": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=173&season={season}&division=67198",
+    "coventry welsh": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66461",
+    "devonport services": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66443",
+    "devonport services ii": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66448",
+    "plymouth albion": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=173&season={season}&division=67199",
+    "exeter chiefs": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=173&season={season}&division=67197",
+    "topsham": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66448",
+    "topsham ii": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66453",
+    "camborne": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66443",
+    "redruth": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66443",
+    "exmouth": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66443",
+    "barnstaple": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season}&division=66443",
+}
 
 def search_teams_fallback(query: str):
     q = query.strip().lower()

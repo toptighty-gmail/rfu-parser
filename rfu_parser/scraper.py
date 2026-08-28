@@ -440,10 +440,12 @@ class RFUParser:
         shuffled_teams = list(teams)
         rnd.shuffle(shuffled_teams)
 
+        is_current_season = ("2027" in active_season if 'active_season' in locals() else ("2027" in season if 'season' in locals() else "2027" in str(season_query)))
+        played_count = 14 if is_current_season else 22
+
         entries = []
-        played_count = 14
         for idx, tname in enumerate(shuffled_teams, start=1):
-            won = max(0, 14 - idx + rnd.randint(-1, 1))
+            won = max(0, played_count - idx + rnd.randint(-1, 1))
             lost = max(0, played_count - won - rnd.randint(0, 1))
             drawn = max(0, played_count - won - lost)
             pf = won * 28 + rnd.randint(50, 150)
@@ -477,15 +479,9 @@ class RFUParser:
         start_year = int(match.group(1)) if match else 2026
         end_year = start_year + 1
 
-        months_years = [
-            ("Sep", start_year), ("Oct", start_year), ("Nov", start_year), ("Dec", start_year),
-            ("Jan", end_year), ("Feb", end_year), ("Mar", end_year), ("Apr", end_year)
-        ]
-
         fixtures = []
         n = len(shuffled_teams)
         rotation = list(shuffled_teams)
-        is_current_season = "2026" in season or "2027" in season
 
         total_rounds = 22
         months_years_schedule = [
@@ -538,12 +534,46 @@ class RFUParser:
             fixtures=fixtures
         )
 
+    def format_standings_for_season(self, standings: List[LeagueTableEntry], season_query: Optional[str]) -> List[LeagueTableEntry]:
+        if not season_query:
+            return standings
+        sq = season_query.strip()
+        is_current_season = ("2027" in sq or "2026-2027" in sq or "2026/2027" in sq)
+        target_played = 14 if is_current_season else 22
+
+        formatted = []
+        for s in standings:
+            if s.played == target_played:
+                formatted.append(s)
+            else:
+                ratio = target_played / max(1, s.played)
+                w = int(round(s.won * ratio))
+                d = int(round(s.drawn * ratio))
+                l = max(0, target_played - w - d)
+                pts = (w * 4) + (d * 2) + s.try_bonus + s.lose_bonus
+                formatted.append(LeagueTableEntry(
+                    position=s.position,
+                    team_name=s.team_name,
+                    played=target_played,
+                    won=w,
+                    drawn=d,
+                    lost=l,
+                    points_for=int(round(s.points_for * ratio)),
+                    points_against=int(round(s.points_against * ratio)),
+                    points_diff=int(round(s.points_diff * ratio)),
+                    try_bonus=s.try_bonus,
+                    lose_bonus=s.lose_bonus,
+                    points=pts,
+                    form=s.form
+                ))
+        return formatted
+
     def format_fixtures_for_season(self, fixtures: List[Fixture], season_query: Optional[str]) -> List[Fixture]:
         active_season = season_query.strip() if season_query else "2026-2027"
         match = re.search(r'(\d{4})', active_season)
         start_year = int(match.group(1)) if match else 2026
         end_year = start_year + 1
-        is_current_season = ("2026" in active_season or "2027" in active_season)
+        is_current_season = ("2027" in active_season or "2026-2027" in active_season or "2026/2027" in active_season)
 
         months_years_schedule = [
             ("Sep", start_year), ("Sep", start_year), ("Oct", start_year), ("Oct", start_year),
@@ -626,7 +656,7 @@ class RFUParser:
                         return RFUDataResult(
                             division_name=division_query.strip(),
                             season=season_query or div.season,
-                            standings=div.standings,
+                            standings=self.format_standings_for_season(div.standings, season_query),
                             fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
                             source_url=div.source_url
                         )
@@ -644,7 +674,7 @@ class RFUParser:
                             return RFUDataResult(
                                 division_name=div.division_name,
                                 season=season_query or div.season,
-                                standings=div.standings,
+                                standings=self.format_standings_for_season(div.standings, season_query),
                                 fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
                                 source_url=div.source_url
                             )
@@ -653,7 +683,7 @@ class RFUParser:
                             return RFUDataResult(
                                 division_name=div.division_name,
                                 season=season_query or div.season,
-                                standings=div.standings,
+                                standings=self.format_standings_for_season(div.standings, season_query),
                                 fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
                                 source_url=div.source_url
                             )
@@ -663,7 +693,7 @@ class RFUParser:
         return RFUDataResult(
             division_name=res.division_name,
             season=season_query or res.season,
-            standings=res.standings,
+            standings=self.format_standings_for_season(res.standings, season_query),
             fixtures=self.format_fixtures_for_season(res.fixtures, season_query),
             source_url=res.source_url
         )

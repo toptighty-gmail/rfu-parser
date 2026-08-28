@@ -815,3 +815,164 @@ class RFUParser:
                         else:
                             form_chars.append("D")
                 entry.form = "".join(form_chars)
+
+    def fetch_live_rfu_web_data(self, division_name: Optional[str] = None, season: Optional[str] = None) -> RFUDataResult:
+        """Crawl live RFU website directly from England Rugby servers for live standings and fixtures."""
+        div_clean = (division_name or "").strip().lower()
+        season_str = (season or "2026-2027").strip().replace("/", "-")
+
+        # Map known division IDs on RFU site
+        rfu_division_ids = {
+            "counties 2": "75799",
+            "counties 2 tribute ale devon": "75799",
+            "counties 2 devon": "75799",
+            "counties 1": "66453",
+            "counties 1 tribute ale western west": "66453",
+            "counties 1 western west": "66453",
+            "regional 1": "66440",
+            "regional 1 south east": "66440",
+            "regional 2": "66445",
+            "regional 2 tribute south west": "66445",
+            "national 1": "66430",
+            "premiership": "68225",
+            "gallagher premiership": "68225"
+        }
+
+        div_id = None
+        for key, id_val in rfu_division_ids.items():
+            if key in div_clean:
+                div_id = id_val
+                break
+
+        if not div_id:
+            # Fallback map lookup by tier
+            tier = self.get_tier_key(div_clean)
+            div_id = rfu_division_ids.get(tier, "75799")
+
+        url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season_str}&division={div_id}"
+
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+            )
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status == 200:
+                    html_bytes = resp.read()
+                    html_str = html_bytes.decode('utf-8', errors='ignore')
+                    parsed = self.parse_html(html_str, url)
+                    if parsed and parsed.standings:
+                        parsed.season = season_str
+                        parsed.standings = self.format_standings_for_season(parsed.standings, season_str)
+                        parsed.fixtures = self.format_fixtures_for_season(parsed.fixtures, season_str)
+                        return parsed
+        except Exception as e:
+            logger.warning(f"Live crawling attempt for {url} failed: {e}. Falling back to sample data.")
+
+        return self.get_sample_data(division_query=division_name, season_query=season_str)
+
+    def sync_result_to_supabase(self, result: RFUDataResult, supabase_url: str, supabase_key: str) -> bool:
+        """Upsert live parsed division, standings, and fixtures into Supabase database tables."""
+        if not supabase_url or not supabase_key or "your-supabase-project" in supabase_url:
+            return False
+
+        headers = {
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
+            "Content-Type": "application/json",
+            "Prefer": "resolution=merge-duplicates"
+        }
+
+        base_endpoint = supabase_url.rstrip('/') + "/rest/v1"
+
+        try:
+            # 1. Upsert Division
+            div_payload = [{
+                "division_name": result.division_name,
+                "season": result.season,
+                "source_url": result.source_url or ""
+            }]
+            div_req = urllib.request.Request(
+                f"{base_endpoint}/divisions?on_conflict=division_name,season",
+                data=json.dumps(div_payload).encode('utf-8'),
+                headers=headers,
+                method="POST"
+            )
+            with urllib.request.urlopen(div_req, timeout=8) as resp:
+                pass
+
+            # Fetch division_id
+            get_div_req = urllib.request.Request(
+                f"{base_endpoint}/divisions?division_name=eq.{urllib.parse.quote(result.division_name)}&season=eq.{urllib.parse.quote(result.season)}&select=id",
+                headers=headers
+            )
+            division_id = None
+            with urllib.request.urlopen(get_div_req, timeout=8) as resp:
+                rows = json.loads(resp.read().decode('utf-8'))
+                if rows:
+                    division_id = rows[0].get("id")
+
+            if not division_id:
+                return False
+
+            # 2. Upsert Standings
+            if result.standings:
+                standings_payload = []
+                for s in result.standings:
+                    standings_payload.append({
+                        "division_id": division_id,
+                        "position": s.position,
+                        "team_name": s.team_name,
+                        "played": s.played,
+                        "won": s.won,
+                        "drawn": s.drawn,
+                        "lost": s.lost,
+                        "points_for": s.points_for,
+                        "points_against": s.points_against,
+                        "points_diff": s.points_diff,
+                        "try_bonus": s.try_bonus,
+                        "lose_bonus": s.lose_bonus,
+                        "points": s.points,
+                        "form": s.form or ""
+                    })
+                st_req = urllib.request.Request(
+                    f"{base_endpoint}/standings?on_conflict=division_id,team_name",
+                    data=json.dumps(standings_payload).encode('utf-8'),
+                    headers=headers,
+                    method="POST"
+                )
+                with urllib.request.urlopen(st_req, timeout=8) as resp:
+                    pass
+
+            # 3. Upsert Fixtures
+            if result.fixtures:
+                fixtures_payload = []
+                for f in result.fixtures:
+                    fixtures_payload.append({
+                        "division_id": division_id,
+                        "date": f.date,
+                        "time": f.time or "15:00",
+                        "home_team": f.home_team,
+                        "away_team": f.away_team,
+                        "home_score": f.home_score,
+                        "away_score": f.away_score,
+                        "status": f.status or "Scheduled",
+                        "venue": f.venue or "",
+                        "round_num": f.round_num or "",
+                        "is_custom": f.is_custom
+                    })
+                fix_req = urllib.request.Request(
+                    f"{base_endpoint}/fixtures?on_conflict=division_id,home_team,away_team,round_num",
+                    data=json.dumps(fixtures_payload).encode('utf-8'),
+                    headers=headers,
+                    method="POST"
+                )
+                with urllib.request.urlopen(fix_req, timeout=8) as resp:
+                    pass
+
+            logger.info(f"Successfully synced {result.division_name} ({result.season}) to Supabase DB.")
+            return True
+        except Exception as e:
+            logger.warning(f"Error syncing {result.division_name} to Supabase: {e}")
+            return False
+

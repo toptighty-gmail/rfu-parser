@@ -107,8 +107,15 @@ class _HomeViewState extends State<HomeView> {
     final targetDivision = hasDivision ? _selectedDivision : null;
     final targetTeam = hasTeam ? team : null;
 
-    // 1. Fetch live or sample data from Python scraper API for selected season
-    DivisionData? data = await ApiService.fetchDivisionData(
+    // 1. Crawl live RFU web data directly from England Rugby site & upsert into Supabase database
+    DivisionData? data = await ApiService.crawlAndSyncLiveRFUData(
+      division: targetTeam == null ? targetDivision : null,
+      team: targetTeam,
+      season: _selectedSeason,
+    );
+
+    // Fallback to parse endpoint if live crawl is still completing
+    data ??= await ApiService.fetchDivisionData(
       division: targetTeam == null ? targetDivision : null,
       team: targetTeam,
       season: _selectedSeason,

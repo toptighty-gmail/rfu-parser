@@ -77,6 +77,80 @@ CREATE POLICY "Public Upload Access for Team Logos"
 ON storage.objects FOR INSERT
 WITH CHECK (bucket_id = 'team-logos');
 
+-- Public Update/Delete Access for Team Logos
 CREATE POLICY "Public Update/Delete Access for Team Logos"
 ON storage.objects FOR UPDATE
 USING (bucket_id = 'team-logos');
+
+
+-- =====================================================================
+-- 4. Live RFU Relational Tables (Divisions, Standings, Fixtures)
+-- =====================================================================
+
+-- Divisions Table
+CREATE TABLE IF NOT EXISTS public.divisions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    division_name TEXT NOT NULL,
+    season TEXT NOT NULL,
+    source_url TEXT DEFAULT '',
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(division_name, season)
+);
+
+CREATE INDEX IF NOT EXISTS idx_divisions_name_season ON public.divisions(division_name, season);
+ALTER TABLE public.divisions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to divisions" ON public.divisions FOR SELECT USING (true);
+CREATE POLICY "Allow public write access to divisions" ON public.divisions FOR ALL USING (true) WITH CHECK (true);
+
+-- Standings Table
+CREATE TABLE IF NOT EXISTS public.standings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    division_id UUID REFERENCES public.divisions(id) ON DELETE CASCADE,
+    position INT NOT NULL,
+    team_name TEXT NOT NULL,
+    played INT DEFAULT 0,
+    won INT DEFAULT 0,
+    drawn INT DEFAULT 0,
+    lost INT DEFAULT 0,
+    points_for INT DEFAULT 0,
+    points_against INT DEFAULT 0,
+    points_diff INT DEFAULT 0,
+    try_bonus INT DEFAULT 0,
+    lose_bonus INT DEFAULT 0,
+    points INT DEFAULT 0,
+    form TEXT DEFAULT '',
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(division_id, team_name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_standings_division ON public.standings(division_id);
+ALTER TABLE public.standings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to standings" ON public.standings FOR SELECT USING (true);
+CREATE POLICY "Allow public write access to standings" ON public.standings FOR ALL USING (true) WITH CHECK (true);
+
+-- Fixtures Table
+CREATE TABLE IF NOT EXISTS public.fixtures (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    division_id UUID REFERENCES public.divisions(id) ON DELETE CASCADE,
+    date TEXT NOT NULL,
+    time TEXT DEFAULT '15:00',
+    home_team TEXT NOT NULL,
+    away_team TEXT NOT NULL,
+    home_score INT,
+    away_score INT,
+    status TEXT DEFAULT 'Scheduled',
+    venue TEXT DEFAULT '',
+    round_num TEXT DEFAULT '',
+    is_custom BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(division_id, home_team, away_team, round_num)
+);
+
+CREATE INDEX IF NOT EXISTS idx_fixtures_division ON public.fixtures(division_id);
+ALTER TABLE public.fixtures ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to fixtures" ON public.fixtures FOR SELECT USING (true);
+CREATE POLICY "Allow public write access to fixtures" ON public.fixtures FOR ALL USING (true) WITH CHECK (true);
+

@@ -303,6 +303,37 @@ def delete_custom_fixture(fixture_id):
         return jsonify({"error": "Fixture not found"}), 404
     return jsonify({"success": True})
 
+@app.route("/api/crawl", methods=["GET"])
+@app.route("/crawl", methods=["GET"])
+def api_crawl():
+    division = request.args.get("division", "").strip()
+    season = request.args.get("season", "2026-2027").strip()
+    team = request.args.get("team", "").strip()
+
+    safe_print(f"Executing Live Web Crawl for Division: '{division}', Team: '{team}', Season: '{season}'")
+
+    if team:
+        crawled_data = rfu_parser.crawl_team_season(team, season)
+    else:
+        crawled_data = rfu_parser.fetch_live_rfu_web_data(division_name=division, season=season)
+
+    supabase_url = os.environ.get("SUPABASE_URL", "")
+    supabase_key = os.environ.get("SUPABASE_ANON_KEY", os.environ.get("SUPABASE_KEY", ""))
+
+    if crawled_data and supabase_url and supabase_key:
+        try:
+            rfu_parser.sync_result_to_supabase(crawled_data, supabase_url, supabase_key)
+        except Exception as e:
+            safe_print(f"Supabase sync exception: {e}")
+
+    return jsonify({
+        "success": True,
+        "crawled": True,
+        "division": division,
+        "season": season,
+        "data": crawled_data.to_dict() if crawled_data else {}
+    })
+
 @app.route("/api/parse", methods=["GET"])
 @app.route("/parse", methods=["GET"])
 def api_parse():
@@ -327,9 +358,9 @@ def api_parse():
                 crawled = None
         data = crawled or rfu_parser.get_sample_data(team_query=team, season_query=season)
     elif division:
-        data = rfu_parser.get_sample_data(division_query=division, season_query=season)
+        data = rfu_parser.fetch_live_rfu_web_data(division_name=division, season=season)
     else:
-        data = rfu_parser.get_sample_data(season_query=season)
+        data = rfu_parser.fetch_live_rfu_web_data(season=season)
 
     return jsonify(data.to_dict() if data else {})
 

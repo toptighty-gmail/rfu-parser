@@ -9,6 +9,31 @@ class ApiService {
     return Uri.base.resolve(cleanPath).replace(queryParameters: queryParams);
   }
 
+  static Future<DivisionData?> crawlAndSyncLiveRFUData({
+    String? division,
+    String? team,
+    String? season,
+  }) async {
+    try {
+      final uri = _buildUri('/crawl', {
+        if (division != null && division.isNotEmpty) 'division': division,
+        if (team != null && team.isNotEmpty) 'team': team,
+        if (season != null && season.isNotEmpty) 'season': season,
+      });
+
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final resData = json.decode(response.body);
+        if (resData['data'] is Map<String, dynamic>) {
+          return DivisionData.fromJson(resData['data']);
+        }
+      }
+    } catch (e) {
+      debugPrint('ApiService crawl error: $e');
+    }
+    return null;
+  }
+
   static Future<DivisionData?> fetchDivisionData({
     String? division,
     String? team,

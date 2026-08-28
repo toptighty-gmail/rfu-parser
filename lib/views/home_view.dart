@@ -205,10 +205,6 @@ class _HomeViewState extends State<HomeView> {
         },
         onOpenDivisionsDirectory: _openDivisionsDirectory,
         onOpenTeamsDirectory: _openTeamsDirectory,
-        onParseLeague: () {
-          final queryTeam = _searchController.text.trim();
-          _loadData(queryTeam: queryTeam.isNotEmpty ? queryTeam : null);
-        },
         isAdmin: _isAdmin,
         onAdminToggle: _toggleAdmin,
         onAddFixture: _openAddFixtureDialog,
@@ -388,6 +384,55 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
 
+                      // Selected Team Context Banner
+                      if (_searchController.text.trim().isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppTheme.goldAccent, width: 1.5),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.shield, color: AppTheme.goldAccent, size: 20),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'SELECTED TEAM CONTEXT: ${_searchController.text.trim().toUpperCase()}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: AppTheme.goldAccent,
+                                      letterSpacing: 1.1,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.textPrimary,
+                                  side: const BorderSide(color: AppTheme.cardBorder),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.close, size: 14, color: AppTheme.rubyAccent),
+                                label: const Text('Clear Team Filter', style: TextStyle(fontSize: 12)),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                  });
+                                  _loadData();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
                       // View Selection 2-Tab Bar (Standings vs Fixtures)
                       Container(
                         margin: const EdgeInsets.only(bottom: 20),
@@ -414,6 +459,13 @@ class _HomeViewState extends State<HomeView> {
                           child: FixtureList(
                             fixtures: _divisionData?.fixtures ?? [],
                             isAdmin: _isAdmin,
+                            filterTeam: _searchController.text.trim(),
+                            onClearTeamFilter: () {
+                              setState(() {
+                                _searchController.clear();
+                              });
+                              _loadData();
+                            },
                             onEditFixture: (f) => _openAddFixtureDialog(existing: f),
                             onDeleteFixture: _deleteFixture,
                           ),
@@ -424,6 +476,12 @@ class _HomeViewState extends State<HomeView> {
                           child: StandingsTable(
                             standings: _divisionData?.standings ?? [],
                             highlightedTeam: _searchController.text.trim(),
+                            onTeamSelected: (team) {
+                              setState(() {
+                                _searchController.text = team;
+                              });
+                              _loadData(queryTeam: team);
+                            },
                           ),
                         ),
                     ],

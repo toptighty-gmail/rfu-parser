@@ -5,11 +5,13 @@ import '../theme/app_theme.dart';
 class StandingsTable extends StatelessWidget {
   final List<StandingEntry> standings;
   final String? highlightedTeam;
+  final ValueChanged<String>? onTeamSelected;
 
   const StandingsTable({
     super.key,
     required this.standings,
     this.highlightedTeam,
+    this.onTeamSelected,
   });
 
   @override
@@ -88,6 +90,7 @@ class StandingsTable extends StatelessWidget {
                       final isLeader = entry.pos == 1;
 
                       return DataRow(
+                        onSelectChanged: onTeamSelected != null ? (_) => onTeamSelected!(entry.teamName) : null,
                         color: WidgetStateProperty.resolveWith<Color?>((states) {
                           if (isSelected) return AppTheme.goldAccent.withValues(alpha: 0.2);
                           if (isLeader) return AppTheme.emeraldAccent.withValues(alpha: 0.08);

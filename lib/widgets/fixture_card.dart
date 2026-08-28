@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 class FixtureCard extends StatelessWidget {
   final Fixture fixture;
   final bool isAdmin;
+  final String? filterTeam;
   final Function(Fixture)? onEdit;
   final Function(Fixture)? onDelete;
 
@@ -12,6 +13,7 @@ class FixtureCard extends StatelessWidget {
     super.key,
     required this.fixture,
     this.isAdmin = false,
+    this.filterTeam,
     this.onEdit,
     this.onDelete,
   });
@@ -20,6 +22,10 @@ class FixtureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCompleted = fixture.status.toLowerCase() == 'completed' ||
         (fixture.homeScore != null && fixture.awayScore != null);
+
+    final cleanFilter = filterTeam?.trim().toLowerCase();
+    final isHomeMatched = cleanFilter != null && cleanFilter.isNotEmpty && fixture.homeTeam.toLowerCase().contains(cleanFilter);
+    final isAwayMatched = cleanFilter != null && cleanFilter.isNotEmpty && fixture.awayTeam.toLowerCase().contains(cleanFilter);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -123,10 +129,10 @@ class FixtureCard extends StatelessWidget {
                       child: Text(
                         fixture.homeTeam,
                         textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.bold,
                           fontSize: 15,
-                          color: AppTheme.textPrimary,
+                          color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
                         ),
                       ),
                     ),
@@ -182,10 +188,10 @@ class FixtureCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         fixture.awayTeam,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.bold,
                           fontSize: 15,
-                          color: AppTheme.textPrimary,
+                          color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
                         ),
                       ),
                     ),

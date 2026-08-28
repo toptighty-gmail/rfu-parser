@@ -13,7 +13,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final ValueChanged<String> onTeamSelected;
   final VoidCallback onOpenDivisionsDirectory;
   final VoidCallback onOpenTeamsDirectory;
-  final VoidCallback onParseLeague;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
   final VoidCallback onAddFixture;
@@ -33,7 +32,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onTeamSelected,
     required this.onOpenDivisionsDirectory,
     required this.onOpenTeamsDirectory,
-    required this.onParseLeague,
     required this.isAdmin,
     required this.onAdminToggle,
     required this.onAddFixture,
@@ -209,24 +207,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                             ),
                           ),
                           onPressed: onOpenTeamsDirectory,
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Explicit PARSE LEAGUE Action Button
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.goldAccent,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            elevation: 4,
-                          ),
-                          icon: const Icon(Icons.play_arrow, size: 20, color: Colors.black),
-                          label: const Text(
-                            'PARSE LEAGUE',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.8),
-                          ),
-                          onPressed: onParseLeague,
                         ),
                       ],
                     ),

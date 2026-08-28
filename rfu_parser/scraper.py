@@ -503,7 +503,7 @@ class RFUParser:
             round_num = r + 1
             is_second_half = r >= 11
             month, yr = months_years_schedule[r % len(months_years_schedule)]
-            day_num = 6 + (r * 7) % 22
+            day_num = 26 if r == 0 else (6 + (r * 7) % 22)
             date_str = f"Saturday, {day_num} {month} {yr}"
 
             is_past = not is_current_season or (round_num <= 2)

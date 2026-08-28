@@ -484,19 +484,25 @@ class RFUParser:
 
         fixtures = []
         r_num = 1
+        is_current_season = "2026" in season or "2027" in season
+
         for i in range(0, len(shuffled_teams) - 1, 2):
             h_team = shuffled_teams[i]
             a_team = shuffled_teams[i + 1]
             month, yr = months_years[(r_num - 1) % len(months_years)]
             day_num = 10 + (i * 2) % 18
+
+            # For current season (2026-2027), only early rounds are completed; future rounds are upcoming scheduled fixtures
+            is_past = not is_current_season or (r_num <= 1)
+
             fixtures.append(Fixture(
                 date=f"Saturday, {day_num} {month} {yr}",
                 time="15:00",
                 home_team=h_team,
                 away_team=a_team,
-                home_score=24 + (i % 7),
-                away_score=19 + (i % 5),
-                status="Completed",
+                home_score=(24 + (i % 7)) if is_past else None,
+                away_score=(19 + (i % 5)) if is_past else None,
+                status="Completed" if is_past else "Scheduled",
                 venue="Main Pitch",
                 round_num=f"Round {r_num}"
             ))
@@ -508,6 +514,40 @@ class RFUParser:
             standings=entries,
             fixtures=fixtures
         )
+
+    def format_fixtures_for_season(self, fixtures: List[Fixture], season_query: Optional[str]) -> List[Fixture]:
+        if not season_query or ("2026" not in season_query and "2027" not in season_query):
+            return fixtures
+
+        match = re.search(r'(\d{4})', season_query)
+        target_year = int(match.group(1)) if match else 2026
+
+        formatted = []
+        for f in fixtures:
+            d_str = f.date
+            if "2025" in d_str or "2026" in d_str or "2024" in d_str:
+                d_str = re.sub(r'\b20\d{2}\b', str(target_year), d_str)
+
+            r_int = 1
+            r_match = re.search(r'\d+', f.round_num or "")
+            if r_match:
+                r_int = int(r_match.group())
+
+            is_past = r_int <= 1 or f.is_custom
+            formatted.append(Fixture(
+                date=d_str,
+                time=f.time or "15:00",
+                home_team=f.home_team,
+                away_team=f.away_team,
+                home_score=f.home_score if is_past else None,
+                away_score=f.away_score if is_past else None,
+                status=f.status if is_past else "Scheduled",
+                venue=f.venue,
+                round_num=f.round_num,
+                is_custom=f.is_custom,
+                id=f.id
+            ))
+        return formatted
 
     def get_sample_data(
         self,
@@ -538,7 +578,6 @@ class RFUParser:
             for div in candidates:
                 div_name_clean = div.division_name.lower()
                 if dq == div_name_clean or (len(dq) > 5 and dq in div_name_clean) or div_name_clean in dq:
-                    # Make sure single-digit numbers match exact tier (e.g. don't match 'regional 1' to 'counties 1')
                     req_tier = "regional" if "regional" in dq else ("counties" if "counties" in dq else ("national" if "national" in dq else None))
                     sample_tier = "regional" if "regional" in div_name_clean else ("counties" if "counties" in div_name_clean else ("national" if "national" in div_name_clean else None))
                     
@@ -547,7 +586,7 @@ class RFUParser:
                             division_name=division_query.strip(),
                             season=season_query or div.season,
                             standings=div.standings,
-                            fixtures=div.fixtures,
+                            fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
                             source_url=div.source_url
                         )
 
@@ -561,10 +600,22 @@ class RFUParser:
                 for div in candidates:
                     for entry in div.standings:
                         if all(token in entry.team_name.lower() for token in tokens):
-                            return div
+                            return RFUDataResult(
+                                division_name=div.division_name,
+                                season=season_query or div.season,
+                                standings=div.standings,
+                                fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
+                                source_url=div.source_url
+                            )
                     for fix in div.fixtures:
                         if all(token in fix.home_team.lower() for token in tokens) or all(token in fix.away_team.lower() for token in tokens):
-                            return div
+                            return RFUDataResult(
+                                division_name=div.division_name,
+                                season=season_query or div.season,
+                                standings=div.standings,
+                                fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
+                                source_url=div.source_url
+                            )
 
         # 4. Default fallback
         res = candidates[0]
@@ -572,7 +623,7 @@ class RFUParser:
             division_name=res.division_name,
             season=season_query or res.season,
             standings=res.standings,
-            fixtures=res.fixtures,
+            fixtures=self.format_fixtures_for_season(res.fixtures, season_query),
             source_url=res.source_url
         )
 

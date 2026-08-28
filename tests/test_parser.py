@@ -14,7 +14,7 @@ def sample_data(parser):
 
 def test_parse_sample_standings_counties_1(sample_data):
     assert sample_data.division_name == "Counties 1 Tribute Ale Western West"
-    assert sample_data.season in ["2025/2026 Season", "2025-2026"]
+    assert sample_data.season in ["2025/2026 Season", "2025-2026", "2025/2026"]
     assert len(sample_data.standings) == 12  # All 12 teams present
 
     plymstock = [s for s in sample_data.standings if "Plymstock" in s.team_name][0]

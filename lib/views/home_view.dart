@@ -63,7 +63,7 @@ class _HomeViewState extends State<HomeView> {
   ];
 
   String _selectedDivision = 'ALL / Select Division';
-  String _selectedSeason = '2025-2026';
+  String _selectedSeason = '2026-2027';
   String _activeTab = 'Standings'; // 'Standings', 'Fixtures'
   final TextEditingController _searchController = TextEditingController();
   
@@ -75,7 +75,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    _loadData();
     _loadSupabaseLogos();
   }
 
@@ -89,14 +88,29 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _loadData({String? queryTeam}) async {
+    final team = (queryTeam ?? _searchController.text).trim();
+    final hasTeam = team.isNotEmpty;
+    final hasDivision = _selectedDivision != 'ALL / Select Division';
+
+    if (!hasTeam && !hasDivision) {
+      if (mounted) {
+        setState(() {
+          _divisionData = null;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final targetDivision = _selectedDivision == 'ALL / Select Division' ? null : _selectedDivision;
+    final targetDivision = hasDivision ? _selectedDivision : null;
+    final targetTeam = hasTeam ? team : null;
 
     // 1. Fetch live or sample data from Python scraper API for selected season
     DivisionData? data = await ApiService.fetchDivisionData(
-      division: queryTeam == null ? targetDivision : null,
-      team: queryTeam,
+      division: targetTeam == null ? targetDivision : null,
+      team: targetTeam,
       season: _selectedSeason,
     );
 
@@ -116,7 +130,7 @@ class _HomeViewState extends State<HomeView> {
     } else {
       // Fallback empty container with custom fixtures if offline
       data = DivisionData(
-        divisionName: targetDivision ?? 'RFU Leagues',
+        divisionName: targetDivision ?? (targetTeam != null ? 'Team: $targetTeam' : 'RFU Leagues'),
         season: _selectedSeason,
         standings: [],
         fixtures: customFixtures,
@@ -126,10 +140,6 @@ class _HomeViewState extends State<HomeView> {
     if (mounted) {
       setState(() {
         _divisionData = data;
-        // Highlight crawled division name in header division selector as well
-        if (data != null && data.divisionName.isNotEmpty && data.divisionName != 'RFU Leagues') {
-          _selectedDivision = data.divisionName;
-        }
         _isLoading = false;
       });
     }
@@ -223,17 +233,22 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             )
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: double.infinity),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 40 : 16,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+          : _divisionData == null
+              ? SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 40 : 16, vertical: 24),
+                  child: _buildBlankInitialState(),
+                )
+              : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: double.infinity),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 40 : 16,
+                        vertical: 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                       // Dedicated Admin Mode Control Banner
                       if (_isAdmin)
                         Container(
@@ -612,6 +627,77 @@ class _HomeViewState extends State<HomeView> {
     if (_divisionData == null) return;
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PosterPrintView(divisionData: _divisionData!)),
+    );
+  }
+
+  Widget _buildBlankInitialState() {
+    return Center(
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 650),
+        margin: const EdgeInsets.symmetric(vertical: 40),
+        padding: const EdgeInsets.all(36),
+        decoration: AppTheme.glassBoxDecoration(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 44),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'RFU FIXTURES & LEAGUE TABLES HUB',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+                color: AppTheme.goldAccent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Select an RFU Division or search for a Team above to view live standings, fixtures, and results.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppTheme.textMuted, fontSize: 14, height: 1.5),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.goldAccent,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.search, size: 18),
+                  label: const Text('Search RFU Team', style: TextStyle(fontWeight: FontWeight.bold)),
+                  onPressed: _openTeamsDirectory,
+                ),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.textPrimary,
+                    side: const BorderSide(color: AppTheme.cardBorder, width: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.emoji_events, size: 18, color: AppTheme.goldAccent),
+                  label: const Text('Browse Divisions', style: TextStyle(fontWeight: FontWeight.bold)),
+                  onPressed: _openDivisionsDirectory,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -600,9 +600,16 @@ class RFUParser:
             if r_int <= 0:
                 r_int = (idx // 6) + 1
 
-            month, yr = months_years_schedule[(r_int - 1) % len(months_years_schedule)]
-            day_num = 6 + (r_int * 7) % 22
-            date_str = f"Saturday, {day_num} {month} {yr}"
+            d_str = f.date
+            if d_str and len(d_str) > 3 and ("202" in d_str or "201" in d_str or "Sep" in d_str or "Oct" in d_str or "Nov" in d_str or "Dec" in d_str or "Jan" in d_str or "Feb" in d_str or "Mar" in d_str or "Apr" in d_str):
+                if "202" in d_str or "201" in d_str:
+                    date_str = re.sub(r'\b20\d{2}\b', str(start_year), d_str)
+                else:
+                    date_str = f"{d_str} {start_year}"
+            else:
+                month, yr = months_years_schedule[(r_int - 1) % len(months_years_schedule)]
+                day_num = 6 + (r_int * 7) % 22
+                date_str = f"Saturday, {day_num} {month} {yr}"
 
             if f.is_custom:
                 is_past = True

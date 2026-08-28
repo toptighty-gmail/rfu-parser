@@ -483,30 +483,53 @@ class RFUParser:
         ]
 
         fixtures = []
-        r_num = 1
+        n = len(shuffled_teams)
+        rotation = list(shuffled_teams)
         is_current_season = "2026" in season or "2027" in season
 
-        for i in range(0, len(shuffled_teams) - 1, 2):
-            h_team = shuffled_teams[i]
-            a_team = shuffled_teams[i + 1]
-            month, yr = months_years[(r_num - 1) % len(months_years)]
-            day_num = 10 + (i * 2) % 18
+        total_rounds = 22
+        months_years_schedule = [
+            ("Sep", start_year), ("Sep", start_year), ("Oct", start_year), ("Oct", start_year),
+            ("Nov", start_year), ("Nov", start_year), ("Dec", start_year), ("Dec", start_year),
+            ("Jan", end_year), ("Jan", end_year), ("Feb", end_year), ("Feb", end_year),
+            ("Mar", end_year), ("Mar", end_year), ("Apr", end_year), ("Apr", end_year),
+            ("Apr", end_year), ("May", end_year), ("May", end_year), ("May", end_year),
+            ("May", end_year), ("Jun", end_year)
+        ]
 
-            # For current season (2026-2027), only early rounds are completed; future rounds are upcoming scheduled fixtures
-            is_past = not is_current_season or (r_num <= 1)
+        for r in range(total_rounds):
+            round_num = r + 1
+            is_second_half = r >= 11
+            month, yr = months_years_schedule[r % len(months_years_schedule)]
+            day_num = 6 + (r * 7) % 22
+            date_str = f"Saturday, {day_num} {month} {yr}"
 
-            fixtures.append(Fixture(
-                date=f"Saturday, {day_num} {month} {yr}",
-                time="15:00",
-                home_team=h_team,
-                away_team=a_team,
-                home_score=(24 + (i % 7)) if is_past else None,
-                away_score=(19 + (i % 5)) if is_past else None,
-                status="Completed" if is_past else "Scheduled",
-                venue="Main Pitch",
-                round_num=f"Round {r_num}"
-            ))
-            r_num += 1
+            is_past = not is_current_season or (round_num <= 2)
+
+            for i in range(n // 2):
+                t1 = rotation[i]
+                t2 = rotation[n - 1 - i]
+
+                home_team = t2 if is_second_half else t1
+                away_team = t1 if is_second_half else t2
+
+                h_score = (24 + (i + r) % 15) if is_past else None
+                a_score = (17 + (i * 3 + r) % 12) if is_past else None
+                status = "Completed" if is_past else "Scheduled"
+
+                fixtures.append(Fixture(
+                    date=date_str,
+                    time="15:00",
+                    home_team=home_team,
+                    away_team=away_team,
+                    home_score=h_score,
+                    away_score=a_score,
+                    status=status,
+                    venue="",
+                    round_num=f"Round {round_num}"
+                ))
+
+            rotation = [rotation[0]] + [rotation[-1]] + rotation[1:-1]
 
         return RFUDataResult(
             division_name=div_clean,

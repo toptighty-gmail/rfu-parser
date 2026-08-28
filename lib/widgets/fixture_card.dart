@@ -200,21 +200,6 @@ class FixtureCard extends StatelessWidget {
               ),
             ],
           ),
-
-          if (fixture.venue.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_on, size: 12, color: AppTheme.textMuted),
-                const SizedBox(width: 4),
-                Text(
-                  fixture.venue,
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );

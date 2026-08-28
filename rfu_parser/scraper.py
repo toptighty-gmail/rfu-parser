@@ -415,7 +415,13 @@ class RFUParser:
                 "Bishop's Stortford", "Birmingham Moseley", "Sale FC", "Cinderford",
                 "Leicester Lions", "Sedgley Park", "Dings Crusaders", "Esher"
             ]
-        elif "regional" in dq:
+        elif "regional 2" in dq:
+            teams = [
+                "Topsham", "Crediton", "Cullompton", "Burnham-on-Sea",
+                "Wellington", "Bridgwater & Albion", "Chard", "Sidmouth",
+                "Teignmouth", "Newton Abbot", "North Petherton", "Winscombe"
+            ]
+        elif "regional 1" in dq or "regional" in dq:
             teams = [
                 "Devonport Services", "Camborne", "Redruth", "Exmouth",
                 "Barnstaple", "Ivybridge", "Brixham", "Chew Valley",
@@ -423,7 +429,7 @@ class RFUParser:
             ]
         elif "counties 2" in dq:
             teams = [
-                "Topsham II", "Newton Abbot", "Torquay Athletic", "Honiton",
+                "Topsham II", "Newton Abbot II", "Torquay Athletic", "Honiton",
                 "Withycombe", "Tiverton", "South Molton", "Exeter Athletic",
                 "Tavistock II", "Devonport Services II", "Plymstock Oaks II", "Barnstaple II"
             ]
@@ -440,7 +446,7 @@ class RFUParser:
         shuffled_teams = list(teams)
         rnd.shuffle(shuffled_teams)
 
-        is_current_season = ("2027" in active_season if 'active_season' in locals() else ("2027" in season if 'season' in locals() else "2027" in str(season_query)))
+        is_current_season = ("2027" in season or "2026-2027" in season or "2026/2027" in season)
         played_count = 14 if is_current_season else 22
 
         entries = []
@@ -620,6 +626,24 @@ class RFUParser:
             ))
         return formatted
 
+    def get_tier_key(self, name: str) -> str:
+        name_clean = name.lower()
+        for tier in [
+            "regional 1", "regional 2",
+            "counties 1", "counties 2", "counties 3",
+            "national 1", "national 2",
+            "premiership", "championship"
+        ]:
+            if tier in name_clean:
+                return tier
+        if "regional" in name_clean:
+            return "regional"
+        if "counties" in name_clean:
+            return "counties"
+        if "national" in name_clean:
+            return "national"
+        return name_clean
+
     def get_sample_data(
         self,
         sample_dir: Optional[str] = None,
@@ -644,24 +668,23 @@ class RFUParser:
         # 2. Division query matching
         if division_query and division_query.strip() and division_query != "ALL / Select Division":
             dq = division_query.strip().lower()
-            
+            req_tier = self.get_tier_key(dq)
+
             # Exact or close match in pre-baked sample files
             for div in candidates:
                 div_name_clean = div.division_name.lower()
-                if dq == div_name_clean or (len(dq) > 5 and dq in div_name_clean) or div_name_clean in dq:
-                    req_tier = "regional" if "regional" in dq else ("counties" if "counties" in dq else ("national" if "national" in dq else None))
-                    sample_tier = "regional" if "regional" in div_name_clean else ("counties" if "counties" in div_name_clean else ("national" if "national" in div_name_clean else None))
-                    
-                    if req_tier == sample_tier or req_tier is None:
-                        return RFUDataResult(
-                            division_name=division_query.strip(),
-                            season=season_query or div.season,
-                            standings=self.format_standings_for_season(div.standings, season_query),
-                            fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
-                            source_url=div.source_url
-                        )
+                sample_tier = self.get_tier_key(div_name_clean)
 
-            # Generate tier-specific data for requested division so standings and fixtures always match tier
+                if req_tier == sample_tier:
+                    return RFUDataResult(
+                        division_name=division_query.strip(),
+                        season=season_query or div.season,
+                        standings=self.format_standings_for_season(div.standings, season_query),
+                        fixtures=self.format_fixtures_for_season(div.fixtures, season_query),
+                        source_url=div.source_url
+                    )
+
+            # Generate tier-specific data for requested division so standings and fixtures always match tier and season
             return self.generate_division_data(division_query.strip(), season_query or "2026-2027")
 
         # 3. Team query matching

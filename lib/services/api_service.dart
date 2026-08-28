@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/division_data.dart';
 
@@ -28,7 +29,7 @@ class ApiService {
         return DivisionData.fromJson(data);
       }
     } catch (e) {
-      print('ApiService error: $e');
+      debugPrint('ApiService error: $e');
     }
     return null;
   }
@@ -48,7 +49,7 @@ class ApiService {
         if (resData['success'] == true) return true;
       }
     } catch (e) {
-      print('Admin backend verification fallback: $e');
+      debugPrint('Admin backend verification fallback: $e');
     }
 
     // 2. Fallback local verification
@@ -67,7 +68,7 @@ class ApiService {
         }
       }
     } catch (e) {
-      print('Team suggestion error: $e');
+      debugPrint('Team suggestion error: $e');
     }
     return [];
   }

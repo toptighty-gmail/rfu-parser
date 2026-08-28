@@ -64,7 +64,7 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                 decoration: BoxDecoration(
                   color: AppTheme.darkBg,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppTheme.goldAccent.withOpacity(0.5)),
+                  border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -117,7 +117,6 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
       final dynamic result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'svg'],
-        withData: true,
       );
 
       if (result != null && result.files != null && (result.files as List).isNotEmpty) {

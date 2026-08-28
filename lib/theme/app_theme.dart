@@ -47,12 +47,12 @@ class AppTheme {
 
   static BoxDecoration glassBoxDecoration({double borderRadius = 16, Color? borderColor}) {
     return BoxDecoration(
-      color: surfaceBg.withOpacity(0.85),
+      color: surfaceBg.withValues(alpha: 0.85),
       borderRadius: BorderRadius.circular(borderRadius),
       border: Border.all(color: borderColor ?? cardBorder, width: 1),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           blurRadius: 16,
           offset: const Offset(0, 8),
         ),

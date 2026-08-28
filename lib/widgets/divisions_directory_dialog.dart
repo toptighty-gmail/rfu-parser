@@ -97,7 +97,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                     )
                   : ListView.separated(
                       itemCount: _filteredDivisions.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1, color: AppTheme.cardBorder),
+                      separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
                       itemBuilder: (context, index) {
                         final divName = _filteredDivisions[index];
                         final isSelected = divName == widget.selectedDivision;

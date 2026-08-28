@@ -58,7 +58,7 @@ class StandingsTable extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStateProperty.all(AppTheme.darkBg.withOpacity(0.5)),
+              headingRowColor: WidgetStateProperty.all(AppTheme.darkBg.withValues(alpha: 0.5)),
               dataRowMinHeight: 48,
               dataRowMaxHeight: 56,
               columnSpacing: 18,
@@ -85,8 +85,8 @@ class StandingsTable extends StatelessWidget {
 
                 return DataRow(
                   color: WidgetStateProperty.resolveWith<Color?>((states) {
-                    if (isSelected) return AppTheme.goldAccent.withOpacity(0.2);
-                    if (isLeader) return AppTheme.emeraldAccent.withOpacity(0.08);
+                    if (isSelected) return AppTheme.goldAccent.withValues(alpha: 0.2);
+                    if (isLeader) return AppTheme.emeraldAccent.withValues(alpha: 0.08);
                     return null;
                   }),
                   cells: [

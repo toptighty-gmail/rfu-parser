@@ -37,7 +37,7 @@ class PosterPrintView extends StatelessWidget {
             border: Border.all(color: AppTheme.goldAccent, width: 2),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.goldAccent.withOpacity(0.2),
+                color: AppTheme.goldAccent.withValues(alpha: 0.2),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
@@ -51,7 +51,7 @@ class PosterPrintView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppTheme.darkBg, AppTheme.goldAccent.withOpacity(0.2)],
+                    colors: [AppTheme.darkBg, AppTheme.goldAccent.withValues(alpha: 0.2)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),

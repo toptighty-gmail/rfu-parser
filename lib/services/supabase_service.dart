@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/fixture.dart';
 
@@ -16,16 +16,16 @@ class SupabaseService {
   // Initialize Supabase client safely
   static Future<void> init({required String url, required String anonKey}) async {
     if (url.isEmpty || anonKey.isEmpty || url.contains('your-supabase-project')) {
-      print('Supabase credentials not configured yet. Running in offline/hybrid mode.');
+      debugPrint('Supabase credentials not configured yet. Running in offline/hybrid mode.');
       return;
     }
     try {
       await Supabase.initialize(
         url: url,
-        anonKey: anonKey,
+        publishableKey: anonKey,
       );
     } catch (e) {
-      print('Supabase init error: $e');
+      debugPrint('Supabase init error: $e');
     }
   }
 
@@ -43,7 +43,7 @@ class SupabaseService {
       
       return (response as List).map((row) => Fixture.fromJson(row)).toList();
     } catch (e) {
-      print('Error fetching custom fixtures from Supabase: $e');
+      debugPrint('Error fetching custom fixtures from Supabase: $e');
       return [];
     }
   }
@@ -63,7 +63,7 @@ class SupabaseService {
 
       return Fixture.fromJson(response);
     } catch (e) {
-      print('Error adding fixture to Supabase: $e');
+      debugPrint('Error adding fixture to Supabase: $e');
       return null;
     }
   }
@@ -78,7 +78,7 @@ class SupabaseService {
           .eq('id', id);
       return true;
     } catch (e) {
-      print('Error updating fixture in Supabase: $e');
+      debugPrint('Error updating fixture in Supabase: $e');
       return false;
     }
   }
@@ -93,7 +93,7 @@ class SupabaseService {
           .eq('id', id);
       return true;
     } catch (e) {
-      print('Error deleting fixture from Supabase: $e');
+      debugPrint('Error deleting fixture from Supabase: $e');
       return false;
     }
   }
@@ -125,7 +125,7 @@ class SupabaseService {
 
       return publicUrl;
     } catch (e) {
-      print('Error uploading team logo to Supabase: $e');
+      debugPrint('Error uploading team logo to Supabase: $e');
       return null;
     }
   }
@@ -141,7 +141,7 @@ class SupabaseService {
       }
       return logoMap;
     } catch (e) {
-      print('Error fetching team logos from Supabase: $e');
+      debugPrint('Error fetching team logos from Supabase: $e');
       return {};
     }
   }

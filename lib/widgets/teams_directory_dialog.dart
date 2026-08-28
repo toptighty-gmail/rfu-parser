@@ -169,7 +169,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
                     )
                   : ListView.separated(
                       itemCount: _filteredTeams.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1, color: AppTheme.cardBorder),
+                      separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
                       itemBuilder: (context, index) {
                         final teamName = _filteredTeams[index];
                         return ListTile(

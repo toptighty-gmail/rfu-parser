@@ -214,7 +214,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(vertical: 4),
               itemCount: _suggestions.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, color: AppTheme.cardBorder),
+              separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
               itemBuilder: (context, index) {
                 final item = _suggestions[index];
                 final teamName = item['name'] ?? item['team_name'] ?? '';

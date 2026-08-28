@@ -28,7 +28,7 @@ class FixtureCard extends StatelessWidget {
         color: AppTheme.surfaceBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: fixture.isCustom ? AppTheme.goldAccent.withOpacity(0.4) : AppTheme.cardBorder,
+          color: fixture.isCustom ? AppTheme.goldAccent.withValues(alpha: 0.4) : AppTheme.cardBorder,
           width: fixture.isCustom ? 1.5 : 1,
         ),
       ),
@@ -44,7 +44,7 @@ class FixtureCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppTheme.goldAccent.withOpacity(0.2),
+                        color: AppTheme.goldAccent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
@@ -78,8 +78,8 @@ class FixtureCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: isCompleted
-                          ? AppTheme.emeraldAccent.withOpacity(0.15)
-                          : AppTheme.goldAccent.withOpacity(0.15),
+                          ? AppTheme.emeraldAccent.withValues(alpha: 0.15)
+                          : AppTheme.goldAccent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

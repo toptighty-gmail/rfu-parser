@@ -399,6 +399,105 @@ class RFUParser:
 
         return results
 
+    def generate_division_data(self, division_name: str, season: str) -> RFUDataResult:
+        div_clean = division_name.strip()
+        dq = div_clean.lower()
+
+        if "premiership" in dq or "championship" in dq:
+            teams = [
+                "Bath Rugby", "Leicester Tigers", "Northampton Saints", "Saracens",
+                "Harlequins", "Sale Sharks", "Exeter Chiefs", "Bristol Bears",
+                "Gloucester Rugby", "Newcastle Falcons", "Ealing Trailfinders", "Coventry"
+            ]
+        elif "national" in dq:
+            teams = [
+                "Plymouth Albion", "Rams RFC", "Rosslyn Park", "Blackheath",
+                "Bishop's Stortford", "Birmingham Moseley", "Sale FC", "Cinderford",
+                "Leicester Lions", "Sedgley Park", "Dings Crusaders", "Esher"
+            ]
+        elif "regional" in dq:
+            teams = [
+                "Devonport Services", "Camborne", "Redruth", "Exmouth",
+                "Barnstaple", "Ivybridge", "Brixham", "Chew Valley",
+                "Lydney", "Matson", "St Austell", "Old Redcliffians"
+            ]
+        elif "counties 2" in dq:
+            teams = [
+                "Topsham II", "Newton Abbot", "Torquay Athletic", "Honiton",
+                "Withycombe", "Tiverton", "South Molton", "Exeter Athletic",
+                "Tavistock II", "Devonport Services II", "Plymstock Oaks II", "Barnstaple II"
+            ]
+        else:
+            teams = [
+                "Plymstock Oaks", "Topsham", "Newton Abbot", "Cullompton",
+                "Crediton", "Okehampton", "Sidmouth", "Teignmouth",
+                "Truro", "Wadebridge Camels", "Tavistock", "Paignton"
+            ]
+
+        import random
+        seed = sum(ord(c) for c in div_clean)
+        rnd = random.Random(seed)
+        shuffled_teams = list(teams)
+        rnd.shuffle(shuffled_teams)
+
+        entries = []
+        played_count = 14
+        for idx, tname in enumerate(shuffled_teams, start=1):
+            won = max(0, 14 - idx + rnd.randint(-1, 1))
+            lost = max(0, played_count - won - rnd.randint(0, 1))
+            drawn = max(0, played_count - won - lost)
+            pf = won * 28 + rnd.randint(50, 150)
+            pa = lost * 24 + rnd.randint(40, 120)
+            pd = pf - pa
+            tb = won + rnd.randint(1, 4)
+            lb = lost // 2 + rnd.randint(0, 2)
+            pts = (won * 4) + (drawn * 2) + tb + lb
+
+            entries.append(LeagueTableEntry(
+                position=idx,
+                team_name=tname,
+                played=played_count,
+                won=won,
+                drawn=drawn,
+                lost=lost,
+                points_for=pf,
+                points_against=pa,
+                points_diff=pd,
+                try_bonus=tb,
+                lose_bonus=lb,
+                points=pts,
+                form="WWLDW" if won > lost else "LLWLD"
+            ))
+
+        entries.sort(key=lambda x: (x.points, x.points_diff), reverse=True)
+        for idx, entry in enumerate(entries, start=1):
+            entry.position = idx
+
+        fixtures = []
+        r_num = 1
+        for i in range(0, len(shuffled_teams) - 1, 2):
+            h_team = shuffled_teams[i]
+            a_team = shuffled_teams[i + 1]
+            fixtures.append(Fixture(
+                date=f"Saturday, {10 + i} Oct 2026",
+                time="15:00",
+                home_team=h_team,
+                away_team=a_team,
+                home_score=24 + (i % 7),
+                away_score=19 + (i % 5),
+                status="Completed",
+                venue="Main Pitch",
+                round_num=f"Round {r_num}"
+            ))
+            r_num += 1
+
+        return RFUDataResult(
+            division_name=div_clean,
+            season=season,
+            standings=entries,
+            fixtures=fixtures
+        )
+
     def get_sample_data(
         self,
         sample_dir: Optional[str] = None,
@@ -424,49 +523,25 @@ class RFUParser:
         if division_query and division_query.strip() and division_query != "ALL / Select Division":
             dq = division_query.strip().lower()
             
-            # Direct or substring match
-            div_matches = [d for d in candidates if dq in d.division_name.lower() or d.division_name.lower() in dq]
-            if div_matches:
-                res = div_matches[0]
-                return RFUDataResult(
-                    division_name=division_query.strip(),
-                    season=season_query or res.season,
-                    standings=res.standings,
-                    fixtures=res.fixtures,
-                    source_url=res.source_url
-                )
-
-            # Token / Category fuzzy match (e.g. "counties 1", "counties 2", "premiership")
-            dq_tokens = set(re.findall(r'\w+', dq))
-            best_match = None
-            best_score = 0
+            # Exact or close match in pre-baked sample files
             for div in candidates:
-                div_tokens = set(re.findall(r'\w+', div.division_name.lower()))
-                common = dq_tokens.intersection(div_tokens)
-                meaningful_common = [w for w in common if w not in ('tribute', 'ale', 'rfu', 'league')]
-                score = len(meaningful_common)
-                if score > best_score:
-                    best_score = score
-                    best_match = div
+                div_name_clean = div.division_name.lower()
+                if dq == div_name_clean or (len(dq) > 5 and dq in div_name_clean) or div_name_clean in dq:
+                    # Make sure single-digit numbers match exact tier (e.g. don't match 'regional 1' to 'counties 1')
+                    req_tier = "regional" if "regional" in dq else ("counties" if "counties" in dq else ("national" if "national" in dq else None))
+                    sample_tier = "regional" if "regional" in div_name_clean else ("counties" if "counties" in div_name_clean else ("national" if "national" in div_name_clean else None))
+                    
+                    if req_tier == sample_tier or req_tier is None:
+                        return RFUDataResult(
+                            division_name=division_query.strip(),
+                            season=season_query or div.season,
+                            standings=div.standings,
+                            fixtures=div.fixtures,
+                            source_url=div.source_url
+                        )
 
-            if best_match and best_score >= 1:
-                return RFUDataResult(
-                    division_name=division_query.strip(),
-                    season=season_query or best_match.season,
-                    standings=best_match.standings,
-                    fixtures=best_match.fixtures,
-                    source_url=best_match.source_url
-                )
-
-            # Fallback template populated with requested division_query name so table is never empty
-            template = candidates[0] if candidates else all_divisions[0]
-            return RFUDataResult(
-                division_name=division_query.strip(),
-                season=season_query or "2026-2027",
-                standings=template.standings,
-                fixtures=template.fixtures,
-                source_url=template.source_url
-            )
+            # Generate tier-specific data for requested division so standings and fixtures always match tier
+            return self.generate_division_data(division_query.strip(), season_query or "2026-2027")
 
         # 3. Team query matching
         if team_query and team_query.strip():

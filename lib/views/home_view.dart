@@ -229,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
             )
           : Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1350),
+                constraints: const BoxConstraints(maxWidth: double.infinity),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
                     horizontal: isDesktop ? 40 : 16,

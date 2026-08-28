@@ -54,118 +54,125 @@ class StandingsTable extends StatelessWidget {
             ),
           ),
 
-          // Scrollable Data Table
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowColor: WidgetStateProperty.all(AppTheme.darkBg.withValues(alpha: 0.5)),
-              dataRowMinHeight: 48,
-              dataRowMaxHeight: 56,
-              columnSpacing: 18,
-              columns: const [
-                DataColumn(label: Text('POS', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.goldAccent))),
-                DataColumn(label: Text('TEAM', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary))),
-                DataColumn(label: Text('P', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('W', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.emeraldAccent))),
-                DataColumn(label: Text('D', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('L', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.rubyAccent))),
-                DataColumn(label: Text('PF', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('PA', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('PD', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('TB', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('LB', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
-                DataColumn(label: Text('PTS', style: TextStyle(fontWeight: FontWeight.w900, color: AppTheme.goldAccent, fontSize: 15))),
-              ],
-              rows: standings.map((entry) {
-                final isSelected = highlightedTeam != null &&
-                    highlightedTeam!.isNotEmpty &&
-                    entry.teamName.toLowerCase().contains(highlightedTeam!.toLowerCase());
+          // Scrollable Full-Width Data Table
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(AppTheme.darkBg.withValues(alpha: 0.5)),
+                    dataRowMinHeight: 48,
+                    dataRowMaxHeight: 56,
+                    columnSpacing: 18,
+                    columns: const [
+                      DataColumn(label: Text('POS', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.goldAccent))),
+                      DataColumn(label: Text('TEAM', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary))),
+                      DataColumn(label: Text('P', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('W', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.emeraldAccent))),
+                      DataColumn(label: Text('D', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('L', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.rubyAccent))),
+                      DataColumn(label: Text('PF', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('PA', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('PD', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('TB', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('LB', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
+                      DataColumn(label: Text('PTS', style: TextStyle(fontWeight: FontWeight.w900, color: AppTheme.goldAccent, fontSize: 15))),
+                    ],
+                    rows: standings.map((entry) {
+                      final isSelected = highlightedTeam != null &&
+                          highlightedTeam!.isNotEmpty &&
+                          entry.teamName.toLowerCase().contains(highlightedTeam!.toLowerCase());
 
-                final isLeader = entry.pos == 1;
+                      final isLeader = entry.pos == 1;
 
-                return DataRow(
-                  color: WidgetStateProperty.resolveWith<Color?>((states) {
-                    if (isSelected) return AppTheme.goldAccent.withValues(alpha: 0.2);
-                    if (isLeader) return AppTheme.emeraldAccent.withValues(alpha: 0.08);
-                    return null;
-                  }),
-                  cells: [
-                    DataCell(
-                      Container(
-                        width: 28,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isLeader ? AppTheme.goldAccent : (entry.pos <= 3 ? AppTheme.surfaceBg : Colors.transparent),
-                          shape: BoxShape.circle,
-                          border: isLeader ? null : Border.all(color: AppTheme.cardBorder),
-                        ),
-                        child: Text(
-                          '${entry.pos}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: isLeader ? Colors.black : AppTheme.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (entry.logoUrl != null && entry.logoUrl!.isNotEmpty) ...[
-                            Image.network(
-                              entry.logoUrl!,
-                              width: 24,
-                              height: 24,
-                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
+                      return DataRow(
+                        color: WidgetStateProperty.resolveWith<Color?>((states) {
+                          if (isSelected) return AppTheme.goldAccent.withValues(alpha: 0.2);
+                          if (isLeader) return AppTheme.emeraldAccent.withValues(alpha: 0.08);
+                          return null;
+                        }),
+                        cells: [
+                          DataCell(
+                            Container(
+                              width: 28,
+                              height: 28,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isLeader ? AppTheme.goldAccent : (entry.pos <= 3 ? AppTheme.surfaceBg : Colors.transparent),
+                                shape: BoxShape.circle,
+                                border: isLeader ? null : Border.all(color: AppTheme.cardBorder),
+                              ),
+                              child: Text(
+                                '${entry.pos}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isLeader ? Colors.black : AppTheme.textPrimary,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 10),
-                          ] else ...[
-                            const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
-                            const SizedBox(width: 10),
-                          ],
-                          Text(
-                            entry.teamName,
-                            style: TextStyle(
-                              fontWeight: isSelected || isLeader ? FontWeight.bold : FontWeight.w500,
-                              color: isSelected ? AppTheme.goldAccent : AppTheme.textPrimary,
+                          ),
+                          DataCell(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (entry.logoUrl != null && entry.logoUrl!.isNotEmpty) ...[
+                                  Image.network(
+                                    entry.logoUrl!,
+                                    width: 24,
+                                    height: 24,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
+                                  ),
+                                  const SizedBox(width: 10),
+                                ] else ...[
+                                  const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
+                                  const SizedBox(width: 10),
+                                ],
+                                Text(
+                                  entry.teamName,
+                                  style: TextStyle(
+                                    fontWeight: isSelected || isLeader ? FontWeight.bold : FontWeight.w500,
+                                    color: isSelected ? AppTheme.goldAccent : AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text('${entry.played}')),
+                          DataCell(Text('${entry.won}', style: const TextStyle(color: AppTheme.emeraldAccent, fontWeight: FontWeight.bold))),
+                          DataCell(Text('${entry.drawn}')),
+                          DataCell(Text('${entry.lost}', style: const TextStyle(color: AppTheme.rubyAccent))),
+                          DataCell(Text('${entry.pointsFor}')),
+                          DataCell(Text('${entry.pointsAgainst}')),
+                          DataCell(
+                            Text(
+                              '${entry.pointsDiff > 0 ? "+" : ""}${entry.pointsDiff}',
+                              style: TextStyle(
+                                color: entry.pointsDiff > 0 ? AppTheme.emeraldAccent : (entry.pointsDiff < 0 ? AppTheme.rubyAccent : AppTheme.textMuted),
+                              ),
+                            ),
+                          ),
+                          DataCell(Text('${entry.tryBonus}')),
+                          DataCell(Text('${entry.lossBonus}')),
+                          DataCell(
+                            Text(
+                              '${entry.points}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15,
+                                color: AppTheme.goldAccent,
+                              ),
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    DataCell(Text('${entry.played}')),
-                    DataCell(Text('${entry.won}', style: const TextStyle(color: AppTheme.emeraldAccent, fontWeight: FontWeight.bold))),
-                    DataCell(Text('${entry.drawn}')),
-                    DataCell(Text('${entry.lost}', style: const TextStyle(color: AppTheme.rubyAccent))),
-                    DataCell(Text('${entry.pointsFor}')),
-                    DataCell(Text('${entry.pointsAgainst}')),
-                    DataCell(
-                      Text(
-                        '${entry.pointsDiff > 0 ? "+" : ""}${entry.pointsDiff}',
-                        style: TextStyle(
-                          color: entry.pointsDiff > 0 ? AppTheme.emeraldAccent : (entry.pointsDiff < 0 ? AppTheme.rubyAccent : AppTheme.textMuted),
-                        ),
-                      ),
-                    ),
-                    DataCell(Text('${entry.tryBonus}')),
-                    DataCell(Text('${entry.lossBonus}')),
-                    DataCell(
-                      Text(
-                        '${entry.points}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: AppTheme.goldAccent,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

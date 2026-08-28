@@ -308,7 +308,7 @@ def delete_custom_fixture(fixture_id):
 def api_parse():
     url = request.args.get("url", "").strip()
     team = request.args.get("team", "").strip()
-    season = request.args.get("season", "2025-2026").strip()
+    season = request.args.get("season", "2026-2027").strip()
     division = request.args.get("division", "").strip()
 
     data = None

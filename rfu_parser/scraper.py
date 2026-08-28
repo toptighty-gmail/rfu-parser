@@ -473,13 +473,24 @@ class RFUParser:
         for idx, entry in enumerate(entries, start=1):
             entry.position = idx
 
+        match = re.search(r'(\d{4})', season)
+        start_year = int(match.group(1)) if match else 2026
+        end_year = start_year + 1
+
+        months_years = [
+            ("Sep", start_year), ("Oct", start_year), ("Nov", start_year), ("Dec", start_year),
+            ("Jan", end_year), ("Feb", end_year), ("Mar", end_year), ("Apr", end_year)
+        ]
+
         fixtures = []
         r_num = 1
         for i in range(0, len(shuffled_teams) - 1, 2):
             h_team = shuffled_teams[i]
             a_team = shuffled_teams[i + 1]
+            month, yr = months_years[(r_num - 1) % len(months_years)]
+            day_num = 10 + (i * 2) % 18
             fixtures.append(Fixture(
-                date=f"Saturday, {10 + i} Oct 2026",
+                date=f"Saturday, {day_num} {month} {yr}",
                 time="15:00",
                 home_team=h_team,
                 away_team=a_team,

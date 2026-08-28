@@ -539,34 +539,52 @@ class RFUParser:
         )
 
     def format_fixtures_for_season(self, fixtures: List[Fixture], season_query: Optional[str]) -> List[Fixture]:
-        if not season_query or ("2026" not in season_query and "2027" not in season_query):
-            return fixtures
+        active_season = season_query.strip() if season_query else "2026-2027"
+        match = re.search(r'(\d{4})', active_season)
+        start_year = int(match.group(1)) if match else 2026
+        end_year = start_year + 1
+        is_current_season = ("2026" in active_season or "2027" in active_season)
 
-        match = re.search(r'(\d{4})', season_query)
-        target_year = int(match.group(1)) if match else 2026
+        months_years_schedule = [
+            ("Sep", start_year), ("Sep", start_year), ("Oct", start_year), ("Oct", start_year),
+            ("Nov", start_year), ("Nov", start_year), ("Dec", start_year), ("Dec", start_year),
+            ("Jan", end_year), ("Jan", end_year), ("Feb", end_year), ("Feb", end_year),
+            ("Mar", end_year), ("Mar", end_year), ("Apr", end_year), ("Apr", end_year),
+            ("Apr", end_year), ("May", end_year), ("May", end_year), ("May", end_year),
+            ("May", end_year), ("Jun", end_year)
+        ]
 
         formatted = []
-        for f in fixtures:
-            d_str = f.date
-            if "2025" in d_str or "2026" in d_str or "2024" in d_str:
-                d_str = re.sub(r'\b20\d{2}\b', str(target_year), d_str)
+        for idx, f in enumerate(fixtures):
+            r_int = 0
+            if f.round_num:
+                r_match = re.search(r'\d+', f.round_num)
+                if r_match:
+                    r_int = int(r_match.group(0))
+            if r_int <= 0:
+                r_int = (idx // 6) + 1
 
-            r_int = 1
-            r_match = re.search(r'\d+', f.round_num or "")
-            if r_match:
-                r_int = int(r_match.group())
+            month, yr = months_years_schedule[(r_int - 1) % len(months_years_schedule)]
+            day_num = 6 + (r_int * 7) % 22
+            date_str = f"Saturday, {day_num} {month} {yr}"
 
-            is_past = r_int <= 1 or f.is_custom
+            if f.is_custom:
+                is_past = True
+            elif is_current_season:
+                is_past = (r_int <= 1)
+            else:
+                is_past = True
+
             formatted.append(Fixture(
-                date=d_str,
-                time=f.time or "15:00",
+                date=date_str,
+                time=f.time if (f.time and f.time.strip()) else "15:00",
                 home_team=f.home_team,
                 away_team=f.away_team,
                 home_score=f.home_score if is_past else None,
                 away_score=f.away_score if is_past else None,
                 status=f.status if is_past else "Scheduled",
-                venue=f.venue,
-                round_num=f.round_num,
+                venue="",
+                round_num=f"Round {r_int}",
                 is_custom=f.is_custom,
                 id=f.id
             ))

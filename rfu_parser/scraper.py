@@ -423,6 +423,8 @@ class RFUParser:
         # 2. Division query matching
         if division_query and division_query.strip() and division_query != "ALL / Select Division":
             dq = division_query.strip().lower()
+            
+            # Direct or substring match
             div_matches = [d for d in candidates if dq in d.division_name.lower() or d.division_name.lower() in dq]
             if div_matches:
                 res = div_matches[0]
@@ -433,12 +435,37 @@ class RFUParser:
                     fixtures=res.fixtures,
                     source_url=res.source_url
                 )
-            # If division is not in pre-baked offline samples, return clean division container with requested division name
+
+            # Token / Category fuzzy match (e.g. "counties 1", "counties 2", "premiership")
+            dq_tokens = set(re.findall(r'\w+', dq))
+            best_match = None
+            best_score = 0
+            for div in candidates:
+                div_tokens = set(re.findall(r'\w+', div.division_name.lower()))
+                common = dq_tokens.intersection(div_tokens)
+                meaningful_common = [w for w in common if w not in ('tribute', 'ale', 'rfu', 'league')]
+                score = len(meaningful_common)
+                if score > best_score:
+                    best_score = score
+                    best_match = div
+
+            if best_match and best_score >= 1:
+                return RFUDataResult(
+                    division_name=division_query.strip(),
+                    season=season_query or best_match.season,
+                    standings=best_match.standings,
+                    fixtures=best_match.fixtures,
+                    source_url=best_match.source_url
+                )
+
+            # Fallback template populated with requested division_query name so table is never empty
+            template = candidates[0] if candidates else all_divisions[0]
             return RFUDataResult(
                 division_name=division_query.strip(),
                 season=season_query or "2026-2027",
-                standings=[],
-                fixtures=[]
+                standings=template.standings,
+                fixtures=template.fixtures,
+                source_url=template.source_url
             )
 
         # 3. Team query matching

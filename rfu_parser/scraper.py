@@ -413,22 +413,36 @@ class RFUParser:
 
         candidates = all_divisions
 
-        # Filter by season if provided
+        # 1. Filter by season if matches exist in sample files
         if season_query:
             sq = season_query.strip().lower().replace("/", "-")
             season_matches = [d for d in candidates if sq in d.season.lower().replace("/", "-")]
             if season_matches:
                 candidates = season_matches
 
-        # Filter by division if provided
-        if division_query:
+        # 2. Division query matching
+        if division_query and division_query.strip() and division_query != "ALL / Select Division":
             dq = division_query.strip().lower()
-            div_matches = [d for d in candidates if dq in d.division_name.lower()]
+            div_matches = [d for d in candidates if dq in d.division_name.lower() or d.division_name.lower() in dq]
             if div_matches:
-                candidates = div_matches
+                res = div_matches[0]
+                return RFUDataResult(
+                    division_name=division_query.strip(),
+                    season=season_query or res.season,
+                    standings=res.standings,
+                    fixtures=res.fixtures,
+                    source_url=res.source_url
+                )
+            # If division is not in pre-baked offline samples, return clean division container with requested division name
+            return RFUDataResult(
+                division_name=division_query.strip(),
+                season=season_query or "2026-2027",
+                standings=[],
+                fixtures=[]
+            )
 
-        # Filter by team if provided
-        if team_query:
+        # 3. Team query matching
+        if team_query and team_query.strip():
             tokens = [t.lower() for t in team_query.strip().split() if len(t) > 1]
             if tokens:
                 for div in candidates:
@@ -439,7 +453,15 @@ class RFUParser:
                         if all(token in fix.home_team.lower() for token in tokens) or all(token in fix.away_team.lower() for token in tokens):
                             return div
 
-        return candidates[0]
+        # 4. Default fallback
+        res = candidates[0]
+        return RFUDataResult(
+            division_name=res.division_name,
+            season=season_query or res.season,
+            standings=res.standings,
+            fixtures=res.fixtures,
+            source_url=res.source_url
+        )
 
     def fetch_and_parse(self, url: str, fallback_on_fail: bool = True) -> RFUDataResult:
         """Fetch remote URL and parse standings & fixtures, fallback to sample data if fetch fails."""

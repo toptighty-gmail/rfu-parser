@@ -7,6 +7,7 @@ import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../models/standing_entry.dart';
 import 'api_service.dart';
+import 'team_logo_provider.dart';
 
 class SupabaseService {
   static SupabaseClient? _client;
@@ -472,6 +473,27 @@ class SupabaseService {
           fixturesPayload,
           onConflict: 'division_id,home_team,away_team,round_num',
         );
+      }
+
+      // 4. Auto-Sync discovered Team Logos into team_logos table if not yet present
+      final standingsList = divisionData.standings as List;
+      for (var s in standingsList) {
+        final tName = s.teamName.toString().trim();
+        if (tName.isEmpty) continue;
+        final cleanKey = tName.toLowerCase();
+        if (!_localLogosMap.containsKey(cleanKey)) {
+          final logo = s.logoUrl ?? TeamLogoProvider.getPredefinedLogo(tName);
+          if (logo != null && logo.isNotEmpty) {
+            try {
+              await client.from('team_logos').upsert({
+                'team_name': tName,
+                'logo_url': logo,
+                'updated_at': DateTime.now().toIso8601String(),
+              }, onConflict: 'team_name');
+              _localLogosMap[cleanKey] = logo;
+            } catch (_) {}
+          }
+        }
       }
 
       debugPrint('Successfully synced $divisionName ($season) to Supabase tables.');

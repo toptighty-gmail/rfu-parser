@@ -3,11 +3,21 @@ import 'package:intl/intl.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 
+import '../services/rfu_team_registry.dart';
+
 class AddFixtureDialog extends StatefulWidget {
   final Fixture? existingFixture;
+  final String? contextTeam;
+  final int? rfuTeamId;
   final Function(Fixture fixture) onSave;
 
-  const AddFixtureDialog({super.key, this.existingFixture, required this.onSave});
+  const AddFixtureDialog({
+    super.key,
+    this.existingFixture,
+    this.contextTeam,
+    this.rfuTeamId,
+    required this.onSave,
+  });
 
   @override
   State<AddFixtureDialog> createState() => _AddFixtureDialogState();
@@ -183,6 +193,35 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Team Context Header Badge (if created from a team context)
+              if (widget.contextTeam != null && widget.contextTeam!.isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.shield, size: 16, color: AppTheme.goldAccent),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'CLUB CONTEXT: ${widget.contextTeam!.toUpperCase()}${widget.rfuTeamId != null ? " [RFU ID: ${widget.rfuTeamId}]" : ""}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: AppTheme.goldAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // Fixture Type Selector (Friendly vs Cup)
               Container(
                 margin: const EdgeInsets.only(bottom: 14),
@@ -406,6 +445,21 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ? (_cupNameController.text.trim().isNotEmpty ? _cupNameController.text.trim() : 'Cup Matches')
         : 'Friendly Matches';
 
+    final effectiveContext = widget.contextTeam?.trim().isNotEmpty == true
+        ? widget.contextTeam!.trim()
+        : (widget.existingFixture?.contextTeam ?? home);
+
+    final effectiveRfuId = widget.rfuTeamId ??
+        widget.existingFixture?.rfuTeamId ??
+        RfuTeamRegistry.lookupTeamId(effectiveContext) ??
+        RfuTeamRegistry.lookupTeamId(home) ??
+        RfuTeamRegistry.lookupTeamId(away);
+
+    final baseVenue = _venueController.text.trim();
+    final enrichedVenue = baseVenue.isNotEmpty
+        ? '$baseVenue [Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}'
+        : '[Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}';
+
     final fixture = Fixture(
       id: widget.existingFixture?.id,
       date: rfuFormattedDate,
@@ -416,9 +470,11 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       homeScore: hScore,
       awayScore: aScore,
       status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',
-      venue: _venueController.text.trim(),
+      venue: enrichedVenue,
       competition: competitionName,
       roundNum: roundLabel,
+      contextTeam: effectiveContext,
+      rfuTeamId: effectiveRfuId,
       isCustom: true,
     );
 

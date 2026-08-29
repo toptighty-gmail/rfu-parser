@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../services/division_data_provider.dart';
 import '../services/supabase_service.dart';
 import '../services/team_logo_provider.dart';
+import '../services/rfu_team_registry.dart';
 import '../theme/app_theme.dart';
 import '../widgets/navbar.dart';
 import '../widgets/standings_table.dart';
@@ -796,10 +797,15 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _openAddFixtureDialog({Fixture? existing}) {
+    final activeTeam = _searchController.text.trim();
+    final activeRfuId = activeTeam.isNotEmpty ? RfuTeamRegistry.lookupTeamId(activeTeam) : null;
+
     showDialog(
       context: context,
       builder: (_) => AddFixtureDialog(
         existingFixture: existing,
+        contextTeam: activeTeam.isNotEmpty ? activeTeam : null,
+        rfuTeamId: activeRfuId,
         onSave: (fixture) async {
           if (existing != null && existing.id != null) {
             await SupabaseService.updateCustomFixture(existing.id!, fixture.toJson());

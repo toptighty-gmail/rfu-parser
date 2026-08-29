@@ -1,3 +1,5 @@
+import '../services/rfu_team_registry.dart';
+
 class Fixture {
   final String? id;
   final String date;
@@ -12,6 +14,8 @@ class Fixture {
   final String competition;
   final String roundNum;
   final bool isCustom;
+  final String? contextTeam;
+  final int? rfuTeamId;
   final String? homeLogoUrl;
   final String? awayLogoUrl;
 
@@ -29,6 +33,8 @@ class Fixture {
     required this.competition,
     required this.roundNum,
     this.isCustom = false,
+    this.contextTeam,
+    this.rfuTeamId,
     this.homeLogoUrl,
     this.awayLogoUrl,
   });
@@ -55,6 +61,23 @@ class Fixture {
     final isCup = comp.toString().toLowerCase().contains('cup') ||
         (json['round_num'] != null && json['round_num'].toString().toLowerCase().contains('cup'));
 
+    // Resolve context team and RFU Team ID
+    String? ctxTeam = json['context_team']?.toString();
+    int? teamId = json['rfu_team_id'] != null ? int.tryParse(json['rfu_team_id'].toString()) : null;
+
+    final notesStr = (json['notes'] ?? json['venue'] ?? '').toString();
+    if (ctxTeam == null && notesStr.contains('[Context:')) {
+      final m = RegExp(r'\[Context:\s*([^\]]+)\]').firstMatch(notesStr);
+      if (m != null) ctxTeam = m.group(1)?.trim();
+    }
+    if (teamId == null && notesStr.contains('[ID:')) {
+      final m = RegExp(r'\[ID:\s*(\d+)\]').firstMatch(notesStr);
+      if (m != null) teamId = int.tryParse(m.group(1)!);
+    }
+
+    // Auto-resolve RFU Team ID if not explicitly present
+    teamId ??= RfuTeamRegistry.lookupTeamId(ctxTeam ?? json['home_team'] ?? json['away_team'] ?? '');
+
     return Fixture(
       id: json['id']?.toString(),
       date: json['date'] ?? '',
@@ -69,6 +92,8 @@ class Fixture {
       competition: comp,
       roundNum: json['round_num'] ?? (isCustom ? (isCup ? 'Cup Matches' : 'Friendly Matches') : 'Scheduled'),
       isCustom: isCustom,
+      contextTeam: ctxTeam,
+      rfuTeamId: teamId,
       homeLogoUrl: json['home_logo_url'],
       awayLogoUrl: json['away_logo_url'],
     );
@@ -89,6 +114,8 @@ class Fixture {
       'competition': competition,
       'round_num': roundNum,
       'is_custom': isCustom,
+      if (contextTeam != null) 'context_team': contextTeam,
+      if (rfuTeamId != null) 'rfu_team_id': rfuTeamId,
     };
   }
 }

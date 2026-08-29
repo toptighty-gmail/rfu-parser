@@ -8,6 +8,7 @@ import '../models/fixture.dart';
 import '../models/standing_entry.dart';
 import 'api_service.dart';
 import 'team_logo_provider.dart';
+import 'rfu_team_registry.dart';
 
 class SupabaseService {
   static SupabaseClient? _client;
@@ -141,8 +142,22 @@ class SupabaseService {
       return [];
     }
 
+    final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanTeam);
     final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
+
     return allFixtures.where((f) {
+      // 1. Direct RFU Team ID correlation match
+      if (targetTeamId != null && f.rfuTeamId != null && f.rfuTeamId == targetTeamId) {
+        return true;
+      }
+      // 2. Direct Context Team string match
+      if (f.contextTeam != null && f.contextTeam!.isNotEmpty) {
+        final ctx = f.contextTeam!.toLowerCase();
+        if (ctx == cleanTeam || ctx.contains(cleanTeam) || cleanTeam.contains(ctx)) {
+          return true;
+        }
+      }
+      // 3. Participating Home / Away team matching
       final home = f.homeTeam.toLowerCase();
       final away = f.awayTeam.toLowerCase();
       if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
@@ -169,6 +184,8 @@ class SupabaseService {
       venue: fixture.venue,
       competition: fixture.competition,
       roundNum: fixture.roundNum,
+      contextTeam: fixture.contextTeam,
+      rfuTeamId: fixture.rfuTeamId,
       isCustom: true,
       homeLogoUrl: fixture.homeLogoUrl,
       awayLogoUrl: fixture.awayLogoUrl,

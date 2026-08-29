@@ -100,27 +100,52 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                       separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
                       itemBuilder: (context, index) {
                         final divName = _filteredDivisions[index];
-                        final isSelected = divName == widget.selectedDivision;
+                        final isSelected = divName.toLowerCase().trim() == widget.selectedDivision.toLowerCase().trim();
 
-                        return ListTile(
-                          dense: true,
-                          leading: Icon(
-                            isSelected ? Icons.check_circle : Icons.emoji_events_outlined,
-                            color: isSelected ? AppTheme.emeraldAccent : AppTheme.goldAccent,
-                            size: 18,
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppTheme.goldAccent.withValues(alpha: 0.15) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                            border: isSelected ? Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.6)) : null,
                           ),
-                          title: Text(
-                            divName,
-                            style: TextStyle(
-                              color: isSelected ? AppTheme.emeraldAccent : AppTheme.textPrimary,
-                              fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                          child: ListTile(
+                            dense: true,
+                            leading: Icon(
+                              isSelected ? Icons.check_circle : Icons.emoji_events_outlined,
+                              color: isSelected ? AppTheme.goldAccent : AppTheme.textMuted,
+                              size: 18,
                             ),
+                            title: Text(
+                              divName,
+                              style: TextStyle(
+                                color: isSelected ? AppTheme.goldAccent : AppTheme.textPrimary,
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.goldAccent,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'ACTIVE',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.black,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              widget.onSelectDivision(divName);
+                            },
                           ),
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            widget.onSelectDivision(divName);
-                          },
                         );
                       },
                     ),

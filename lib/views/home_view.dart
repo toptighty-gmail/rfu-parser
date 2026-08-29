@@ -150,6 +150,9 @@ class _HomeViewState extends State<HomeView> {
     if (mounted) {
       setState(() {
         _divisionData = data;
+        if (data != null && data.divisionName.isNotEmpty && !data.divisionName.startsWith('Team:')) {
+          _selectedDivision = data.divisionName;
+        }
         _isLoading = false;
       });
     }
@@ -423,20 +426,56 @@ class _HomeViewState extends State<HomeView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.shield, color: AppTheme.goldAccent, size: 20),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'SELECTED TEAM CONTEXT: ${_searchController.text.trim().toUpperCase()}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: AppTheme.goldAccent,
-                                      letterSpacing: 1.1,
-                                      fontSize: 13,
+                              Expanded(
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 12,
+                                  runSpacing: 6,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.shield, color: AppTheme.goldAccent, size: 20),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'SELECTED TEAM CONTEXT: ${_searchController.text.trim().toUpperCase()}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            color: AppTheme.goldAccent,
+                                            letterSpacing: 1.1,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    if (_divisionData?.divisionName != null &&
+                                        _divisionData!.divisionName.isNotEmpty &&
+                                        !_divisionData!.divisionName.startsWith('Team:'))
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.goldAccent,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.emoji_events, size: 14, color: Colors.black),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.black,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(

@@ -711,8 +711,15 @@ class _HomeViewState extends State<HomeView> {
 
   void _openBookletPrint() {
     if (_divisionData == null) return;
+    final currentTeam = _searchController.text.trim();
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => BookletPrintView(divisionData: _divisionData!)),
+      MaterialPageRoute(
+        builder: (_) => BookletPrintView(
+          divisionData: _divisionData!,
+          filterTeam: currentTeam.isNotEmpty ? currentTeam : null,
+          customLogosMap: _customLogosMap,
+        ),
+      ),
     );
   }
 

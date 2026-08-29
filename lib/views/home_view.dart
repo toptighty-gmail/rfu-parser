@@ -14,7 +14,6 @@ import '../widgets/logo_upload_dialog.dart';
 import '../widgets/teams_directory_dialog.dart';
 import '../widgets/divisions_directory_dialog.dart';
 import 'booklet_print_view.dart';
-import 'poster_print_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -85,6 +84,28 @@ class _HomeViewState extends State<HomeView> {
         _customLogosMap = logos;
       });
     }
+  }
+
+  String? _getTeamLogo(String teamName) {
+    final clean = teamName.trim().toLowerCase();
+    if (_customLogosMap.containsKey(clean)) {
+      return _customLogosMap[clean];
+    }
+    if (_divisionData != null) {
+      for (var s in _divisionData!.standings) {
+        if (s.teamName.trim().toLowerCase() == clean && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
+          return s.logoUrl;
+        }
+      }
+      for (var s in _divisionData!.standings) {
+        if ((s.teamName.toLowerCase().contains(clean) || clean.contains(s.teamName.toLowerCase())) &&
+            s.logoUrl != null &&
+            s.logoUrl!.isNotEmpty) {
+          return s.logoUrl;
+        }
+      }
+    }
+    return null;
   }
 
   Future<void> _loadData({String? queryTeam}) async {
@@ -233,7 +254,6 @@ class _HomeViewState extends State<HomeView> {
         onAddFixture: _openAddFixtureDialog,
         onUploadLogo: _openUploadLogoDialog,
         onOpenBookletPrint: _openBookletPrint,
-        onOpenPosterPrint: _openPosterPrint,
       ),
       body: _isLoading
           ? const Center(
@@ -524,6 +544,7 @@ class _HomeViewState extends State<HomeView> {
                             fixtures: _divisionData?.fixtures ?? [],
                             isAdmin: _isAdmin,
                             filterTeam: _searchController.text.trim(),
+                            logoProvider: _getTeamLogo,
                             onClearTeamFilter: () {
                               setState(() {
                                 _searchController.clear();
@@ -650,15 +671,38 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _openUploadLogoDialog() {
+    final List<String> teamList = [];
+    if (_divisionData != null) {
+      for (var s in _divisionData!.standings) {
+        if (s.teamName.isNotEmpty && !teamList.contains(s.teamName)) {
+          teamList.add(s.teamName);
+        }
+      }
+      for (var f in _divisionData!.fixtures) {
+        if (f.homeTeam.isNotEmpty && !teamList.contains(f.homeTeam)) {
+          teamList.add(f.homeTeam);
+        }
+        if (f.awayTeam.isNotEmpty && !teamList.contains(f.awayTeam)) {
+          teamList.add(f.awayTeam);
+        }
+      }
+    }
+    teamList.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
     showDialog(
       context: context,
       builder: (_) => LogoUploadDialog(
+        availableTeams: teamList,
+        initialTeam: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
         onUploaded: (teamName, logoUrl) {
           setState(() {
             _customLogosMap[teamName.toLowerCase()] = logoUrl;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Uploaded logo for $teamName to Supabase Storage!')),
+            SnackBar(
+              content: Text('Uploaded logo for $teamName to Supabase Storage!'),
+              backgroundColor: AppTheme.emeraldAccent,
+            ),
           );
         },
       ),
@@ -669,13 +713,6 @@ class _HomeViewState extends State<HomeView> {
     if (_divisionData == null) return;
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => BookletPrintView(divisionData: _divisionData!)),
-    );
-  }
-
-  void _openPosterPrint() {
-    if (_divisionData == null) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PosterPrintView(divisionData: _divisionData!)),
     );
   }
 

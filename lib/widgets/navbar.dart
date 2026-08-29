@@ -18,7 +18,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onAddFixture;
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
-  final VoidCallback onOpenPosterPrint;
 
   const Navbar({
     super.key,
@@ -37,7 +36,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onAddFixture,
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
-    required this.onOpenPosterPrint,
   });
 
   @override
@@ -221,12 +219,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                       tooltip: 'A4 Booklet View',
                       icon: const Icon(Icons.menu_book, color: AppTheme.goldAccent),
                       onPressed: onOpenBookletPrint,
-                    ),
-                    // Print Poster Button
-                    IconButton(
-                      tooltip: 'A3 Poster View',
-                      icon: const Icon(Icons.picture_in_picture, color: AppTheme.emeraldAccent),
-                      onPressed: onOpenPosterPrint,
                     ),
                     const SizedBox(width: 8),
 

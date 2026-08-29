@@ -7,6 +7,7 @@ class FixtureList extends StatelessWidget {
   final List<Fixture> fixtures;
   final bool isAdmin;
   final String? filterTeam;
+  final String? Function(String teamName)? logoProvider;
   final VoidCallback? onClearTeamFilter;
   final Function(Fixture)? onEditFixture;
   final Function(Fixture)? onDeleteFixture;
@@ -16,6 +17,7 @@ class FixtureList extends StatelessWidget {
     required this.fixtures,
     this.isAdmin = false,
     this.filterTeam,
+    this.logoProvider,
     this.onClearTeamFilter,
     this.onEditFixture,
     this.onDeleteFixture,
@@ -66,7 +68,74 @@ class FixtureList extends StatelessWidget {
       );
     }
 
-    // Group fixtures by round or match category
+    // When viewing single team fixtures, render a unified sleek schedule list
+    if (isTeamFiltered) {
+      return Container(
+        decoration: AppTheme.glassBoxDecoration(),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Bar
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.goldAccent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'FIXTURE SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${activeFixtures.length} MATCHES)',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          color: AppTheme.goldAccent,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (onClearTeamFilter != null)
+                    InkWell(
+                      onTap: onClearTeamFilter,
+                      borderRadius: BorderRadius.circular(6),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        child: Row(
+                          children: [
+                            Icon(Icons.close, size: 13, color: AppTheme.textMuted),
+                            SizedBox(width: 4),
+                            Text('Show All', style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            ...activeFixtures.map((f) => FixtureCard(
+                  fixture: f,
+                  isAdmin: isAdmin,
+                  filterTeam: filterTeam,
+                  logoProvider: logoProvider,
+                  onEdit: onEditFixture,
+                  onDelete: onDeleteFixture,
+                )),
+          ],
+        ),
+      );
+    }
+
+    // Group fixtures by round or match category for full division view
     final Map<String, List<Fixture>> grouped = {};
     for (var f in activeFixtures) {
       final key = f.isCustom ? 'Friendly Matches' : f.roundNum;
@@ -76,73 +145,27 @@ class FixtureList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (isTeamFiltered)
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppTheme.goldAccent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.filter_list, color: AppTheme.goldAccent, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'FIXTURES FOR "${filterTeam!.trim().toUpperCase()}" (${activeFixtures.length} matches)',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: AppTheme.goldAccent,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ],
-                ),
-                if (onClearTeamFilter != null)
-                  InkWell(
-                    onTap: onClearTeamFilter,
-                    borderRadius: BorderRadius.circular(6),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.close, size: 14, color: AppTheme.textMuted),
-                          SizedBox(width: 4),
-                          Text('Show All', style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
         ...grouped.entries.map((entry) {
           return Container(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.only(bottom: 12),
             decoration: AppTheme.glassBoxDecoration(),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Round / Category Header
+                // Round Header
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.only(bottom: 10, left: 4),
                   child: Row(
                     children: [
-                      const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 18),
+                      const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         entry.key.toUpperCase(),
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.1,
-                          fontSize: 14,
+                          fontSize: 13,
                           color: AppTheme.goldAccent,
                         ),
                       ),
@@ -154,6 +177,7 @@ class FixtureList extends StatelessWidget {
                       fixture: f,
                       isAdmin: isAdmin,
                       filterTeam: filterTeam,
+                      logoProvider: logoProvider,
                       onEdit: onEditFixture,
                       onDelete: onDeleteFixture,
                     )),

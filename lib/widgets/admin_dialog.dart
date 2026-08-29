@@ -43,8 +43,7 @@ class _AdminDialogState extends State<AdminDialog> {
             obscureText: true,
             style: const TextStyle(color: AppTheme.textPrimary),
             decoration: InputDecoration(
-              hintText: 'Password (e.g. rugby2026)',
-              hintStyle: const TextStyle(color: AppTheme.textMuted),
+              hintText: '',
               filled: true,
               fillColor: AppTheme.darkBg,
               border: OutlineInputBorder(

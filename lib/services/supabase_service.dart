@@ -134,12 +134,19 @@ class SupabaseService {
       allFixtures.addAll(_localCustomFixtures);
     }
 
-    // Filter by team if requested
+    // Filter by team if requested (fuzzy / token matching for variants like Plymstock Oaks vs Plymstock Albion Oaks)
     final cleanTeam = team?.trim().toLowerCase();
     if (cleanTeam != null && cleanTeam.isNotEmpty) {
+      final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
       return allFixtures.where((f) {
-        return f.homeTeam.toLowerCase().contains(cleanTeam) ||
-            f.awayTeam.toLowerCase().contains(cleanTeam);
+        final home = f.homeTeam.toLowerCase();
+        final away = f.awayTeam.toLowerCase();
+        if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
+        if (cleanTeam.contains(home) || cleanTeam.contains(away)) return true;
+        for (var w in searchWords) {
+          if (home.contains(w) || away.contains(w)) return true;
+        }
+        return false;
       }).toList();
     }
 
@@ -182,8 +189,21 @@ class SupabaseService {
     final client = _client;
     if (client != null) {
       try {
-        final payload = customFix.toJson();
-        payload['division'] = division;
+        final payload = {
+          'division': division.isNotEmpty && division != 'ALL / Select Division'
+              ? division
+              : 'Counties 2 Tribute Devon',
+          'date': customFix.date,
+          'time': customFix.time.isNotEmpty ? customFix.time : '15:00',
+          'home_team': customFix.homeTeam,
+          'away_team': customFix.awayTeam,
+          'score': (customFix.homeScore != null && customFix.awayScore != null)
+              ? '${customFix.homeScore} - ${customFix.awayScore}'
+              : 'v',
+          'status': customFix.status,
+          'notes': customFix.venue,
+          'is_custom': true,
+        };
         
         final response = await client
             .from('custom_fixtures')
@@ -191,7 +211,11 @@ class SupabaseService {
             .select()
             .single();
 
-        return Fixture.fromJson(response);
+        final created = Fixture.fromJson(response);
+        _localCustomFixtures.removeWhere((f) => f.id == generatedId);
+        _localCustomFixtures.add(created);
+        await _saveLocalFixturesCache();
+        return created;
       } catch (e) {
         debugPrint('Error adding fixture to Supabase: $e');
       }
@@ -231,10 +255,24 @@ class SupabaseService {
     final client = _client;
     if (client == null) return true;
     try {
-      await client
-          .from('custom_fixtures')
-          .update(updates)
-          .eq('id', id);
+      final payload = <String, dynamic>{};
+      if (updates.containsKey('date')) payload['date'] = updates['date'];
+      if (updates.containsKey('time')) payload['time'] = updates['time'];
+      if (updates.containsKey('home_team')) payload['home_team'] = updates['home_team'];
+      if (updates.containsKey('away_team')) payload['away_team'] = updates['away_team'];
+      if (updates.containsKey('venue')) payload['notes'] = updates['venue'];
+      if (updates.containsKey('status')) payload['status'] = updates['status'];
+      if (updates.containsKey('home_score') || updates.containsKey('away_score')) {
+        final h = updates['home_score'];
+        final a = updates['away_score'];
+        payload['score'] = (h != null && a != null) ? '$h - $a' : 'v';
+      }
+      if (payload.isNotEmpty) {
+        await client
+            .from('custom_fixtures')
+            .update(payload)
+            .eq('id', id);
+      }
       return true;
     } catch (e) {
       debugPrint('Error updating fixture in Supabase: $e');

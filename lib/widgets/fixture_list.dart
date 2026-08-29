@@ -30,8 +30,15 @@ class FixtureList extends StatelessWidget {
 
     final activeFixtures = isTeamFiltered
         ? fixtures.where((f) {
-            return f.homeTeam.toLowerCase().contains(cleanFilter) ||
-                f.awayTeam.toLowerCase().contains(cleanFilter);
+            final home = f.homeTeam.toLowerCase();
+            final away = f.awayTeam.toLowerCase();
+            if (home.contains(cleanFilter) || away.contains(cleanFilter)) return true;
+            if (cleanFilter.contains(home) || cleanFilter.contains(away)) return true;
+            final searchWords = cleanFilter.split(' ').where((w) => w.length > 3).toList();
+            for (var w in searchWords) {
+              if (home.contains(w) || away.contains(w)) return true;
+            }
+            return false;
           }).toList()
         : fixtures;
 

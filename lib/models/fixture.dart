@@ -34,6 +34,21 @@ class Fixture {
   });
 
   factory Fixture.fromJson(Map<String, dynamic> json) {
+    int? hScore = json['home_score'] != null ? int.tryParse(json['home_score'].toString()) : null;
+    int? aScore = json['away_score'] != null ? int.tryParse(json['away_score'].toString()) : null;
+    if (hScore == null && aScore == null && json['score'] != null) {
+      final s = json['score'].toString().trim();
+      if (s.contains('-')) {
+        final parts = s.split('-');
+        if (parts.length >= 2) {
+          hScore = int.tryParse(parts[0].trim());
+          aScore = int.tryParse(parts[1].trim());
+        }
+      }
+    }
+
+    final isCustom = json['is_custom'] == true || json['is_custom'] == 1;
+
     return Fixture(
       id: json['id']?.toString(),
       date: json['date'] ?? '',
@@ -41,13 +56,13 @@ class Fixture {
       time: json['time'] ?? '15:00',
       homeTeam: json['home_team'] ?? '',
       awayTeam: json['away_team'] ?? '',
-      homeScore: json['home_score'] != null ? int.tryParse(json['home_score'].toString()) : null,
-      awayScore: json['away_score'] != null ? int.tryParse(json['away_score'].toString()) : null,
-      status: json['status'] ?? 'Scheduled',
-      venue: json['venue'] ?? 'TBC',
-      competition: json['competition'] ?? 'League',
-      roundNum: json['round_num'] ?? 'Scheduled',
-      isCustom: json['is_custom'] == true || json['is_custom'] == 1,
+      homeScore: hScore,
+      awayScore: aScore,
+      status: json['status'] ?? (hScore != null && aScore != null ? 'Completed' : 'Scheduled'),
+      venue: json['venue'] ?? json['notes'] ?? 'TBC',
+      competition: json['competition'] ?? (isCustom ? 'Friendly' : 'League'),
+      roundNum: json['round_num'] ?? (isCustom ? 'Friendly Matches' : 'Scheduled'),
+      isCustom: isCustom,
       homeLogoUrl: json['home_logo_url'],
       awayLogoUrl: json['away_logo_url'],
     );

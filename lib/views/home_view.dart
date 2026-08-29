@@ -131,20 +131,20 @@ class _HomeViewState extends State<HomeView> {
 
     DivisionData? data;
 
-    // 1. Try Supabase cloud database if targetDivision is selected
-    if (targetDivision != null) {
+    // 1. Crawl live RFU web data directly from England Rugby site
+    data = await ApiService.crawlAndSyncLiveRFUData(
+      division: targetTeam == null ? targetDivision : null,
+      team: targetTeam,
+      season: _selectedSeason,
+    );
+
+    // 2. Try Supabase cloud database if live crawl is offline
+    if (data == null && targetDivision != null) {
       data = await SupabaseService.fetchDivisionFromSupabase(
         division: targetDivision,
         season: _selectedSeason,
       );
     }
-
-    // 2. Crawl live RFU web data directly from England Rugby site
-    data ??= await ApiService.crawlAndSyncLiveRFUData(
-      division: targetTeam == null ? targetDivision : null,
-      team: targetTeam,
-      season: _selectedSeason,
-    );
 
     // 3. Fallback to parse endpoint if live crawl is still completing
     data ??= await ApiService.fetchDivisionData(

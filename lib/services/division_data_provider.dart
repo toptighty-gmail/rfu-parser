@@ -158,7 +158,7 @@ class DivisionDataProvider {
 
     // 2. Generate 22 Rounds of Fixtures
     final fixtures = <Fixture>[];
-    final startDate = DateTime(seasonYears.$1, 9, 12); // Early Sept start
+    final startDate = DateTime(seasonYears.$1, 9, 26); // Official RFU Round 1 starts Saturday, 26 September
     final rfuDateFormat = DateFormat('EEEE, d MMM yyyy');
 
     int matchId = 1;

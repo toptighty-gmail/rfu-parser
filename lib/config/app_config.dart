@@ -1,5 +1,5 @@
 class AppConfig {
-  static const String version = 'v1.1.33';
+  static const String version = 'v1.1.34';
   static const String appName = 'RFU HUB';
   static const String appSubTitle = 'Fixtures & Standings';
 }

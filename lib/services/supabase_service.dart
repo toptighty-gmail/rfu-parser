@@ -29,48 +29,120 @@ class SupabaseService {
     }
   }
 
-  // --- Custom Fixtures CRUD ---
+  // --- Custom Fixtures CRUD with Local & Supabase Persistence ---
 
-  static Future<List<Fixture>> fetchCustomFixtures(String division) async {
+  static final List<Fixture> _localCustomFixtures = [];
+
+  static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team}) async {
+    final List<Fixture> allFixtures = [];
     final client = _client;
-    if (client == null) return [];
-    try {
-      final response = await client
-          .from('custom_fixtures')
-          .select()
-          .eq('division', division)
-          .order('created_at', ascending: true);
-      
-      return (response as List).map((row) => Fixture.fromJson(row)).toList();
-    } catch (e) {
-      debugPrint('Error fetching custom fixtures from Supabase: $e');
-      return [];
+
+    if (client != null) {
+      try {
+        final response = await client
+            .from('custom_fixtures')
+            .select()
+            .order('created_at', ascending: true);
+        
+        final remote = (response as List).map((row) => Fixture.fromJson(row)).toList();
+        for (var f in remote) {
+          if (!allFixtures.any((x) => x.id == f.id)) {
+            allFixtures.add(f);
+          }
+        }
+      } catch (e) {
+        debugPrint('Error fetching custom fixtures from Supabase: $e');
+      }
     }
+
+    // Merge in-memory local fixtures
+    for (var f in _localCustomFixtures) {
+      if (!allFixtures.any((x) => x.id == f.id)) {
+        allFixtures.add(f);
+      }
+    }
+
+    // Filter by team if requested
+    final cleanTeam = team?.trim().toLowerCase();
+    if (cleanTeam != null && cleanTeam.isNotEmpty) {
+      return allFixtures.where((f) {
+        return f.homeTeam.toLowerCase().contains(cleanTeam) ||
+            f.awayTeam.toLowerCase().contains(cleanTeam);
+      }).toList();
+    }
+
+    return allFixtures;
   }
 
   static Future<Fixture?> addCustomFixture(Fixture fixture, String division) async {
-    final client = _client;
-    if (client == null) return null;
-    try {
-      final payload = fixture.toJson();
-      payload['division'] = division;
-      
-      final response = await client
-          .from('custom_fixtures')
-          .insert(payload)
-          .select()
-          .single();
+    final generatedId = fixture.id ?? 'cust_${DateTime.now().millisecondsSinceEpoch}';
+    final customFix = Fixture(
+      id: generatedId,
+      date: fixture.date,
+      dateIso: fixture.dateIso,
+      time: fixture.time,
+      homeTeam: fixture.homeTeam,
+      awayTeam: fixture.awayTeam,
+      homeScore: fixture.homeScore,
+      awayScore: fixture.awayScore,
+      status: fixture.status,
+      venue: fixture.venue,
+      competition: 'Friendly',
+      roundNum: 'Friendly Matches',
+      isCustom: true,
+      homeLogoUrl: fixture.homeLogoUrl,
+      awayLogoUrl: fixture.awayLogoUrl,
+    );
 
-      return Fixture.fromJson(response);
-    } catch (e) {
-      debugPrint('Error adding fixture to Supabase: $e');
-      return null;
+    // Save to local memory immediately
+    _localCustomFixtures.removeWhere((f) => f.id == generatedId);
+    _localCustomFixtures.add(customFix);
+
+    // Save to Supabase if client is initialized
+    final client = _client;
+    if (client != null) {
+      try {
+        final payload = customFix.toJson();
+        payload['division'] = division;
+        
+        final response = await client
+            .from('custom_fixtures')
+            .insert(payload)
+            .select()
+            .single();
+
+        return Fixture.fromJson(response);
+      } catch (e) {
+        debugPrint('Error adding fixture to Supabase: $e');
+      }
     }
+
+    return customFix;
   }
 
   static Future<bool> updateCustomFixture(String id, Map<String, dynamic> updates) async {
+    final idx = _localCustomFixtures.indexWhere((f) => f.id == id);
+    if (idx != -1) {
+      final old = _localCustomFixtures[idx];
+      _localCustomFixtures[idx] = Fixture(
+        id: id,
+        date: updates['date'] ?? old.date,
+        dateIso: updates['date_iso'] ?? old.dateIso,
+        time: updates['time'] ?? old.time,
+        homeTeam: updates['home_team'] ?? old.homeTeam,
+        awayTeam: updates['away_team'] ?? old.awayTeam,
+        homeScore: updates.containsKey('home_score') ? updates['home_score'] : old.homeScore,
+        awayScore: updates.containsKey('away_score') ? updates['away_score'] : old.awayScore,
+        status: updates['status'] ?? old.status,
+        venue: updates['venue'] ?? old.venue,
+        competition: 'Friendly',
+        roundNum: 'Friendly Matches',
+        isCustom: true,
+      );
+    }
+
     final client = _client;
-    if (client == null) return false;
+    if (client == null) return true;
     try {
       await client
           .from('custom_fixtures')
@@ -84,8 +156,9 @@ class SupabaseService {
   }
 
   static Future<bool> deleteCustomFixture(String id) async {
+    _localCustomFixtures.removeWhere((f) => f.id == id);
     final client = _client;
-    if (client == null) return false;
+    if (client == null) return true;
     try {
       await client
           .from('custom_fixtures')

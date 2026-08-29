@@ -142,9 +142,10 @@ class _HomeViewState extends State<HomeView> {
       season: _selectedSeason,
     );
 
-    // 2. Fetch custom fixtures from Supabase database
+    // 2. Fetch custom fixtures from Supabase database / local state
     final customFixtures = await SupabaseService.fetchCustomFixtures(
-      targetDivision ?? 'General',
+      division: targetDivision,
+      team: targetTeam,
     );
 
     if (data != null) {
@@ -656,6 +657,17 @@ class _HomeViewState extends State<HomeView> {
             await SupabaseService.updateCustomFixture(existing.id!, fixture.toJson());
           } else {
             await SupabaseService.addCustomFixture(fixture, _selectedDivision);
+          }
+          if (mounted) {
+            setState(() {
+              _activeTab = 'Fixtures';
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Friendly fixture between ${fixture.homeTeam} and ${fixture.awayTeam} added!'),
+                backgroundColor: AppTheme.emeraldAccent,
+              ),
+            );
           }
           _loadData();
         },

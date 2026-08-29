@@ -164,7 +164,7 @@ class RFUParser:
                     pos = clean_int(cell_texts[0], len(entries) + 1)
                     team_name = cell_texts[1]
                     
-                    # Extract logo URL from the img tag inside the team column cell
+                    # Extract logo URL from the img tag or resolve via official RFU Club ID CDN
                     logo_url = ""
                     if len(cols) > 1:
                         img_tag = cols[1].find("img")
@@ -172,7 +172,10 @@ class RFUParser:
                             logo_url = img_tag["src"]
                             if logo_url.startswith("/"):
                                 logo_url = "https://www.englandrugby.com" + logo_url
-                                
+
+                    if not logo_url:
+                        logo_url = self.resolve_club_logo(team_name)
+
                     played = clean_int(cell_texts[2])
                     won = clean_int(cell_texts[3])
                     drawn = clean_int(cell_texts[4])
@@ -208,6 +211,38 @@ class RFUParser:
                     continue
 
         return LeagueTable(division_name=division_name, season=season, entries=entries)
+
+    def resolve_club_logo(self, team_name: str) -> str:
+        """Resolve official RFU club logo CDN URL based on club ID."""
+        if not team_name:
+            return ""
+        clean = team_name.strip().lower()
+        
+        # Check pre-resolved teams DB first
+        try:
+            from rfu_parser.teams_db import RFU_TEAMS_DB
+            for t in RFU_TEAMS_DB:
+                if clean in t.get("name", "").lower() or t.get("name", "").lower() in clean:
+                    club_id = t.get("_id")
+                    if club_id:
+                        return f"https://images.englandrugby.com/club_images/{club_id}.png"
+        except Exception:
+            pass
+
+        # Live RFU API search
+        try:
+            search_term = re.sub(r'\b(II|III|RFC|Club|XV)\b', '', team_name, flags=re.IGNORECASE).strip() or team_name
+            url = f"https://www.englandrugby.com/api/fixtures-and-result/search?name={quote(search_term)}"
+            r = requests.get(url, headers=self.headers, timeout=3)
+            if r.status_code == 200:
+                data = r.json().get("data", [])
+                if data:
+                    club_id = data[0].get("_id")
+                    if club_id:
+                        return f"https://images.englandrugby.com/club_images/{club_id}.png"
+        except Exception:
+            pass
+        return ""
 
     def parse_fixtures(self, html_content: str) -> List[Fixture]:
         """Parse RFU match fixtures and results from HTML content."""

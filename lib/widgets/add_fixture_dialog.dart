@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 
@@ -13,6 +14,9 @@ class AddFixtureDialog extends StatefulWidget {
 }
 
 class _AddFixtureDialogState extends State<AddFixtureDialog> {
+  DateTime _selectedDate = DateTime.now();
+  TimeOfDay _selectedTime = const TimeOfDay(hour: 15, minute: 0);
+
   late TextEditingController _dateController;
   late TextEditingController _timeController;
   late TextEditingController _homeTeamController;
@@ -25,13 +29,106 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   void initState() {
     super.initState();
     final f = widget.existingFixture;
-    _dateController = TextEditingController(text: f?.dateIso ?? DateTime.now().toIso8601String().split('T')[0]);
-    _timeController = TextEditingController(text: f?.time ?? '15:00');
+
+    if (f != null) {
+      // Attempt to parse existing fixture date
+      try {
+        if (f.dateIso.isNotEmpty) {
+          _selectedDate = DateTime.parse(f.dateIso);
+        } else if (f.date.contains('-')) {
+          final parts = f.date.split('-');
+          if (parts.length == 3) {
+            if (parts[0].length == 4) {
+              _selectedDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+            } else {
+              _selectedDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+            }
+          }
+        }
+      } catch (_) {
+        _selectedDate = DateTime.now();
+      }
+
+      // Attempt to parse existing fixture time
+      try {
+        if (f.time.isNotEmpty && f.time.contains(':')) {
+          final timeParts = f.time.split(':');
+          _selectedTime = TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+        }
+      } catch (_) {
+        _selectedTime = const TimeOfDay(hour: 15, minute: 0);
+      }
+    }
+
+    _dateController = TextEditingController(text: DateFormat('dd-MM-yyyy').format(_selectedDate));
+    _timeController = TextEditingController(text: _formatTimeOfDay(_selectedTime));
     _homeTeamController = TextEditingController(text: f?.homeTeam ?? '');
     _awayTeamController = TextEditingController(text: f?.awayTeam ?? '');
     _homeScoreController = TextEditingController(text: f?.homeScore?.toString() ?? '');
     _awayScoreController = TextEditingController(text: f?.awayScore?.toString() ?? '');
     _venueController = TextEditingController(text: f?.venue ?? 'Friendly Match');
+  }
+
+  String _formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppTheme.goldAccent,
+              onPrimary: Colors.black,
+              surface: AppTheme.surfaceBg,
+              onSurface: AppTheme.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppTheme.goldAccent,
+              onPrimary: Colors.black,
+              surface: AppTheme.surfaceBg,
+              onSurface: AppTheme.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = picked;
+        _timeController.text = _formatTimeOfDay(picked);
+      });
+    }
   }
 
   @override
@@ -55,39 +152,85 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ],
       ),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInput('Date (YYYY-MM-DD)', _dateController, icon: Icons.calendar_month),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInput('Time', _timeController, icon: Icons.access_time),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildInput('Home Team', _homeTeamController, icon: Icons.shield),
-            const SizedBox(height: 12),
-            _buildInput('Away Team', _awayTeamController, icon: Icons.shield_outlined),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInput('Home Score', _homeScoreController, isNumber: true),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInput('Away Score', _awayScoreController, isNumber: true),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildInput('Venue / Location', _venueController, icon: Icons.location_on),
-          ],
+        child: SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // UK Date Picker & Time Picker
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _pickDate,
+                      child: IgnorePointer(
+                        child: TextField(
+                          controller: _dateController,
+                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          decoration: InputDecoration(
+                            labelText: 'Date (DD-MM-YYYY)',
+                            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                            prefixIcon: const Icon(Icons.calendar_month, size: 18, color: AppTheme.goldAccent),
+                            suffixIcon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            filled: true,
+                            fillColor: AppTheme.darkBg,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InkWell(
+                      onTap: _pickTime,
+                      child: IgnorePointer(
+                        child: TextField(
+                          controller: _timeController,
+                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          decoration: InputDecoration(
+                            labelText: 'Time (HH:MM)',
+                            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                            prefixIcon: const Icon(Icons.access_time, size: 18, color: AppTheme.goldAccent),
+                            suffixIcon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            filled: true,
+                            fillColor: AppTheme.darkBg,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildInput('Home Team', _homeTeamController, icon: Icons.shield),
+              const SizedBox(height: 12),
+              _buildInput('Away Team', _awayTeamController, icon: Icons.shield_outlined),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildInput('Home Score (Optional)', _homeScoreController, isNumber: true),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildInput('Away Score (Optional)', _awayScoreController, isNumber: true),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildInput('Venue / Location', _venueController, icon: Icons.location_on),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -131,17 +274,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   void _save() {
     final home = _homeTeamController.text.trim();
     final away = _awayTeamController.text.trim();
-    final date = _dateController.text.trim();
+    final dateUk = _dateController.text.trim();
 
-    if (home.isEmpty || away.isEmpty || date.isEmpty) return;
+    if (home.isEmpty || away.isEmpty || dateUk.isEmpty) return;
 
     final hScore = int.tryParse(_homeScoreController.text.trim());
     final aScore = int.tryParse(_awayScoreController.text.trim());
+    final dateIso = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     final fixture = Fixture(
       id: widget.existingFixture?.id,
-      date: date,
-      dateIso: date,
+      date: dateUk,
+      dateIso: dateIso,
       time: _timeController.text.trim(),
       homeTeam: home,
       awayTeam: away,

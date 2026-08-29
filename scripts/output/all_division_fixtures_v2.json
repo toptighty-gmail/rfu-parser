@@ -1,0 +1,4242 @@
+{
+  "Gallagher Premiership": {
+    "comp": "5",
+    "div": "77026",
+    "fixtures": [],
+    "skip": true
+  },
+  "Championship": {
+    "comp": "173",
+    "div": "76143",
+    "fixtures": [],
+    "skip": true
+  },
+  "National 1": {
+    "comp": "1605",
+    "div": "75899",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1605&season=2026-2027&division=75899",
+    "teams": [
+      "Birmingham Moseley",
+      "Bishop's Stortford",
+      "Bury St Edmunds",
+      "Camborne",
+      "Cambridge",
+      "Dings Crusaders",
+      "Leeds Tykes",
+      "London Scottish",
+      "Plymouth Albion",
+      "Rams",
+      "Rosslyn Park",
+      "Sale FC",
+      "Sheffield",
+      "Tonbridge Juddians"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 05 Sep 2026",
+        "dateIso": "2026-09-05",
+        "home": "Leeds Tykes",
+        "away": "Camborne",
+        "time": "14:00",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 12 Sep 2026",
+        "dateIso": "2026-09-12",
+        "home": "Sale FC",
+        "away": "Birmingham Moseley",
+        "time": "14:30",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 19 Sep 2026",
+        "dateIso": "2026-09-19",
+        "home": "Leeds Tykes",
+        "away": "London Scottish",
+        "time": "14:00",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Sale FC",
+        "away": "Tonbridge Juddians",
+        "time": "14:30",
+        "round": "Round 4"
+      },
+      {
+        "date": "Friday, 02 Oct 2026",
+        "dateIso": "2026-10-02",
+        "home": "Leeds Tykes",
+        "away": "Sale FC",
+        "time": "20:00",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Camborne",
+        "away": "London Scottish",
+        "time": "14:30",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Sale FC",
+        "away": "Plymouth Albion",
+        "time": "14:30",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Leeds Tykes",
+        "away": "Bishop's Stortford",
+        "time": "14:00",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Sale FC",
+        "away": "Sheffield",
+        "time": "14:30",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Camborne",
+        "away": "Bishop's Stortford",
+        "time": "14:00",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Tonbridge Juddians",
+        "away": "Rosslyn Park",
+        "time": "14:00",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Camborne",
+        "away": "Birmingham Moseley",
+        "time": "14:00",
+        "round": "Round 12"
+      },
+      {
+        "date": "Friday, 04 Dec 2026",
+        "dateIso": "2026-12-04",
+        "home": "Rams",
+        "away": "London Scottish",
+        "time": "19:45",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Leeds Tykes",
+        "away": "Rosslyn Park",
+        "time": "14:00",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Camborne",
+        "away": "Tonbridge Juddians",
+        "time": "14:00",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Tonbridge Juddians",
+        "away": "London Scottish",
+        "time": "14:00",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Camborne",
+        "away": "Rosslyn Park",
+        "time": "14:00",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Camborne",
+        "away": "Sheffield",
+        "time": "14:00",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Cambridge",
+        "away": "Plymouth Albion",
+        "time": "14:00",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Camborne",
+        "away": "Cambridge",
+        "time": "14:00",
+        "round": "Round 20"
+      },
+      {
+        "date": "Friday, 12 Feb 2027",
+        "dateIso": "2027-02-12",
+        "home": "London Scottish",
+        "away": "Rosslyn Park",
+        "time": "20:00",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Cambridge",
+        "away": "Sheffield",
+        "time": "14:00",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Camborne",
+        "away": "Dings Crusaders",
+        "time": "14:00",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Sale FC",
+        "away": "London Scottish",
+        "time": "14:30",
+        "round": "Round 24"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Camborne",
+        "away": "Rams",
+        "time": "14:00",
+        "round": "Round 25"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Sale FC",
+        "away": "Rosslyn Park",
+        "time": "14:30",
+        "round": "Round 26"
+      },
+      {
+        "date": "Friday, 02 Apr 2027",
+        "dateIso": "2027-04-02",
+        "home": "London Scottish",
+        "away": "Rams",
+        "time": "19:45",
+        "round": "Round 27"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Camborne",
+        "away": "Bury St Edmunds",
+        "time": "14:30",
+        "round": "Round 28"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Leeds Tykes",
+        "away": "Plymouth Albion",
+        "time": "14:00",
+        "round": "Round 29"
+      },
+      {
+        "date": "Saturday, 17 Apr 2027",
+        "dateIso": "2027-04-17",
+        "home": "Camborne",
+        "away": "Leeds Tykes",
+        "time": "15:00",
+        "round": "Round 30"
+      }
+    ]
+  },
+  "National 2 West": {
+    "comp": "1605",
+    "div": "75902",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1605&season=2026-2027&division=75902",
+    "teams": [
+      "Barnstaple",
+      "Bournville",
+      "Clifton",
+      "Devonport Services",
+      "Exeter University",
+      "Hinckley",
+      "Loughborough Students",
+      "Luctonians",
+      "Lymm",
+      "Old Redcliffians",
+      "Redruth",
+      "Taunton Titans"
+    ],
+    "fixtures": [
+      {
+        "date": "Friday, 04 Sep 2026",
+        "dateIso": "2026-09-04",
+        "home": "Taunton Titans",
+        "away": "Devonport Services",
+        "time": "19:45",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 05 Sep 2026",
+        "dateIso": "2026-09-05",
+        "home": "Lymm",
+        "away": "Loughborough Students",
+        "time": "14:15",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 12 Sep 2026",
+        "dateIso": "2026-09-12",
+        "home": "Loughborough Students",
+        "away": "Hinckley",
+        "time": "14:00",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 19 Sep 2026",
+        "dateIso": "2026-09-19",
+        "home": "Exeter University",
+        "away": "Taunton Titans",
+        "time": "14:00",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Barnstaple",
+        "away": "Lymm",
+        "time": "14:00",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Lymm",
+        "away": "Exeter University",
+        "time": "14:15",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Loughborough Students",
+        "away": "Luctonians",
+        "time": "14:00",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Lymm",
+        "away": "Redruth",
+        "time": "14:15",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Barnstaple",
+        "away": "Clifton",
+        "time": "14:00",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Loughborough Students",
+        "away": "Devonport Services",
+        "time": "14:00",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Barnstaple",
+        "away": "Loughborough Students",
+        "time": "14:00",
+        "round": "Round 11"
+      },
+      {
+        "date": "Friday, 20 Nov 2026",
+        "dateIso": "2026-11-20",
+        "home": "Loughborough Students",
+        "away": "Exeter University",
+        "time": "19:30",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Old Redcliffians",
+        "away": "Lymm",
+        "time": "14:00",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Barnstaple",
+        "away": "Devonport Services",
+        "time": "14:00",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Loughborough Students",
+        "away": "Redruth",
+        "time": "14:00",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Old Redcliffians",
+        "away": "Clifton",
+        "time": "14:00",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Barnstaple",
+        "away": "Redruth",
+        "time": "14:00",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Old Redcliffians",
+        "away": "Loughborough Students",
+        "time": "14:00",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Barnstaple",
+        "away": "Hinckley",
+        "time": "14:00",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Luctonians",
+        "away": "Loughborough Students",
+        "time": "14:00",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Barnstaple",
+        "away": "Old Redcliffians",
+        "time": "14:00",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Loughborough Students",
+        "away": "Bournville",
+        "time": "14:00",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Barnstaple",
+        "away": "Luctonians",
+        "time": "14:00",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Loughborough Students",
+        "away": "Barnstaple",
+        "time": "14:00",
+        "round": "Round 24"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Barnstaple",
+        "away": "Bournville",
+        "time": "14:00",
+        "round": "Round 25"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Devonport Services",
+        "away": "Barnstaple",
+        "time": "14:30",
+        "round": "Round 26"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Lymm",
+        "away": "Luctonians",
+        "time": "14:15",
+        "round": "Round 27"
+      },
+      {
+        "date": "Saturday, 17 Apr 2027",
+        "dateIso": "2027-04-17",
+        "home": "Barnstaple",
+        "away": "Exeter University",
+        "time": "15:00",
+        "round": "Round 28"
+      }
+    ]
+  },
+  "National 2 East": {
+    "comp": "1605",
+    "div": "75901",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1605&season=2026-2027&division=75901",
+    "teams": [
+      "Barnes",
+      "Canterbury",
+      "Colchester",
+      "Dorking",
+      "Esher",
+      "Guernsey",
+      "Havant",
+      "Henley",
+      "Jersey Rugby Football Club",
+      "Leicester Lions",
+      "London Welsh",
+      "Old Albanians",
+      "Oundle",
+      "Westcombe Park"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 05 Sep 2026",
+        "dateIso": "2026-09-05",
+        "home": "Jersey Rugby Football Club",
+        "away": "London Welsh",
+        "time": "13:00",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 12 Sep 2026",
+        "dateIso": "2026-09-12",
+        "home": "Jersey Rugby Football Club",
+        "away": "Guernsey",
+        "time": "13:30",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 19 Sep 2026",
+        "dateIso": "2026-09-19",
+        "home": "Guernsey",
+        "away": "Henley",
+        "time": "14:00",
+        "round": "Round 3"
+      },
+      {
+        "date": "Friday, 25 Sep 2026",
+        "dateIso": "2026-09-25",
+        "home": "Old Albanians",
+        "away": "London Welsh",
+        "time": "19:45",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Colchester",
+        "away": "Guernsey",
+        "time": "14:00",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Guernsey",
+        "away": "Old Albanians",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Old Albanians",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:30",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Barnes",
+        "away": "Canterbury",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Oundle",
+        "away": "Guernsey",
+        "time": "13:00",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Guernsey",
+        "away": "Havant",
+        "time": "14:00",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Havant",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:30",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Guernsey",
+        "away": "Barnes",
+        "time": "14:00",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Barnes",
+        "away": "Jersey Rugby Football Club",
+        "time": "14:00",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Guernsey",
+        "away": "London Welsh",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Guernsey",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:00",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Jersey Rugby Football Club",
+        "away": "Leicester Lions",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Jersey Rugby Football Club",
+        "away": "Henley",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Colchester",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:30",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Jersey Rugby Football Club",
+        "away": "Old Albanians",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Dorking",
+        "away": "Jersey Rugby Football Club",
+        "time": "14:00",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Jersey Rugby Football Club",
+        "away": "Esher",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Havant",
+        "away": "Guernsey",
+        "time": "13:30",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Jersey Rugby Football Club",
+        "away": "Havant",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Canterbury",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:45",
+        "round": "Round 24"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Guernsey",
+        "away": "Westcombe Park",
+        "time": "TBA",
+        "round": "Round 25"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Westcombe Park",
+        "away": "Jersey Rugby Football Club",
+        "time": "13:45",
+        "round": "Round 26"
+      },
+      {
+        "date": "Saturday, 17 Apr 2027",
+        "dateIso": "2027-04-17",
+        "home": "Colchester",
+        "away": "Barnes",
+        "time": "15:00",
+        "round": "Round 27"
+      }
+    ]
+  },
+  "National 2 North": {
+    "comp": "1605",
+    "div": "75900",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1605&season=2026-2027&division=75900",
+    "teams": [
+      "Billingham",
+      "Chester",
+      "Darlington Mowden Park",
+      "Fylde",
+      "Harrogate",
+      "Heath",
+      "Huddersfield",
+      "Hull Ionians",
+      "Otley",
+      "Preston Grasshoppers",
+      "Sedgley Park",
+      "Sheffield Tigers",
+      "Tynedale",
+      "Wharfedale"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 05 Sep 2026",
+        "dateIso": "2026-09-05",
+        "home": "Billingham",
+        "away": "Fylde",
+        "time": "14:15",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 12 Sep 2026",
+        "dateIso": "2026-09-12",
+        "home": "Harrogate",
+        "away": "Billingham",
+        "time": "14:00",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 19 Sep 2026",
+        "dateIso": "2026-09-19",
+        "home": "Billingham",
+        "away": "Wharfedale",
+        "time": "14:15",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Harrogate",
+        "away": "Hull Ionians",
+        "time": "14:00",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Billingham",
+        "away": "Otley",
+        "time": "14:15",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Harrogate",
+        "away": "Darlington Mowden Park",
+        "time": "14:00",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Preston Grasshoppers",
+        "away": "Billingham",
+        "time": "14:30",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Harrogate",
+        "away": "Huddersfield",
+        "time": "14:00",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Hull Ionians",
+        "away": "Preston Grasshoppers",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Harrogate",
+        "away": "Fylde",
+        "time": "14:00",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Huddersfield",
+        "away": "Otley",
+        "time": "14:00",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Hull Ionians",
+        "away": "Darlington Mowden Park",
+        "time": "14:00",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Harrogate",
+        "away": "Chester",
+        "time": "14:00",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Hull Ionians",
+        "away": "Heath",
+        "time": "14:00",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Harrogate",
+        "away": "Preston Grasshoppers",
+        "time": "14:00",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Hull Ionians",
+        "away": "Harrogate",
+        "time": "14:00",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Harrogate",
+        "away": "Sheffield Tigers",
+        "time": "14:00",
+        "round": "Round 17"
+      },
+      {
+        "date": "Friday, 05 Feb 2027",
+        "dateIso": "2027-02-05",
+        "home": "Darlington Mowden Park",
+        "away": "Harrogate",
+        "time": "19:45",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Huddersfield",
+        "away": "Heath",
+        "time": "14:00",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Harrogate",
+        "away": "Tynedale",
+        "time": "14:00",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Huddersfield",
+        "away": "Harrogate",
+        "time": "14:00",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Harrogate",
+        "away": "Heath",
+        "time": "14:00",
+        "round": "Round 22"
+      },
+      {
+        "date": "Friday, 12 Mar 2027",
+        "dateIso": "2027-03-12",
+        "home": "Darlington Mowden Park",
+        "away": "Billingham",
+        "time": "19:45",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Huddersfield",
+        "away": "Chester",
+        "time": "14:00",
+        "round": "Round 24"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Harrogate",
+        "away": "Sedgley Park",
+        "time": "14:00",
+        "round": "Round 25"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Harrogate",
+        "away": "Wharfedale",
+        "time": "14:00",
+        "round": "Round 26"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Wharfedale",
+        "away": "Sedgley Park",
+        "time": "14:00",
+        "round": "Round 27"
+      },
+      {
+        "date": "Saturday, 17 Apr 2027",
+        "dateIso": "2027-04-17",
+        "home": "Darlington Mowden Park",
+        "away": "Sedgley Park",
+        "time": "15:00",
+        "round": "Round 28"
+      }
+    ]
+  },
+  "Regional 1 Tribute South West": {
+    "comp": "1699",
+    "div": "75793",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75793",
+    "teams": [
+      "Banbury II",
+      "Beaconsfield II",
+      "Bicester",
+      "Bracknell II",
+      "Buckingham",
+      "Henley II",
+      "High Wycombe",
+      "Oxford",
+      "Oxford Harlequins II",
+      "Reading",
+      "Reading Abbey",
+      "Windsor"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Beaconsfield II",
+        "away": "Reading",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Bracknell II",
+        "away": "Beaconsfield II",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Beaconsfield II",
+        "away": "Oxford Harlequins II",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Beaconsfield II",
+        "away": "Banbury II",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Beaconsfield II",
+        "away": "Windsor",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bicester",
+        "away": "Bracknell II",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Beaconsfield II",
+        "away": "Reading Abbey",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bicester",
+        "away": "Beaconsfield II",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Bracknell II",
+        "away": "Windsor",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Beaconsfield II",
+        "away": "Buckingham",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bicester",
+        "away": "Reading Abbey",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Beaconsfield II",
+        "away": "Henley II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Bracknell II",
+        "away": "Banbury II",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Beaconsfield II",
+        "away": "Bracknell II",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Bracknell II",
+        "away": "Oxford",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bicester",
+        "away": "Reading",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Beaconsfield II",
+        "away": "Oxford",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Bicester",
+        "away": "Banbury II",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Beaconsfield II",
+        "away": "Bicester",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Bicester",
+        "away": "Oxford",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Beaconsfield II",
+        "away": "High Wycombe",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Bicester",
+        "away": "Windsor",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Regional 1 South East": {
+    "comp": "1597",
+    "div": "75782",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1597&season=2026-2027&division=75782",
+    "teams": [],
+    "fixtures": []
+  },
+  "Regional 1 Midlands": {
+    "comp": "1597",
+    "div": "75786",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1597&season=2026-2027&division=75786",
+    "teams": [
+      "Banbury",
+      "Bridgnorth",
+      "Broadstreet",
+      "Bromsgrove",
+      "Burton",
+      "Lichfield",
+      "Lutterworth",
+      "Moseley Oak",
+      "Newport (Salop)",
+      "Oxford Harlequins",
+      "Stourbridge",
+      "Syston"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Bridgnorth",
+        "away": "Broadstreet",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Broadstreet",
+        "away": "Banbury",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Lutterworth",
+        "away": "Lichfield",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Bridgnorth",
+        "away": "Burton",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Bromsgrove",
+        "away": "Broadstreet",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bridgnorth",
+        "away": "Lutterworth",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Burton",
+        "away": "Bromsgrove",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bridgnorth",
+        "away": "Newport (Salop)",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Lichfield",
+        "away": "Burton",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Bridgnorth",
+        "away": "Stourbridge",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bridgnorth",
+        "away": "Banbury",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Broadstreet",
+        "away": "Bridgnorth",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Broadstreet",
+        "away": "Stourbridge",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Bridgnorth",
+        "away": "Bromsgrove",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Broadstreet",
+        "away": "Syston",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bridgnorth",
+        "away": "Lichfield",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Bromsgrove",
+        "away": "Syston",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Bridgnorth",
+        "away": "Moseley Oak",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Burton",
+        "away": "Syston",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Bridgnorth",
+        "away": "Oxford Harlequins",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Lichfield",
+        "away": "Syston",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Bridgnorth",
+        "away": "Syston",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Regional 1 North West": {
+    "comp": "1623",
+    "div": "75774",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1623&season=2026-2027&division=75774",
+    "teams": [
+      "Anselmians",
+      "Blackburn",
+      "Bowdon",
+      "Dronfield",
+      "Kendal",
+      "Leek",
+      "Macclesfield",
+      "Rochdale",
+      "Rossendale",
+      "Stockport",
+      "Vale of Lune",
+      "Wirral"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Anselmians",
+        "away": "Blackburn",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Bowdon",
+        "away": "Blackburn",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Blackburn",
+        "away": "Wirral",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Anselmians",
+        "away": "Bowdon",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Dronfield",
+        "away": "Bowdon",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Anselmians",
+        "away": "Dronfield",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Dronfield",
+        "away": "Kendal",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Anselmians",
+        "away": "Kendal",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Leek",
+        "away": "Blackburn",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Anselmians",
+        "away": "Rossendale",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Anselmians",
+        "away": "Vale of Lune",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Anselmians",
+        "away": "Wirral",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Blackburn",
+        "away": "Anselmians",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Anselmians",
+        "away": "Rochdale",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Bowdon",
+        "away": "Anselmians",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Anselmians",
+        "away": "Leek",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Dronfield",
+        "away": "Anselmians",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Anselmians",
+        "away": "Stockport",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Kendal",
+        "away": "Anselmians",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Anselmians",
+        "away": "Macclesfield",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Leek",
+        "away": "Bowdon",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Blackburn",
+        "away": "Macclesfield",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Regional 1 North East": {
+    "comp": "1623",
+    "div": "75775",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1623&season=2026-2027&division=75775",
+    "teams": [
+      "Consett",
+      "Durham City",
+      "Guisborough",
+      "Keswick",
+      "Novocastrians",
+      "Penrith",
+      "Percy Park",
+      "Ryton",
+      "Sunderland",
+      "Upper Eden",
+      "West Hartlepool"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Consett",
+        "away": "Guisborough",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Guisborough",
+        "away": "Sunderland",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Guisborough",
+        "away": "Upper Eden",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Durham City",
+        "away": "West Hartlepool",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Keswick",
+        "away": "Guisborough",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Consett",
+        "away": "West Hartlepool",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Durham City",
+        "away": "Penrith",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Consett",
+        "away": "Ryton",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Durham City",
+        "away": "Consett",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Consett",
+        "away": "Upper Eden",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Consett",
+        "away": "Sunderland",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Durham City",
+        "away": "Guisborough",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Guisborough",
+        "away": "Consett",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Consett",
+        "away": "Keswick",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Guisborough",
+        "away": "Penrith",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Consett",
+        "away": "Novocastrians",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Keswick",
+        "away": "Penrith",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Consett",
+        "away": "Percy Park",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Durham City",
+        "away": "Upper Eden",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Consett",
+        "away": "Durham City",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Durham City",
+        "away": "Sunderland",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Consett",
+        "away": "Penrith",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Regional 2 Tribute South West": {
+    "comp": "1699",
+    "div": "75790",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75790",
+    "teams": [
+      "Brixham",
+      "Chew Valley",
+      "Exmouth",
+      "Launceston",
+      "Lydney",
+      "Newent",
+      "Royal Wootton Bassett",
+      "Sidmouth",
+      "St Austell",
+      "Topsham",
+      "Trowbridge",
+      "Weston-super-Mare"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Brixham",
+        "away": "Exmouth",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Chew Valley",
+        "away": "Topsham",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Royal Wootton Bassett",
+        "away": "Chew Valley",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Brixham",
+        "away": "Lydney",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Friday, 23 Oct 2026",
+        "dateIso": "2026-10-23",
+        "home": "Sidmouth",
+        "away": "Topsham",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Chew Valley",
+        "away": "Brixham",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Brixham",
+        "away": "Royal Wootton Bassett",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Chew Valley",
+        "away": "Exmouth",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Brixham",
+        "away": "St Austell",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Chew Valley",
+        "away": "Sidmouth",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Chew Valley",
+        "away": "Lydney",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Brixham",
+        "away": "Trowbridge",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Brixham",
+        "away": "Newent",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Chew Valley",
+        "away": "St Austell",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Brixham",
+        "away": "Launceston",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Chew Valley",
+        "away": "Trowbridge",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Brixham",
+        "away": "Chew Valley",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Chew Valley",
+        "away": "Newent",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Brixham",
+        "away": "Sidmouth",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Chew Valley",
+        "away": "Launceston",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Brixham",
+        "away": "Topsham",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Chew Valley",
+        "away": "Weston-super-Mare",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Chew Valley",
+        "away": "Royal Wootton Bassett",
+        "time": "TBA",
+        "round": "Round 23"
+      }
+    ]
+  },
+  "Regional 2 Tribute Severn": {
+    "comp": "1699",
+    "div": "75795",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75795",
+    "teams": [
+      "Burnham-on-Sea",
+      "Chard",
+      "Cheltenham",
+      "Cinderford II",
+      "Clifton II",
+      "Dings Crusaders II",
+      "Gordano",
+      "Gordon League",
+      "Midsomer Norton",
+      "Old Bristolians",
+      "Old Redcliffians II",
+      "Wellington"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Clifton II",
+        "away": "Cinderford II",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Burnham-on-Sea",
+        "away": "Midsomer Norton",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Cinderford II",
+        "away": "Burnham-on-Sea",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Dings Crusaders II",
+        "away": "Gordano",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Burnham-on-Sea",
+        "away": "Dings Crusaders II",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Cheltenham",
+        "away": "Gordano",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Burnham-on-Sea",
+        "away": "Cheltenham",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Friday, 20 Nov 2026",
+        "dateIso": "2026-11-20",
+        "home": "Chard",
+        "away": "Burnham-on-Sea",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Cheltenham",
+        "away": "Cinderford II",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Burnham-on-Sea",
+        "away": "Clifton II",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Burnham-on-Sea",
+        "away": "Gordano",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Chard",
+        "away": "Clifton II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Clifton II",
+        "away": "Burnham-on-Sea",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Burnham-on-Sea",
+        "away": "Old Bristolians",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Dings Crusaders II",
+        "away": "Chard",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Burnham-on-Sea",
+        "away": "Gordon League",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Cheltenham",
+        "away": "Chard",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Burnham-on-Sea",
+        "away": "Old Redcliffians II",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Chard",
+        "away": "Gordano",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Friday, 05 Mar 2027",
+        "dateIso": "2027-03-05",
+        "home": "Burnham-on-Sea",
+        "away": "Chard",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Cinderford II",
+        "away": "Cheltenham",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Chard",
+        "away": "Cinderford II",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Burnham-on-Sea",
+        "away": "Wellington",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Burnham-on-Sea",
+        "away": "Cinderford II",
+        "time": "TBA",
+        "round": "Round 24"
+      }
+    ]
+  },
+  "Counties 1 Tribute Western West": {
+    "comp": "1699",
+    "div": "75798",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75798",
+    "teams": [
+      "Bodmin",
+      "Bude II",
+      "Camborne S o M",
+      "Falmouth II",
+      "Helston II",
+      "Redruth Albany",
+      "Roseland",
+      "Saltash II",
+      "Veor"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Camborne S o M",
+        "away": "Bude II",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Bodmin",
+        "away": "Helston II",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Camborne S o M",
+        "away": "Falmouth II",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Helston II",
+        "away": "Redruth Albany",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Bude II",
+        "away": "Bodmin",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bodmin",
+        "away": "Redruth Albany",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Bude II",
+        "away": "Redruth Albany",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bodmin",
+        "away": "Falmouth II",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Bodmin",
+        "away": "Saltash II",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Bude II",
+        "away": "Veor",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bodmin",
+        "away": "Camborne S o M",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Bude II",
+        "away": "Falmouth II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Bodmin",
+        "away": "Roseland",
+        "time": "TBA",
+        "round": "Round 13"
+      }
+    ]
+  },
+  "Counties 1 Tribute Southern South": {
+    "comp": "261",
+    "div": "75781",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=261&season=2026-2027&division=75781",
+    "teams": [
+      "Bognor",
+      "Camberley",
+      "Chobham",
+      "Guildford",
+      "Havant II",
+      "Old Tiffinians",
+      "Petersfield",
+      "Tottonians",
+      "Twickenham",
+      "Weybridge Vandals",
+      "Winchester"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Bognor",
+        "away": "Winchester",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Chobham",
+        "away": "Winchester",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Bognor",
+        "away": "Petersfield",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Bognor",
+        "away": "Chobham",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Guildford",
+        "away": "Chobham",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bognor",
+        "away": "Guildford",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Camberley",
+        "away": "Bognor",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bognor",
+        "away": "Old Tiffinians",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Chobham",
+        "away": "Weybridge Vandals",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Camberley",
+        "away": "Petersfield",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bognor",
+        "away": "Tottonians",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Bognor",
+        "away": "Havant II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Chobham",
+        "away": "Petersfield",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Camberley",
+        "away": "Tottonians",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Chobham",
+        "away": "Bognor",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bognor",
+        "away": "Twickenham",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Guildford",
+        "away": "Bognor",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Bognor",
+        "away": "Camberley",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Camberley",
+        "away": "Weybridge Vandals",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Bognor",
+        "away": "Weybridge Vandals",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Camberley",
+        "away": "Winchester",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Chobham",
+        "away": "Camberley",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Counties 1 Tribute Somerset": {
+    "comp": "1699",
+    "div": "75848",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75848",
+    "teams": [
+      "Bridgwater & Albion II",
+      "Burnham-on-Sea II",
+      "Castle Cary",
+      "Chard II",
+      "Hornets III",
+      "Martock",
+      "North Petherton II",
+      "Somerton",
+      "Weston-s-Mare II",
+      "Wiveliscombe II",
+      "Wyvern"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Burnham-on-Sea II",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Martock",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Burnham-on-Sea II",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Burnham-on-Sea II",
+        "away": "Martock",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "North Petherton II",
+        "away": "Martock",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Burnham-on-Sea II",
+        "away": "North Petherton II",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Friday, 06 Nov 2026",
+        "dateIso": "2026-11-06",
+        "home": "Bridgwater & Albion II",
+        "away": "Wyvern",
+        "time": "14:15",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Chard II",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Burnham-on-Sea II",
+        "away": "Somerton",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Castle Cary",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Chard II",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Burnham-on-Sea II",
+        "away": "Weston-s-Mare II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Chard II",
+        "away": "North Petherton II",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Castle Cary",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Burnham-on-Sea II",
+        "away": "Wiveliscombe II",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Martock",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Friday, 05 Feb 2027",
+        "dateIso": "2027-02-05",
+        "home": "Hornets III",
+        "away": "Weston-s-Mare II",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Burnham-on-Sea II",
+        "away": "Bridgwater & Albion II",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "North Petherton II",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Burnham-on-Sea II",
+        "away": "Chard II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Chard II",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Burnham-on-Sea II",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Chard II",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Castle Cary",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 24"
+      }
+    ]
+  },
+  "Counties 2 Tribute Devon": {
+    "comp": "1699",
+    "div": "75799",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75799",
+    "teams": [
+      "Bideford",
+      "Brixham II",
+      "Crediton II",
+      "Exeter Saracens",
+      "Exmouth II",
+      "Honiton",
+      "Old Plymothian & Mannamedian",
+      "Plymstock Oaks",
+      "South Molton",
+      "Tavistock",
+      "Topsham II",
+      "Withycombe"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Crediton II",
+        "away": "Exeter Saracens",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Brixham II",
+        "away": "Exmouth II",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Brixham II",
+        "away": "Old Plymothian & Mannamedian",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Bideford",
+        "away": "Topsham II",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Brixham II",
+        "away": "Withycombe",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bideford",
+        "away": "Old Plymothian & Mannamedian",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Brixham II",
+        "away": "Bideford",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bideford",
+        "away": "Plymstock Oaks",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Bideford",
+        "away": "Crediton II",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Brixham II",
+        "away": "Topsham II",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bideford",
+        "away": "Tavistock",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Crediton II",
+        "away": "Bideford",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Bideford",
+        "away": "South Molton",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Bideford",
+        "away": "Exeter Saracens",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Brixham II",
+        "away": "Tavistock",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bideford",
+        "away": "Honiton",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Brixham II",
+        "away": "Crediton II",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Bideford",
+        "away": "Brixham II",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Brixham II",
+        "away": "Exeter Saracens",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Bideford",
+        "away": "Exmouth II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Brixham II",
+        "away": "Honiton",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Bideford",
+        "away": "Withycombe",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Counties 2 Tribute Cornwall": {
+    "comp": "1699",
+    "div": "75803",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75803",
+    "teams": [],
+    "fixtures": []
+  },
+  "Counties 2 Tribute Somerset": {
+    "comp": "1699",
+    "div": "75848",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75848",
+    "teams": [
+      "Bridgwater & Albion II",
+      "Burnham-on-Sea II",
+      "Castle Cary",
+      "Chard II",
+      "Hornets III",
+      "Martock",
+      "North Petherton II",
+      "Somerton",
+      "Weston-s-Mare II",
+      "Wiveliscombe II",
+      "Wyvern"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Burnham-on-Sea II",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Martock",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Burnham-on-Sea II",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Burnham-on-Sea II",
+        "away": "Martock",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "North Petherton II",
+        "away": "Martock",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Burnham-on-Sea II",
+        "away": "North Petherton II",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Friday, 06 Nov 2026",
+        "dateIso": "2026-11-06",
+        "home": "Bridgwater & Albion II",
+        "away": "Wyvern",
+        "time": "14:15",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Chard II",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Burnham-on-Sea II",
+        "away": "Somerton",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Castle Cary",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Chard II",
+        "away": "Hornets III",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Burnham-on-Sea II",
+        "away": "Weston-s-Mare II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Chard II",
+        "away": "North Petherton II",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Castle Cary",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Burnham-on-Sea II",
+        "away": "Wiveliscombe II",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Martock",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Friday, 05 Feb 2027",
+        "dateIso": "2027-02-05",
+        "home": "Hornets III",
+        "away": "Weston-s-Mare II",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Burnham-on-Sea II",
+        "away": "Bridgwater & Albion II",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "North Petherton II",
+        "away": "Burnham-on-Sea II",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Burnham-on-Sea II",
+        "away": "Chard II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Chard II",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Burnham-on-Sea II",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Chard II",
+        "away": "Castle Cary",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Castle Cary",
+        "away": "Wyvern",
+        "time": "TBA",
+        "round": "Round 24"
+      }
+    ]
+  },
+  "Counties 3 Tribute Devon South West": {
+    "comp": "1699",
+    "div": "75801",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75801",
+    "teams": [
+      "Dartmouth",
+      "Ivybridge II",
+      "Kingsbridge II",
+      "Old Technicians",
+      "Paignton II",
+      "Plymouth Argaum",
+      "Plympton Victoria",
+      "Plymstock Oaks II",
+      "Salcombe",
+      "Tamar Saracens",
+      "Torquay Athletic II",
+      "Totnes"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Kingsbridge II",
+        "away": "Ivybridge II",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Ivybridge II",
+        "away": "Totnes",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Kingsbridge II",
+        "away": "Old Technicians",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Dartmouth",
+        "away": "Ivybridge II",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Ivybridge II",
+        "away": "Plymstock Oaks II",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Dartmouth",
+        "away": "Salcombe",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Ivybridge II",
+        "away": "Torquay Athletic II",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Dartmouth",
+        "away": "Tamar Saracens",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Ivybridge II",
+        "away": "Tamar Saracens",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Kingsbridge II",
+        "away": "Dartmouth",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Dartmouth",
+        "away": "Totnes",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Dartmouth",
+        "away": "Plymstock Oaks II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Ivybridge II",
+        "away": "Kingsbridge II",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Dartmouth",
+        "away": "Torquay Athletic II",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Ivybridge II",
+        "away": "Dartmouth",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Dartmouth",
+        "away": "Plympton Victoria",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Plymouth Argaum",
+        "away": "Totnes",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Dartmouth",
+        "away": "Plymouth Argaum",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Ivybridge II",
+        "away": "Paignton II",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Dartmouth",
+        "away": "Kingsbridge II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Kingsbridge II",
+        "away": "Plymstock Oaks II",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Dartmouth",
+        "away": "Paignton II",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Counties 3 Tribute Somerset": {
+    "comp": "1699",
+    "div": "75791",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75791",
+    "teams": [
+      "Crediton",
+      "Ivybridge",
+      "Nailsea & Backwell",
+      "North Petherton",
+      "Okehampton",
+      "Penzance & Newlyn",
+      "Sherborne",
+      "Teignmouth",
+      "Tiverton",
+      "Wadebridge Camels",
+      "Winscombe",
+      "Wiveliscombe"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "North Petherton",
+        "away": "Wadebridge Camels",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Crediton",
+        "away": "Okehampton",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Crediton",
+        "away": "Wiveliscombe",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "North Petherton",
+        "away": "Crediton",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Crediton",
+        "away": "Ivybridge",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Nailsea & Backwell",
+        "away": "Wadebridge Camels",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 14 Nov 2026",
+        "dateIso": "2026-11-14",
+        "home": "Crediton",
+        "away": "Teignmouth",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Nailsea & Backwell",
+        "away": "Crediton",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Crediton",
+        "away": "Penzance & Newlyn",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Crediton",
+        "away": "Tiverton",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Nailsea & Backwell",
+        "away": "Okehampton",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Ivybridge",
+        "away": "Nailsea & Backwell",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Crediton",
+        "away": "Winscombe",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Ivybridge",
+        "away": "Wadebridge Camels",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Crediton",
+        "away": "North Petherton",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Ivybridge",
+        "away": "Crediton",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Crediton",
+        "away": "Sherborne",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Ivybridge",
+        "away": "Okehampton",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Crediton",
+        "away": "Nailsea & Backwell",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Nailsea & Backwell",
+        "away": "Winscombe",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Crediton",
+        "away": "Wadebridge Camels",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Nailsea & Backwell",
+        "away": "North Petherton",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Counties 3 Tribute Cornwall": {
+    "comp": "1699",
+    "div": "75797",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75797",
+    "teams": [
+      "Bude",
+      "Falmouth",
+      "Helston",
+      "Launceston II",
+      "Liskeard-Looe",
+      "Newquay Hornets",
+      "Penryn",
+      "Perranporth",
+      "St Agnes",
+      "St Austell II",
+      "St Just",
+      "Wadebridge Camels II"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Bude",
+        "away": "St Austell II",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Helston",
+        "away": "Bude",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Penryn",
+        "away": "Newquay Hornets",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Bude",
+        "away": "Liskeard-Looe",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Helston",
+        "away": "St Austell II",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Bude",
+        "away": "Penryn",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Launceston II",
+        "away": "St Just",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Bude",
+        "away": "St Agnes",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Falmouth",
+        "away": "Bude",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Launceston II",
+        "away": "Bude",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Bude",
+        "away": "Wadebridge Camels II",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Bude",
+        "away": "Falmouth",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Falmouth",
+        "away": "St Just",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Bude",
+        "away": "Helston",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Helston",
+        "away": "Falmouth",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bude",
+        "away": "Newquay Hornets",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Helston",
+        "away": "St Just",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Bude",
+        "away": "Perranporth",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Launceston II",
+        "away": "Wadebridge Camels II",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Bude",
+        "away": "Launceston II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Launceston II",
+        "away": "Falmouth",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Bude",
+        "away": "St Just",
+        "time": "TBA",
+        "round": "Round 22"
+      }
+    ]
+  },
+  "Counties 4 Tribute Devon": {
+    "comp": "1699",
+    "div": "75800",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75800",
+    "teams": [
+      "Bideford II",
+      "Cullompton II",
+      "Exeter Athletic",
+      "Exeter Engineers",
+      "Ilfracombe",
+      "New Cross",
+      "Newton Abbot II",
+      "North Tawton",
+      "Okehampton II",
+      "Sidmouth II",
+      "Torrington"
+    ],
+    "fixtures": [
+      {
+        "date": "Saturday, 12 Sep 2026",
+        "dateIso": "2026-09-12",
+        "home": "Bideford II",
+        "away": "Exeter Engineers",
+        "time": "TBA",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 19 Sep 2026",
+        "dateIso": "2026-09-19",
+        "home": "Exeter Engineers",
+        "away": "Cullompton II",
+        "time": "TBA",
+        "round": "Round 2"
+      },
+      {
+        "date": "Saturday, 26 Sep 2026",
+        "dateIso": "2026-09-26",
+        "home": "Bideford II",
+        "away": "New Cross",
+        "time": "TBA",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 03 Oct 2026",
+        "dateIso": "2026-10-03",
+        "home": "Bideford II",
+        "away": "Torrington",
+        "time": "TBA",
+        "round": "Round 4"
+      },
+      {
+        "date": "Saturday, 10 Oct 2026",
+        "dateIso": "2026-10-10",
+        "home": "Bideford II",
+        "away": "Exeter Engineers",
+        "time": "TBA",
+        "round": "Round 5"
+      },
+      {
+        "date": "Saturday, 17 Oct 2026",
+        "dateIso": "2026-10-17",
+        "home": "Cullompton II",
+        "away": "Bideford II",
+        "time": "TBA",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 24 Oct 2026",
+        "dateIso": "2026-10-24",
+        "home": "Bideford II",
+        "away": "North Tawton",
+        "time": "TBA",
+        "round": "Round 7"
+      },
+      {
+        "date": "Saturday, 31 Oct 2026",
+        "dateIso": "2026-10-31",
+        "home": "Exeter Athletic",
+        "away": "New Cross",
+        "time": "TBA",
+        "round": "Round 8"
+      },
+      {
+        "date": "Saturday, 07 Nov 2026",
+        "dateIso": "2026-11-07",
+        "home": "Bideford II",
+        "away": "Exeter Athletic",
+        "time": "TBA",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Exeter Athletic",
+        "away": "Cullompton II",
+        "time": "TBA",
+        "round": "Round 10"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Exeter Engineers",
+        "away": "Cullompton II",
+        "time": "TBA",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Bideford II",
+        "away": "Okehampton II",
+        "time": "TBA",
+        "round": "Round 12"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Exeter Athletic",
+        "away": "Newton Abbot II",
+        "time": "TBA",
+        "round": "Round 13"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Bideford II",
+        "away": "Ilfracombe",
+        "time": "TBA",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Exeter Engineers",
+        "away": "North Tawton",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Cullompton II",
+        "away": "New Cross",
+        "time": "TBA",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 30 Jan 2027",
+        "dateIso": "2027-01-30",
+        "home": "Bideford II",
+        "away": "Cullompton II",
+        "time": "TBA",
+        "round": "Round 17"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Exeter Athletic",
+        "away": "Ilfracombe",
+        "time": "TBA",
+        "round": "Round 18"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Bideford II",
+        "away": "Newton Abbot II",
+        "time": "TBA",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Exeter Athletic",
+        "away": "Bideford II",
+        "time": "TBA",
+        "round": "Round 20"
+      },
+      {
+        "date": "Saturday, 06 Mar 2027",
+        "dateIso": "2027-03-06",
+        "home": "Bideford II",
+        "away": "Sidmouth II",
+        "time": "TBA",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Exeter Athletic",
+        "away": "North Tawton",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 03 Apr 2027",
+        "dateIso": "2027-04-03",
+        "home": "Bideford II",
+        "away": "North Tawton",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 10 Apr 2027",
+        "dateIso": "2027-04-10",
+        "home": "Exeter Athletic",
+        "away": "Torrington",
+        "time": "TBA",
+        "round": "Round 24"
+      }
+    ]
+  },
+  "Counties 4 Tribute Somerset": {
+    "comp": "1699",
+    "div": "75802",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75802",
+    "teams": [],
+    "fixtures": []
+  },
+  "PWR Premiership Women": {
+    "comp": "1764",
+    "div": "77343",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1764&season=2026-2027&division=77343",
+    "teams": [
+      "Bristol Bears Women",
+      "Exeter Chiefs Women",
+      "Gloucester-Hartpury Women's RFC",
+      "Harlequins Women",
+      "Leicester Tigers Women",
+      "Loughborough Lightning",
+      "Sale Sharks Women",
+      "Saracens Women",
+      "Trailfinders Women"
+    ],
+    "fixtures": [
+      {
+        "date": "Friday, 20 Nov 2026",
+        "dateIso": "2026-11-20",
+        "home": "Loughborough Lightning",
+        "away": "Trailfinders Women",
+        "time": "19:30",
+        "round": "Round 1"
+      },
+      {
+        "date": "Saturday, 21 Nov 2026",
+        "dateIso": "2026-11-21",
+        "home": "Sale Sharks Women",
+        "away": "Gloucester-Hartpury Women's RFC",
+        "time": "14:00",
+        "round": "Round 2"
+      },
+      {
+        "date": "Sunday, 22 Nov 2026",
+        "dateIso": "2026-11-22",
+        "home": "Saracens Women",
+        "away": "Leicester Tigers Women",
+        "time": "13:00",
+        "round": "Round 3"
+      },
+      {
+        "date": "Saturday, 28 Nov 2026",
+        "dateIso": "2026-11-28",
+        "home": "Gloucester-Hartpury Women's RFC",
+        "away": "Loughborough Lightning",
+        "time": "14:00",
+        "round": "Round 4"
+      },
+      {
+        "date": "Sunday, 29 Nov 2026",
+        "dateIso": "2026-11-29",
+        "home": "Leicester Tigers Women",
+        "away": "Sale Sharks Women",
+        "time": "13:00",
+        "round": "Round 5"
+      },
+      {
+        "date": "Friday, 04 Dec 2026",
+        "dateIso": "2026-12-04",
+        "home": "Trailfinders Women",
+        "away": "Bristol Bears Women",
+        "time": "19:30",
+        "round": "Round 6"
+      },
+      {
+        "date": "Saturday, 05 Dec 2026",
+        "dateIso": "2026-12-05",
+        "home": "Sale Sharks Women",
+        "away": "Saracens Women",
+        "time": "14:00",
+        "round": "Round 7"
+      },
+      {
+        "date": "Sunday, 06 Dec 2026",
+        "dateIso": "2026-12-06",
+        "home": "Loughborough Lightning",
+        "away": "Exeter Chiefs Women",
+        "time": "12:15",
+        "round": "Round 8"
+      },
+      {
+        "date": "Friday, 11 Dec 2026",
+        "dateIso": "2026-12-11",
+        "home": "Bristol Bears Women",
+        "away": "Gloucester-Hartpury Women's RFC",
+        "time": "19:45",
+        "round": "Round 9"
+      },
+      {
+        "date": "Saturday, 12 Dec 2026",
+        "dateIso": "2026-12-12",
+        "home": "Exeter Chiefs Women",
+        "away": "Harlequins Women",
+        "time": "15:05",
+        "round": "Round 10"
+      },
+      {
+        "date": "Sunday, 13 Dec 2026",
+        "dateIso": "2026-12-13",
+        "home": "Leicester Tigers Women",
+        "away": "Trailfinders Women",
+        "time": "13:00",
+        "round": "Round 11"
+      },
+      {
+        "date": "Saturday, 19 Dec 2026",
+        "dateIso": "2026-12-19",
+        "home": "Exeter Chiefs Women",
+        "away": "Sale Sharks Women",
+        "time": "12:00",
+        "round": "Round 12"
+      },
+      {
+        "date": "Sunday, 20 Dec 2026",
+        "dateIso": "2026-12-20",
+        "home": "Leicester Tigers Women",
+        "away": "Bristol Bears Women",
+        "time": "14:00",
+        "round": "Round 13"
+      },
+      {
+        "date": "Monday, 28 Dec 2026",
+        "dateIso": "2026-12-28",
+        "home": "Harlequins Women",
+        "away": "Loughborough Lightning",
+        "time": "14:00",
+        "round": "Round 14"
+      },
+      {
+        "date": "Saturday, 02 Jan 2027",
+        "dateIso": "2027-01-02",
+        "home": "Sale Sharks Women",
+        "away": "Harlequins Women",
+        "time": "TBA",
+        "round": "Round 15"
+      },
+      {
+        "date": "Sunday, 03 Jan 2027",
+        "dateIso": "2027-01-03",
+        "home": "Gloucester-Hartpury Women's RFC",
+        "away": "Exeter Chiefs Women",
+        "time": "12:15",
+        "round": "Round 16"
+      },
+      {
+        "date": "Saturday, 09 Jan 2027",
+        "dateIso": "2027-01-09",
+        "home": "Loughborough Lightning",
+        "away": "Sale Sharks Women",
+        "time": "13:00",
+        "round": "Round 17"
+      },
+      {
+        "date": "Sunday, 10 Jan 2027",
+        "dateIso": "2027-01-10",
+        "home": "Exeter Chiefs Women",
+        "away": "Trailfinders Women",
+        "time": "13:00",
+        "round": "Round 18"
+      },
+      {
+        "date": "Friday, 15 Jan 2027",
+        "dateIso": "2027-01-15",
+        "home": "Bristol Bears Women",
+        "away": "Loughborough Lightning",
+        "time": "19:45",
+        "round": "Round 19"
+      },
+      {
+        "date": "Saturday, 16 Jan 2027",
+        "dateIso": "2027-01-16",
+        "home": "Saracens Women",
+        "away": "Exeter Chiefs Women",
+        "time": "15:00",
+        "round": "Round 20"
+      },
+      {
+        "date": "Sunday, 17 Jan 2027",
+        "dateIso": "2027-01-17",
+        "home": "Leicester Tigers Women",
+        "away": "Gloucester-Hartpury Women's RFC",
+        "time": "13:00",
+        "round": "Round 21"
+      },
+      {
+        "date": "Saturday, 23 Jan 2027",
+        "dateIso": "2027-01-23",
+        "home": "Exeter Chiefs Women",
+        "away": "Bristol Bears Women",
+        "time": "TBA",
+        "round": "Round 22"
+      },
+      {
+        "date": "Saturday, 06 Feb 2027",
+        "dateIso": "2027-02-06",
+        "home": "Bristol Bears Women",
+        "away": "Harlequins Women",
+        "time": "TBA",
+        "round": "Round 23"
+      },
+      {
+        "date": "Saturday, 13 Feb 2027",
+        "dateIso": "2027-02-13",
+        "home": "Exeter Chiefs Women",
+        "away": "Leicester Tigers Women",
+        "time": "TBA",
+        "round": "Round 24"
+      },
+      {
+        "date": "Saturday, 20 Feb 2027",
+        "dateIso": "2027-02-20",
+        "home": "Bristol Bears Women",
+        "away": "Saracens Women",
+        "time": "TBA",
+        "round": "Round 25"
+      },
+      {
+        "date": "Saturday, 27 Feb 2027",
+        "dateIso": "2027-02-27",
+        "home": "Bristol Bears Women",
+        "away": "Trailfinders Women",
+        "time": "TBA",
+        "round": "Round 26"
+      },
+      {
+        "date": "Saturday, 13 Mar 2027",
+        "dateIso": "2027-03-13",
+        "home": "Gloucester-Hartpury Women's RFC",
+        "away": "Bristol Bears Women",
+        "time": "TBA",
+        "round": "Round 27"
+      },
+      {
+        "date": "Saturday, 20 Mar 2027",
+        "dateIso": "2027-03-20",
+        "home": "Bristol Bears Women",
+        "away": "Sale Sharks Women",
+        "time": "TBA",
+        "round": "Round 28"
+      },
+      {
+        "date": "Saturday, 27 Mar 2027",
+        "dateIso": "2027-03-27",
+        "home": "Exeter Chiefs Women",
+        "away": "Saracens Women",
+        "time": "TBA",
+        "round": "Round 29"
+      },
+      {
+        "date": "Saturday, 29 May 2027",
+        "dateIso": "2027-05-29",
+        "home": "Exeter Chiefs Women",
+        "away": "Gloucester-Hartpury Women's RFC",
+        "time": "TBA",
+        "round": "Round 30"
+      },
+      {
+        "date": "Saturday, 05 Jun 2027",
+        "dateIso": "2027-06-05",
+        "home": "Bristol Bears Women",
+        "away": "Leicester Tigers Women",
+        "time": "TBA",
+        "round": "Round 31"
+      }
+    ]
+  }
+}

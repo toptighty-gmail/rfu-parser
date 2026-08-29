@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import '../models/division_data.dart';
 import '../models/standing_entry.dart';
 import '../models/fixture.dart';
+import 'official_rfu_fixtures_data.dart';
 
 class DivisionDataProvider {
   static final Map<String, List<String>> _divisionTeams = {
@@ -386,171 +387,96 @@ class DivisionDataProvider {
     ];
   }
 
-  /// Official RFU Counties 2 Tribute Ale Devon fixtures for 2026-27,
-  /// crawled directly from englandrugby.com (division=75799, competition=1699).
-  static List<Map<String, String>> _counties2DevonFixtures2627() => [
-    // Round 1 - Sat 26 Sep 2026
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Plymstock Albion Oaks', 'away': 'Brixham II', 'time': '16:00', 'round': 'Round 1'},
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Crediton II', 'away': 'Exeter Saracens', 'time': '15:00', 'round': 'Round 1'},
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Exmouth II', 'away': 'South Molton', 'time': '15:00', 'round': 'Round 1'},
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Bideford', 'away': 'Tavistock', 'time': '15:00', 'round': 'Round 1'},
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Honiton', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 1'},
-    {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Topsham II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 1'},
-    // Round 2 - Sat 03 Oct 2026
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Plymstock Albion Oaks', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 2'},
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Brixham II', 'away': 'Exmouth II', 'time': '15:00', 'round': 'Round 2'},
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Exeter Saracens', 'away': 'Bideford', 'time': '15:00', 'round': 'Round 2'},
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Honiton', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 2'},
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Tavistock', 'away': 'Topsham II', 'time': '15:00', 'round': 'Round 2'},
-    {'date': 'Saturday, 3 Oct 2026', 'dateIso': '2026-10-03', 'home': 'Crediton II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 2'},
-    // Round 3 - Sat 10 Oct 2026
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'Plymstock Albion Oaks', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 3'},
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'Brixham II', 'away': 'Topsham II', 'time': '15:00', 'round': 'Round 3'},
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'Exmouth II', 'away': 'Crediton II', 'time': '15:00', 'round': 'Round 3'},
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'South Molton', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 3'},
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'Tavistock', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 3'},
-    {'date': 'Saturday, 10 Oct 2026', 'dateIso': '2026-10-10', 'home': 'Bideford', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 3'},
-    // Round 4 - Sat 17 Oct 2026
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'Exmouth II', 'away': 'Plymstock Albion Oaks', 'time': '15:00', 'round': 'Round 4'},
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'Bideford', 'away': 'Topsham II', 'time': '15:00', 'round': 'Round 4'},
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'Crediton II', 'away': 'Honiton', 'time': '15:00', 'round': 'Round 4'},
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'South Molton', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 4'},
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'Tavistock', 'away': 'Brixham II', 'time': '15:00', 'round': 'Round 4'},
-    {'date': 'Saturday, 17 Oct 2026', 'dateIso': '2026-10-17', 'home': 'Withycombe', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 4'},
-    // Round 5 - Sat 24 Oct 2026
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Plymstock Albion Oaks', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 5'},
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Brixham II', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 5'},
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Exmouth II', 'away': 'South Molton', 'time': '15:00', 'round': 'Round 5'},
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Honiton', 'away': 'Bideford', 'time': '15:00', 'round': 'Round 5'},
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Crediton II', 'away': 'Topsham II', 'time': '15:00', 'round': 'Round 5'},
-    {'date': 'Saturday, 24 Oct 2026', 'dateIso': '2026-10-24', 'home': 'Exeter Saracens', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 5'},
-    // Round 6 - Sat 31 Oct 2026
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Withycombe', 'away': 'Plymstock Albion Oaks', 'time': '15:00', 'round': 'Round 6'},
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Bideford', 'away': 'Crediton II', 'time': '15:00', 'round': 'Round 6'},
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Brixham II', 'away': 'Exeter Saracens', 'time': '15:00', 'round': 'Round 6'},
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Honiton', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 6'},
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Topsham II', 'away': 'Tavistock', 'time': '15:00', 'round': 'Round 6'},
-    {'date': 'Saturday, 31 Oct 2026', 'dateIso': '2026-10-31', 'home': 'Exmouth II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 6'},
-    // Round 7 - Sat 07 Nov 2026
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'Plymstock Albion Oaks', 'away': 'Crediton II', 'time': '14:30', 'round': 'Round 7'},
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'Brixham II', 'away': 'Bideford', 'time': '14:30', 'round': 'Round 7'},
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'Exmouth II', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 7'},
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'Honiton', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 7'},
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'South Molton', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 7'},
-    {'date': 'Saturday, 7 Nov 2026', 'dateIso': '2026-11-07', 'home': 'Exeter Saracens', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 7'},
-    // Round 8 - Sat 21 Nov 2026
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'Bideford', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 8'},
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'Crediton II', 'away': 'Exmouth II', 'time': '14:30', 'round': 'Round 8'},
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'Exeter Saracens', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 8'},
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'South Molton', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 8'},
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'Topsham II', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 8'},
-    {'date': 'Saturday, 21 Nov 2026', 'dateIso': '2026-11-21', 'home': 'Tavistock', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 8'},
-    // Round 9 - Sat 28 Nov 2026
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Old Plymothian & Mannamedian', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 9'},
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Bideford', 'away': 'Crediton II', 'time': '14:30', 'round': 'Round 9'},
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Brixham II', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 9'},
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Exeter Saracens', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 9'},
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Honiton', 'away': 'Exmouth II', 'time': '14:30', 'round': 'Round 9'},
-    {'date': 'Saturday, 28 Nov 2026', 'dateIso': '2026-11-28', 'home': 'Topsham II', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 9'},
-    // Round 10 - Sat 05 Dec 2026
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'Plymstock Albion Oaks', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 10'},
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'Brixham II', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 10'},
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'Exmouth II', 'away': 'Bideford', 'time': '14:30', 'round': 'Round 10'},
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'Honiton', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 10'},
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'South Molton', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 10'},
-    {'date': 'Saturday, 5 Dec 2026', 'dateIso': '2026-12-05', 'home': 'Crediton II', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 10'},
-    // Round 11 - Sat 12 Dec 2026
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'Topsham II', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 11'},
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'Bideford', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 11'},
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'Crediton II', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 11'},
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'Exeter Saracens', 'away': 'Exmouth II', 'time': '14:30', 'round': 'Round 11'},
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'Honiton', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 11'},
-    {'date': 'Saturday, 12 Dec 2026', 'dateIso': '2026-12-12', 'home': 'South Molton', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 11'},
-    // Round 12 - Sat 19 Dec 2026
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'Plymstock Albion Oaks', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 12'},
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'Crediton II', 'away': 'Bideford', 'time': '14:30', 'round': 'Round 12'},
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'Exmouth II', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 12'},
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'South Molton', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 12'},
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'Tavistock', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 12'},
-    {'date': 'Saturday, 19 Dec 2026', 'dateIso': '2026-12-19', 'home': 'Withycombe', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 12'},
-    // Round 13 - Sat 09 Jan 2027
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Brixham II', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 13'},
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Bideford', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 13'},
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Exeter Saracens', 'away': 'Crediton II', 'time': '14:30', 'round': 'Round 13'},
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Honiton', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 13'},
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Exmouth II', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 13'},
-    {'date': 'Saturday, 9 Jan 2027', 'dateIso': '2027-01-09', 'home': 'Withycombe', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 13'},
-    // Round 14 - Sat 16 Jan 2027
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'South Molton', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 14'},
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'Bideford', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 14'},
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'Crediton II', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 14'},
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'Exmouth II', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 14'},
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'Tavistock', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 14'},
-    {'date': 'Saturday, 16 Jan 2027', 'dateIso': '2027-01-16', 'home': 'Honiton', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 14'},
-    // Round 15 - Sat 30 Jan 2027
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Plymstock Albion Oaks', 'away': 'Exmouth II', 'time': '14:30', 'round': 'Round 15'},
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Brixham II', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 15'},
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Exeter Saracens', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 15'},
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Honiton', 'away': 'Crediton II', 'time': '14:30', 'round': 'Round 15'},
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Topsham II', 'away': 'Bideford', 'time': '14:30', 'round': 'Round 15'},
-    {'date': 'Saturday, 30 Jan 2027', 'dateIso': '2027-01-30', 'home': 'Withycombe', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 15'},
-    // Round 16 - Sat 06 Feb 2027
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'Tavistock', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 16'},
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'Bideford', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 16'},
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'Crediton II', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 16'},
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'Exeter Saracens', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 16'},
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'South Molton', 'away': 'Exmouth II', 'time': '14:30', 'round': 'Round 16'},
-    {'date': 'Saturday, 6 Feb 2027', 'dateIso': '2027-02-06', 'home': 'Withycombe', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 16'},
-    // Round 17 - Sat 13 Feb 2027
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'Plymstock Albion Oaks', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 17'},
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'Brixham II', 'away': 'Crediton II', 'time': '14:30', 'round': 'Round 17'},
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'Exmouth II', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 17'},
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'Honiton', 'away': 'Exeter Saracens', 'time': '14:30', 'round': 'Round 17'},
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'South Molton', 'away': 'Topsham II', 'time': '14:30', 'round': 'Round 17'},
-    {'date': 'Saturday, 13 Feb 2027', 'dateIso': '2027-02-13', 'home': 'Bideford', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 17'},
-    // Round 18 - Sat 27 Feb 2027
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'Crediton II', 'away': 'Plymstock Albion Oaks', 'time': '14:30', 'round': 'Round 18'},
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'Bideford', 'away': 'Brixham II', 'time': '14:30', 'round': 'Round 18'},
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'Exeter Saracens', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 18'},
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'South Molton', 'away': 'Withycombe', 'time': '14:30', 'round': 'Round 18'},
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'Topsham II', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 18'},
-    {'date': 'Saturday, 27 Feb 2027', 'dateIso': '2027-02-27', 'home': 'Exmouth II', 'away': 'Old Plymothian & Mannamedian', 'time': '14:30', 'round': 'Round 18'},
-    // Round 19 - Sat 06 Mar 2027
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Plymstock Albion Oaks', 'away': 'Bideford', 'time': '15:00', 'round': 'Round 19'},
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Brixham II', 'away': 'Exeter Saracens', 'time': '15:00', 'round': 'Round 19'},
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Exmouth II', 'away': 'Crediton II', 'time': '15:00', 'round': 'Round 19'},
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Honiton', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 19'},
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Topsham II', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 19'},
-    {'date': 'Saturday, 6 Mar 2027', 'dateIso': '2027-03-06', 'home': 'Tavistock', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 19'},
-    // Round 20 - Sat 20 Mar 2027
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'Exeter Saracens', 'away': 'Plymstock Albion Oaks', 'time': '15:00', 'round': 'Round 20'},
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'Bideford', 'away': 'Exmouth II', 'time': '15:00', 'round': 'Round 20'},
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'Crediton II', 'away': 'Tavistock', 'time': '15:00', 'round': 'Round 20'},
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'South Molton', 'away': 'Honiton', 'time': '14:30', 'round': 'Round 20'},
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'Topsham II', 'away': 'Brixham II', 'time': '15:00', 'round': 'Round 20'},
-    {'date': 'Saturday, 20 Mar 2027', 'dateIso': '2027-03-20', 'home': 'Withycombe', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 20'},
-    // Round 21 - Sat 03 Apr 2027
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'Plymstock Albion Oaks', 'away': 'Topsham II', 'time': '15:00', 'round': 'Round 21'},
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'Brixham II', 'away': 'Honiton', 'time': '15:00', 'round': 'Round 21'},
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'Exmouth II', 'away': 'Exeter Saracens', 'time': '15:00', 'round': 'Round 21'},
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'South Molton', 'away': 'Tavistock', 'time': '14:30', 'round': 'Round 21'},
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'Bideford', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 21'},
-    {'date': 'Saturday, 3 Apr 2027', 'dateIso': '2027-04-03', 'home': 'Crediton II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 21'},
-    // Round 22 - Sat 10 Apr 2027
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Honiton', 'away': 'Plymstock Albion Oaks', 'time': '15:00', 'round': 'Round 22'},
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Bideford', 'away': 'Withycombe', 'time': '15:00', 'round': 'Round 22'},
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Crediton II', 'away': 'South Molton', 'time': '14:30', 'round': 'Round 22'},
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Exeter Saracens', 'away': 'Tavistock', 'time': '15:00', 'round': 'Round 22'},
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Topsham II', 'away': 'Exmouth II', 'time': '15:00', 'round': 'Round 22'},
-    {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Brixham II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 22'},
-  ];
-
   static DivisionData generateDivisionData(String divisionName, String season) {
-    final teams = _getTeamsForDivision(divisionName);
     final seasonYears = _parseSeasonYears(season);
     final isCurrentFuture = seasonYears.$1 >= 2026;
 
-    // 1. Generate Standings
+    // Check if official RFU fixtures exist for this division (2026-27 season)
+    final officialFixtures = seasonYears.$1 == 2026
+        ? OfficialRfuFixturesData.getFixturesForDivision(divisionName)
+        : null;
+
+    if (officialFixtures != null && officialFixtures.isNotEmpty) {
+      // 1. Collect unique team names from official fixtures preserving order
+      final officialTeamSet = <String>{};
+      for (final f in officialFixtures) {
+        if (f['home'] != null && f['home']!.isNotEmpty) officialTeamSet.add(f['home']!);
+        if (f['away'] != null && f['away']!.isNotEmpty) officialTeamSet.add(f['away']!);
+      }
+      final teams = officialTeamSet.isNotEmpty
+          ? officialTeamSet.toList()
+          : _getTeamsForDivision(divisionName);
+
+      // 2. Generate Standings
+      final standings = <StandingEntry>[];
+      for (int i = 0; i < teams.length; i++) {
+        final pos = i + 1;
+        final played = isCurrentFuture ? 0 : 22;
+        final won = isCurrentFuture ? 0 : (22 - (i * 2)).clamp(2, 20);
+        final drawn = isCurrentFuture ? 0 : (i % 4 == 0 ? 1 : 0);
+        final lost = isCurrentFuture ? 0 : (played - won - drawn).clamp(0, 22);
+        final pf = isCurrentFuture ? 0 : 400 + (teams.length - i) * 35;
+        final pa = isCurrentFuture ? 0 : 250 + i * 30;
+        final pd = pf - pa;
+        final tb = isCurrentFuture ? 0 : (won * 0.7).round();
+        final lb = isCurrentFuture ? 0 : (lost * 0.3).round();
+        final pts = isCurrentFuture ? 0 : (won * 4) + (drawn * 2) + tb + lb;
+
+        standings.add(StandingEntry(
+          pos: pos,
+          teamName: teams[i],
+          played: played,
+          won: won,
+          drawn: drawn,
+          lost: lost,
+          pointsFor: pf,
+          pointsAgainst: pa,
+          pointsDiff: pd,
+          tryBonus: tb,
+          lossBonus: lb,
+          pointsDeducted: 0,
+          points: pts,
+          logoUrl: null,
+        ));
+      }
+
+      // 3. Map all official fixtures
+      final fixtures = <Fixture>[];
+      int matchId = 1;
+      for (final f in officialFixtures) {
+        final dateIso = f['dateIso'] ?? '2026-09-26';
+        final fixDate = DateTime.tryParse(dateIso) ?? DateTime(2026, 9, 26);
+        final isCompleted = fixDate.isBefore(DateTime.now());
+        fixtures.add(Fixture(
+          id: 'fix_rfu_${dateIso}_$matchId',
+          date: f['date'] ?? dateIso,
+          dateIso: dateIso,
+          time: f['time'] ?? '15:00',
+          homeTeam: f['home'] ?? '',
+          awayTeam: f['away'] ?? '',
+          homeScore: isCompleted ? 24 + (matchId % 20) : null,
+          awayScore: isCompleted ? 17 + (matchId % 15) : null,
+          status: isCompleted ? 'Completed' : 'Scheduled',
+          venue: '${f['home']} RFC',
+          competition: divisionName,
+          roundNum: f['round'] ?? 'Round 1',
+          isCustom: false,
+        ));
+        matchId++;
+      }
+
+      return DivisionData(
+        divisionName: divisionName,
+        season: season,
+        sourceUrl: 'https://www.englandrugby.com/fixtures-and-results',
+        standings: standings,
+        fixtures: fixtures,
+      );
+    }
+
+    final teams = _getTeamsForDivision(divisionName);
+
+    // 1. Generate Standings (Fallback)
     final standings = <StandingEntry>[];
     for (int i = 0; i < teams.length; i++) {
       final pos = i + 1;
@@ -581,44 +507,6 @@ class DivisionDataProvider {
         points: pts,
         logoUrl: null,
       ));
-    }
-
-    // 2a. For Counties 2 Tribute Devon 2026-27, use official RFU fixture data.
-    final normDiv = divisionName.toLowerCase();
-    if ((normDiv.contains('counties 2') || normDiv.contains('county 2')) &&
-        normDiv.contains('devon') &&
-        seasonYears.$1 == 2026) {
-      final officialFixtures = _counties2DevonFixtures2627();
-      final fixtures = <Fixture>[];
-      int matchId = 1;
-      for (final f in officialFixtures) {
-        final dateIso = f['dateIso']!;
-        final fixDate = DateTime.tryParse(dateIso) ?? DateTime(2026, 9, 26);
-        final isCompleted = fixDate.isBefore(DateTime.now());
-        fixtures.add(Fixture(
-          id: 'fix_rfu_${dateIso}_$matchId',
-          date: f['date']!,
-          dateIso: dateIso,
-          time: f['time']!,
-          homeTeam: f['home']!,
-          awayTeam: f['away']!,
-          homeScore: isCompleted ? 24 + (matchId % 20) : null,
-          awayScore: isCompleted ? 17 + (matchId % 15) : null,
-          status: isCompleted ? 'Completed' : 'Scheduled',
-          venue: '${f['home']!} RFC',
-          competition: divisionName,
-          roundNum: f['round']!,
-          isCustom: false,
-        ));
-        matchId++;
-      }
-      return DivisionData(
-        divisionName: divisionName,
-        season: season,
-        sourceUrl: 'https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75799',
-        standings: standings,
-        fixtures: fixtures,
-      );
     }
 
     // 2b. Generate 22 Rounds of Fixtures using Standard Circle Method for all other divisions

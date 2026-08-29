@@ -1,0 +1,127 @@
+{
+  "Gallagher Premiership": {
+    "comp_id": "5",
+    "div_id": "77026",
+    "error": null
+  },
+  "Championship": {
+    "comp_id": "173",
+    "div_id": "76143",
+    "error": null
+  },
+  "National 1": {
+    "comp_id": "1605",
+    "div_id": "75899",
+    "error": null
+  },
+  "National 2 West": {
+    "comp_id": "1605",
+    "div_id": "75902",
+    "error": null
+  },
+  "National 2 East": {
+    "comp_id": "1605",
+    "div_id": "75901",
+    "error": null
+  },
+  "National 2 North": {
+    "comp_id": "1605",
+    "div_id": "75900",
+    "error": null
+  },
+  "Regional 1 Tribute South West": {
+    "comp_id": "1699",
+    "div_id": "75790",
+    "error": null
+  },
+  "Regional 1 South East": {
+    "comp_id": "1605",
+    "div_id": "75901",
+    "error": null
+  },
+  "Regional 1 Midlands": {
+    "comp_id": "1597",
+    "div_id": "75786",
+    "error": null
+  },
+  "Regional 1 North West": {
+    "comp_id": "1623",
+    "div_id": "75774",
+    "error": null
+  },
+  "Regional 1 North East": {
+    "comp_id": "173",
+    "div_id": "76143",
+    "error": null
+  },
+  "Regional 2 Tribute South West": {
+    "comp_id": "1699",
+    "div_id": "75790",
+    "error": null
+  },
+  "Regional 2 Tribute Severn": {
+    "comp_id": "1699",
+    "div_id": "75795",
+    "error": null
+  },
+  "Counties 1 Tribute Western West": {
+    "comp_id": "1699",
+    "div_id": "75796",
+    "error": null
+  },
+  "Counties 1 Tribute Southern South": {
+    "comp_id": "261",
+    "div_id": "75781",
+    "error": null
+  },
+  "Counties 1 Tribute Somerset": {
+    "comp_id": "1699",
+    "div_id": "75795",
+    "error": null
+  },
+  "Counties 2 Tribute Devon": {
+    "comp_id": "1699",
+    "div_id": "75799",
+    "error": null
+  },
+  "Counties 2 Tribute Cornwall": {
+    "comp_id": "1699",
+    "div_id": "75796",
+    "error": null
+  },
+  "Counties 2 Tribute Somerset": {
+    "comp_id": "1699",
+    "div_id": "75848",
+    "error": null
+  },
+  "Counties 3 Tribute Devon South West": {
+    "comp_id": "1699",
+    "div_id": "75801",
+    "error": null
+  },
+  "Counties 3 Tribute Somerset": {
+    "comp_id": "1699",
+    "div_id": "75791",
+    "error": null
+  },
+  "Counties 3 Tribute Cornwall": {
+    "comp_id": "1699",
+    "div_id": "75797",
+    "error": null
+  },
+  "Counties 4 Tribute Devon": {
+    "comp_id": "1699",
+    "div_id": "75800",
+    "error": null
+  },
+  "Counties 4 Tribute Somerset": {
+    "comp_id": "1699",
+    "div_id": "75790",
+    "error": null
+  },
+  "PWR Premiership Women": {
+    "comp_id": "1764",
+    "div_id": "77343",
+    "error": null
+  }
+}

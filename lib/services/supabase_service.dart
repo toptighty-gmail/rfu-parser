@@ -112,7 +112,7 @@ class SupabaseService {
 
     final List<Fixture> allFixtures = [];
 
-    // 1. Fetch from Supabase if connected
+    // 1. Fetch from Supabase if connected (Source of Truth)
     final client = _client;
     if (client != null) {
       try {
@@ -122,42 +122,17 @@ class SupabaseService {
             .order('created_at', ascending: true);
         
         final remote = (response as List).map((row) => Fixture.fromJson(row)).toList();
-        for (var f in remote) {
-          if (!allFixtures.any((x) => x.id == f.id)) {
-            allFixtures.add(f);
-          }
-        }
+        _localCustomFixtures.clear();
+        _localCustomFixtures.addAll(remote);
+        await _saveLocalFixturesCache();
+        allFixtures.addAll(remote);
       } catch (e) {
         debugPrint('Error fetching custom fixtures from Supabase: $e');
+        allFixtures.addAll(_localCustomFixtures);
       }
+    } else {
+      allFixtures.addAll(_localCustomFixtures);
     }
-
-    // 2. Fetch from Python backend API
-    try {
-      final backendFixtures = await ApiService.fetchBackendCustomFixtures(team: team);
-      for (var f in backendFixtures) {
-        if (!allFixtures.any((x) => x.id == f.id)) {
-          allFixtures.add(f);
-        }
-      }
-    } catch (e) {
-      debugPrint('Backend fixtures fetch fallback: $e');
-    }
-
-    // 3. Merge locally stored cache
-    for (var f in _localCustomFixtures) {
-      if (!allFixtures.any((x) => x.id == f.id)) {
-        allFixtures.add(f);
-      }
-    }
-
-    // Keep memory and disk cache updated with all discovered fixtures
-    for (var f in allFixtures) {
-      if (!_localCustomFixtures.any((x) => x.id == f.id)) {
-        _localCustomFixtures.add(f);
-      }
-    }
-    await _saveLocalFixturesCache();
 
     // Filter by team if requested
     final cleanTeam = team?.trim().toLowerCase();
@@ -276,12 +251,17 @@ class SupabaseService {
       await ApiService.deleteBackendCustomFixture(id);
     } catch (_) {}
 
-    // Sync to Supabase
+    // Sync to Supabase (Delete from both custom_fixtures and fixtures tables)
     final client = _client;
     if (client == null) return true;
     try {
       await client
           .from('custom_fixtures')
+          .delete()
+          .eq('id', id);
+      
+      await client
+          .from('fixtures')
           .delete()
           .eq('id', id);
       return true;
@@ -432,8 +412,8 @@ class SupabaseService {
         );
       }
 
-      // 3. Upsert Fixtures
-      final fixtures = divisionData.fixtures as List;
+      // 3. Upsert Fixtures (only official league fixtures, custom fixtures belong in custom_fixtures table)
+      final fixtures = (divisionData.fixtures as List).where((f) => f.isCustom != true).toList();
       if (fixtures.isNotEmpty) {
         final fixturesPayload = fixtures.map((f) => {
           'division_id': divisionId,
@@ -446,7 +426,7 @@ class SupabaseService {
           'status': f.status,
           'venue': f.venue ?? '',
           'round_num': f.roundNum ?? '',
-          'is_custom': f.isCustom ?? false,
+          'is_custom': false,
           'updated_at': DateTime.now().toIso8601String(),
         }).toList();
 

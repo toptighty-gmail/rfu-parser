@@ -239,7 +239,6 @@ class DivisionDataProvider {
       'Plymstock Albion Oaks',
       'Withycombe',
       'Honiton',
-      'South Molton',
       'Tavistock',
       'Exeter Saracens',
       'OPM',
@@ -247,6 +246,7 @@ class DivisionDataProvider {
       'Exmouth II',
       'Topsham II',
       'Crediton II',
+      'South Molton',
       'Brixham II',
     ],
     'counties 2 tribute cornwall': [
@@ -454,6 +454,13 @@ class DivisionDataProvider {
         int? awayScore;
         String status = 'Scheduled';
 
+        final kickOffTime = (homeTeam.toLowerCase().contains('south molton') ||
+                awayTeam.toLowerCase().contains('south molton') ||
+                roundDate.month >= 11 ||
+                roundDate.month <= 2)
+            ? '14:30'
+            : '15:00';
+
         if (isCompleted) {
           homeScore = 24 + ((match * 3 + round) % 20);
           awayScore = 17 + ((match * 2 + round) % 15);
@@ -464,7 +471,7 @@ class DivisionDataProvider {
           id: 'fix_${seasonYears.$1}_r${round}_$matchId',
           date: dateStr,
           dateIso: dateIso,
-          time: '15:00',
+          time: kickOffTime,
           homeTeam: homeTeam,
           awayTeam: awayTeam,
           homeScore: homeScore,

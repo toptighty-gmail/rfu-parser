@@ -15,6 +15,7 @@ import '../widgets/add_fixture_dialog.dart';
 import '../widgets/logo_upload_dialog.dart';
 import '../widgets/teams_directory_dialog.dart';
 import '../widgets/divisions_directory_dialog.dart';
+import '../widgets/sync_rfu_dialog.dart';
 import 'booklet_print_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -271,6 +272,7 @@ class _HomeViewState extends State<HomeView> {
         onAddFixture: _openAddFixtureDialog,
         onUploadLogo: _openUploadLogoDialog,
         onOpenBookletPrint: _openBookletPrint,
+        onSyncRfuData: _openSyncRfuDialog,
       ),
       body: _isLoading
           ? const Center(
@@ -804,6 +806,25 @@ class _HomeViewState extends State<HomeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Uploaded logo for $teamName to Supabase Storage!'),
+              backgroundColor: AppTheme.emeraldAccent,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openSyncRfuDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => SyncRfuDialog(
+        currentDivision: _selectedDivision != 'ALL / Select Division' ? _selectedDivision : null,
+        selectedSeason: _selectedSeason,
+        onSyncCompleted: () {
+          _loadData();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Supabase cloud database successfully synced with official RFU fixtures & standings.'),
               backgroundColor: AppTheme.emeraldAccent,
             ),
           );

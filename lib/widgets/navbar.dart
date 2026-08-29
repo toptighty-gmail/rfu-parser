@@ -18,6 +18,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onAddFixture;
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
+  final VoidCallback onSyncRfuData;
 
   const Navbar({
     super.key,
@@ -36,6 +37,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onAddFixture,
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
+    required this.onSyncRfuData,
   });
 
   @override
@@ -214,6 +216,31 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 // Actions / Print / Admin Controls
                 Row(
                   children: [
+                    // Sync RFU Data to Database Button
+                    if (isDesktop)
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.15),
+                          foregroundColor: AppTheme.goldAccent,
+                          side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.6), width: 1.2),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        icon: const Icon(Icons.cloud_sync, size: 18, color: AppTheme.goldAccent),
+                        label: const Text(
+                          'Sync RFU Data',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        onPressed: onSyncRfuData,
+                      )
+                    else
+                      IconButton(
+                        tooltip: 'Sync RFU Data',
+                        icon: const Icon(Icons.cloud_sync, color: AppTheme.goldAccent),
+                        onPressed: onSyncRfuData,
+                      ),
+                    const SizedBox(width: 6),
+
                     // Print Booklet Button
                     IconButton(
                       tooltip: 'A4 Booklet View',

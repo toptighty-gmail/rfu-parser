@@ -64,6 +64,7 @@ class StandingsTable extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minWidth: constraints.maxWidth),
                   child: DataTable(
+                    showCheckboxColumn: false,
                     headingRowColor: WidgetStateProperty.all(AppTheme.darkBg.withValues(alpha: 0.5)),
                     dataRowMinHeight: 48,
                     dataRowMaxHeight: 56,
@@ -98,22 +99,12 @@ class StandingsTable extends StatelessWidget {
                         }),
                         cells: [
                           DataCell(
-                            Container(
-                              width: 28,
-                              height: 28,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: isLeader ? AppTheme.goldAccent : (entry.pos <= 3 ? AppTheme.surfaceBg : Colors.transparent),
-                                shape: BoxShape.circle,
-                                border: isLeader ? null : Border.all(color: AppTheme.cardBorder),
-                              ),
-                              child: Text(
-                                '${entry.pos}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: isLeader ? Colors.black : AppTheme.textPrimary,
-                                ),
+                            Text(
+                              '${entry.pos}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isLeader ? AppTheme.goldAccent : AppTheme.textPrimary,
                               ),
                             ),
                           ),

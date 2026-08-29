@@ -187,15 +187,16 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
 
   Future<void> _pickFile() async {
     try {
-      final dynamic result = await FilePicker.pickFiles(
+      final files = await FilePickerPlatform.instance.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'svg'],
       );
 
-      if (result != null && result.files != null && (result.files as List).isNotEmpty) {
-        final dynamic file = result.files.first;
+      if (files.isNotEmpty) {
+        final file = files.first;
+        final bytes = await file.readAsBytes();
         setState(() {
-          _fileBytes = file.bytes;
+          _fileBytes = bytes;
           _fileName = file.name;
           _error = null;
         });

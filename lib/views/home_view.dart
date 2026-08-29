@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../services/api_service.dart';
+import '../services/division_data_provider.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/navbar.dart';
@@ -128,28 +129,43 @@ class _HomeViewState extends State<HomeView> {
     final targetDivision = hasDivision ? _selectedDivision : null;
     final targetTeam = hasTeam ? team : null;
 
-    // 1. Crawl live RFU web data directly from England Rugby site & upsert into Supabase database
-    DivisionData? data = await ApiService.crawlAndSyncLiveRFUData(
+    DivisionData? data;
+
+    // 1. Try Supabase cloud database if targetDivision is selected
+    if (targetDivision != null) {
+      data = await SupabaseService.fetchDivisionFromSupabase(
+        division: targetDivision,
+        season: _selectedSeason,
+      );
+    }
+
+    // 2. Crawl live RFU web data directly from England Rugby site
+    data ??= await ApiService.crawlAndSyncLiveRFUData(
       division: targetTeam == null ? targetDivision : null,
       team: targetTeam,
       season: _selectedSeason,
     );
 
-    // Fallback to parse endpoint if live crawl is still completing
+    // 3. Fallback to parse endpoint if live crawl is still completing
     data ??= await ApiService.fetchDivisionData(
       division: targetTeam == null ? targetDivision : null,
       team: targetTeam,
       season: _selectedSeason,
     );
 
-    // 2. Fetch custom fixtures from Supabase database / local state
+    // 4. Fallback to DivisionDataProvider to guarantee full standings & fixtures
+    if ((data == null || data.standings.isEmpty) && targetDivision != null) {
+      data = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
+    }
+
+    // 5. Fetch custom fixtures from Supabase database / local state
     final customFixtures = await SupabaseService.fetchCustomFixtures(
       division: targetDivision,
       team: targetTeam,
     );
 
     if (data != null) {
-      // 2. Direct client-side upsert to Supabase relational tables (divisions, standings, fixtures)
+      // Direct client-side upsert to Supabase relational tables (divisions, standings, fixtures)
       SupabaseService.upsertDivisionData(data);
 
       // Merge custom fixtures into fixtures list

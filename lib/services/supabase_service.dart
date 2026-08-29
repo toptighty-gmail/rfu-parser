@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+import '../models/division_data.dart';
 import '../models/fixture.dart';
+import '../models/standing_entry.dart';
 import 'api_service.dart';
 
 class SupabaseService {
@@ -460,5 +462,48 @@ class SupabaseService {
       debugPrint('Error syncing division data to Supabase: $e');
       return false;
     }
+  }
+
+  static Future<DivisionData?> fetchDivisionFromSupabase({required String division, required String season}) async {
+    final client = _client;
+    if (client == null) return null;
+    try {
+      final divResp = await client
+          .from('divisions')
+          .select('id, division_name, season, source_url')
+          .ilike('division_name', '%${division.trim()}%')
+          .eq('season', season)
+          .maybeSingle();
+
+      if (divResp != null) {
+        final divId = divResp['id'];
+        final standingsResp = await client
+            .from('standings')
+            .select()
+            .eq('division_id', divId)
+            .order('position', ascending: true);
+
+        final fixturesResp = await client
+            .from('fixtures')
+            .select()
+            .eq('division_id', divId);
+
+        final standings = (standingsResp as List).map((row) => StandingEntry.fromJson(row)).toList();
+        final fixtures = (fixturesResp as List).map((row) => Fixture.fromJson(row)).toList();
+
+        if (standings.isNotEmpty || fixtures.isNotEmpty) {
+          return DivisionData(
+            divisionName: divResp['division_name'] ?? division,
+            season: divResp['season'] ?? season,
+            sourceUrl: divResp['source_url'] ?? '',
+            standings: standings,
+            fixtures: fixtures,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Supabase division fetch error: $e');
+    }
+    return null;
   }
 }

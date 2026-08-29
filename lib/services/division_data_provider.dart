@@ -244,10 +244,10 @@ class DivisionDataProvider {
       'Exeter Saracens',
       'OPM',
       'Bideford',
-      'Brixham II',
-      'Crediton II',
-      'Topsham II',
       'Exmouth II',
+      'Topsham II',
+      'Crediton II',
+      'Brixham II',
     ],
     'counties 2 tribute cornwall': [
       'Saltash',
@@ -424,35 +424,39 @@ class DivisionDataProvider {
       ));
     }
 
-    // 2. Generate 22 Rounds of Fixtures
+    // 2. Generate 22 Rounds of Fixtures using Standard Circle Method
     final fixtures = <Fixture>[];
     final startDate = DateTime(seasonYears.$1, 9, 26); // Official RFU Round 1 starts Saturday, 26 September
     final rfuDateFormat = DateFormat('EEEE, d MMM yyyy');
 
     int matchId = 1;
     final numTeams = teams.length;
+    final totalRounds = (numTeams - 1) * 2;
+    final half = numTeams ~/ 2;
 
-    for (int round = 1; round <= 22; round++) {
+    var rotation = List<String>.from(teams);
+
+    for (int round = 1; round <= totalRounds; round++) {
+      final isSecondHalf = round > (numTeams - 1);
       final roundDate = startDate.add(Duration(days: (round - 1) * 7));
       final dateStr = rfuDateFormat.format(roundDate);
       final dateIso = DateFormat('yyyy-MM-dd').format(roundDate);
       final isCompleted = roundDate.isBefore(DateTime.now());
 
-      for (int match = 0; match < numTeams ~/ 2; match++) {
-        final homeIdx = (round + match) % numTeams;
-        var awayIdx = (numTeams - 1 - match + round) % numTeams;
-        if (awayIdx == homeIdx) awayIdx = (awayIdx + 1) % numTeams;
+      for (int match = 0; match < half; match++) {
+        final t1 = rotation[match];
+        final t2 = rotation[numTeams - 1 - match];
 
-        final homeTeam = teams[homeIdx];
-        final awayTeam = teams[awayIdx];
+        final homeTeam = isSecondHalf ? t2 : t1;
+        final awayTeam = isSecondHalf ? t1 : t2;
 
         int? homeScore;
         int? awayScore;
         String status = 'Scheduled';
 
         if (isCompleted) {
-          homeScore = 24 + ((homeIdx * 3 + round) % 20);
-          awayScore = 17 + ((awayIdx * 2 + match) % 15);
+          homeScore = 24 + ((match * 3 + round) % 20);
+          awayScore = 17 + ((match * 2 + round) % 15);
           status = 'Completed';
         }
 
@@ -472,6 +476,11 @@ class DivisionDataProvider {
           isCustom: false,
         ));
         matchId++;
+      }
+
+      // Rotate list keeping index 0 fixed: [0, 1, 2, ... N-1] -> [0, N-1, 1, 2, ... N-2]
+      if (numTeams > 2) {
+        rotation = [rotation[0], rotation.last, ...rotation.sublist(1, numTeams - 1)];
       }
     }
 

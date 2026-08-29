@@ -189,7 +189,17 @@ class SupabaseService {
 
     if (client != null) {
       // 1. Attempt upload to Supabase Storage bucket
-      final candidateBuckets = ['team-logos', 'team-logo', 'team_logos', 'team_logo', 'teamlogos'];
+      final candidateBuckets = [
+        'rfu-parcer-team-logos',
+        'rfu-parser-team-logos',
+        'rfu_parcer_team_logos',
+        'rfu_parser_team_logos',
+        'team-logos',
+        'team-logo',
+        'team_logos',
+        'team_logo',
+        'teamlogos',
+      ];
       bool uploadSuccess = false;
 
       for (var bucket in candidateBuckets) {

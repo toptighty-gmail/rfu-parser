@@ -91,9 +91,24 @@ class _HomeViewState extends State<HomeView> {
 
   String? _getTeamLogo(String teamName) {
     final clean = teamName.trim().toLowerCase();
+    if (clean.isEmpty) return null;
+
+    // 1. Direct and fuzzy check in uploaded Supabase custom logos map
     if (_customLogosMap.containsKey(clean)) {
       return _customLogosMap[clean];
     }
+    for (var entry in _customLogosMap.entries) {
+      final key = entry.key.toLowerCase().trim();
+      if (clean == key || clean.contains(key) || key.contains(clean)) {
+        return entry.value;
+      }
+      final cleanWords = clean.split(' ').where((w) => w.length > 3 && w != 'club' && w != 'rfc');
+      for (var w in cleanWords) {
+        if (key.contains(w)) return entry.value;
+      }
+    }
+
+    // 2. Check standings table logoUrl
     if (_divisionData != null) {
       for (var s in _divisionData!.standings) {
         if (s.teamName.trim().toLowerCase() == clean && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
@@ -108,6 +123,8 @@ class _HomeViewState extends State<HomeView> {
         }
       }
     }
+
+    // 3. Built-in high-quality vector club crests
     return TeamLogoProvider.getPredefinedLogo(teamName);
   }
 

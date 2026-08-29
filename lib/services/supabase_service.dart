@@ -135,23 +135,23 @@ class SupabaseService {
       allFixtures.addAll(_localCustomFixtures);
     }
 
-    // Filter by team if requested (fuzzy / token matching for variants like Plymstock Oaks vs Plymstock Albion Oaks)
+    // Filter by team (custom fixtures only belong in the schedule of the participating clubs)
     final cleanTeam = team?.trim().toLowerCase();
-    if (cleanTeam != null && cleanTeam.isNotEmpty) {
-      final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
-      return allFixtures.where((f) {
-        final home = f.homeTeam.toLowerCase();
-        final away = f.awayTeam.toLowerCase();
-        if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
-        if (cleanTeam.contains(home) || cleanTeam.contains(away)) return true;
-        for (var w in searchWords) {
-          if (home.contains(w) || away.contains(w)) return true;
-        }
-        return false;
-      }).toList();
+    if (cleanTeam == null || cleanTeam.isEmpty) {
+      return [];
     }
 
-    return allFixtures;
+    final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
+    return allFixtures.where((f) {
+      final home = f.homeTeam.toLowerCase();
+      final away = f.awayTeam.toLowerCase();
+      if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
+      if (cleanTeam.contains(home) || cleanTeam.contains(away)) return true;
+      for (var w in searchWords) {
+        if (home.contains(w) || away.contains(w)) return true;
+      }
+      return false;
+    }).toList();
   }
 
   static Future<Fixture?> addCustomFixture(Fixture fixture, String division) async {
@@ -167,8 +167,8 @@ class SupabaseService {
       awayScore: fixture.awayScore,
       status: fixture.status,
       venue: fixture.venue,
-      competition: 'Friendly',
-      roundNum: 'Friendly Matches',
+      competition: fixture.competition,
+      roundNum: fixture.roundNum,
       isCustom: true,
       homeLogoUrl: fixture.homeLogoUrl,
       awayLogoUrl: fixture.awayLogoUrl,

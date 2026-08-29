@@ -176,21 +176,26 @@ class _HomeViewState extends State<HomeView> {
       data = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
     }
 
-    // 5. Fetch custom fixtures from Supabase database / local state
-    final customFixtures = await SupabaseService.fetchCustomFixtures(
-      division: targetDivision,
-      team: targetTeam,
-    );
+    // 5. Fetch custom fixtures ONLY when viewing a team context
+    // In pure division context, show only official RFU league fixtures!
+    final customFixtures = hasTeam
+        ? await SupabaseService.fetchCustomFixtures(
+            division: targetDivision,
+            team: targetTeam,
+          )
+        : <Fixture>[];
 
     if (data != null) {
       // Direct client-side upsert to Supabase relational tables (divisions, standings, fixtures)
       SupabaseService.upsertDivisionData(data);
 
-      // Merge custom fixtures into fixtures list
-      final existingIds = data.fixtures.map((f) => f.id).toSet();
-      for (var cf in customFixtures) {
-        if (!existingIds.contains(cf.id)) {
-          data.fixtures.insert(0, cf);
+      // Merge custom fixtures into team fixtures list
+      if (hasTeam && customFixtures.isNotEmpty) {
+        final existingIds = data.fixtures.map((f) => f.id).toSet();
+        for (var cf in customFixtures) {
+          if (!existingIds.contains(cf.id)) {
+            data.fixtures.insert(0, cf);
+          }
         }
       }
     } else {

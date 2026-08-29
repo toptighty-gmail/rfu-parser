@@ -72,13 +72,13 @@ class FixtureCard extends StatelessWidget {
           children: [
             // Date & Time & Round
             SizedBox(
-              width: 170,
+              width: 260,
               child: Row(
                 children: [
                   if (fixture.isCustom)
                     Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.goldAccent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
@@ -87,7 +87,7 @@ class FixtureCard extends StatelessWidget {
                     )
                   else if (fixture.roundNum.isNotEmpty)
                     Container(
-                      margin: const EdgeInsets.only(right: 6),
+                      margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.darkBg,
@@ -102,7 +102,7 @@ class FixtureCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       fixture.date,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.visible,
                       style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
                     ),
                   ),

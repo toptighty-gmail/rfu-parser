@@ -3,9 +3,9 @@
 // you can configure your Supabase URL & Anon Key below.
 
 class SupabaseConfig {
-  // Replace with your project URL from Supabase Settings -> API
-  static const String fallbackUrl = '';
+  // Supabase project URL
+  static const String fallbackUrl = 'https://tgexkxrhcyxvnqafbdff.supabase.co';
 
-  // Replace with your project anon public key from Supabase Settings -> API
-  static const String fallbackAnonKey = '';
+  // Supabase project anon public key
+  static const String fallbackAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXhreHJoY3l4dm5xYWZiZGZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNTE5MzAsImV4cCI6MjEwMDgyNzkzMH0.jmXajfI3FSJRAzwSTcuDaJ83e7WRIMDoNXI1z6c66mM';
 }

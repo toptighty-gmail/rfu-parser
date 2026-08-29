@@ -188,17 +188,28 @@ class SupabaseService {
     final client = _client;
 
     if (client != null) {
-      // 1. Attempt upload to Supabase Storage bucket 'team-logos'
-      try {
-        final cleanPath = '${cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]'), '_')}$fileExtension';
-        await client.storage.from('team-logos').uploadBinary(
-              cleanPath,
-              fileBytes,
-              fileOptions: const FileOptions(upsert: true),
-            );
-        chosenLogoUrl = client.storage.from('team-logos').getPublicUrl(cleanPath);
-      } catch (storageError) {
-        debugPrint('Supabase storage bucket upload error, fallback to data URI: $storageError');
+      // 1. Attempt upload to Supabase Storage bucket
+      final candidateBuckets = ['team-logos', 'team-logo', 'team_logos', 'team_logo', 'teamlogos'];
+      bool uploadSuccess = false;
+
+      for (var bucket in candidateBuckets) {
+        try {
+          final cleanPath = '${cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]'), '_')}$fileExtension';
+          await client.storage.from(bucket).uploadBinary(
+                cleanPath,
+                fileBytes,
+                fileOptions: const FileOptions(upsert: true),
+              );
+          chosenLogoUrl = client.storage.from(bucket).getPublicUrl(cleanPath);
+          uploadSuccess = true;
+          break;
+        } catch (_) {
+          // Try next bucket name variant
+        }
+      }
+
+      if (!uploadSuccess) {
+        debugPrint('Supabase storage bucket upload fallback to data URI');
         chosenLogoUrl = dataUri;
       }
 

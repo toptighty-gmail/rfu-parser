@@ -464,19 +464,63 @@ class SupabaseService {
     }
   }
 
-  static Future<DivisionData?> fetchDivisionFromSupabase({required String division, required String season}) async {
+  static Future<DivisionData?> fetchDivisionFromSupabase({
+    String? division,
+    String? team,
+    required String season,
+  }) async {
     final client = _client;
     if (client == null) return null;
-    try {
-      final divResp = await client
-          .from('divisions')
-          .select('id, division_name, season, source_url')
-          .ilike('division_name', '%${division.trim()}%')
-          .eq('season', season)
-          .maybeSingle();
 
-      if (divResp != null) {
-        final divId = divResp['id'];
+    try {
+      String? divId;
+      String? resolvedDivisionName = division;
+      String? resolvedSourceUrl;
+
+      // 1. If division name is provided, search directly
+      if (division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
+        final divResp = await client
+            .from('divisions')
+            .select('id, division_name, season, source_url')
+            .ilike('division_name', '%${division.trim()}%')
+            .eq('season', season)
+            .maybeSingle();
+
+        if (divResp != null) {
+          divId = divResp['id'] as String?;
+          resolvedDivisionName = divResp['division_name'] as String?;
+          resolvedSourceUrl = divResp['source_url'] as String?;
+        }
+      }
+
+      // 2. If division was not resolved yet but a team name was provided, search standings for the team's division
+      if (divId == null && team != null && team.trim().isNotEmpty) {
+        final cleanTeam = team.trim();
+        final standingsMatch = await client
+            .from('standings')
+            .select('division_id, team_name')
+            .ilike('team_name', '%$cleanTeam%')
+            .limit(1)
+            .maybeSingle();
+
+        if (standingsMatch != null) {
+          divId = standingsMatch['division_id'] as String?;
+          if (divId != null) {
+            final divResp = await client
+                .from('divisions')
+                .select('id, division_name, season, source_url')
+                .eq('id', divId)
+                .maybeSingle();
+            if (divResp != null) {
+              resolvedDivisionName = divResp['division_name'] as String?;
+              resolvedSourceUrl = divResp['source_url'] as String?;
+            }
+          }
+        }
+      }
+
+      // 3. Fetch Standings & Fixtures if division was identified
+      if (divId != null) {
         final standingsResp = await client
             .from('standings')
             .select()
@@ -486,23 +530,24 @@ class SupabaseService {
         final fixturesResp = await client
             .from('fixtures')
             .select()
-            .eq('division_id', divId);
+            .eq('division_id', divId)
+            .order('date', ascending: true);
 
         final standings = (standingsResp as List).map((row) => StandingEntry.fromJson(row)).toList();
         final fixtures = (fixturesResp as List).map((row) => Fixture.fromJson(row)).toList();
 
         if (standings.isNotEmpty || fixtures.isNotEmpty) {
           return DivisionData(
-            divisionName: divResp['division_name'] ?? division,
-            season: divResp['season'] ?? season,
-            sourceUrl: divResp['source_url'] ?? '',
+            divisionName: resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),
+            season: season,
+            sourceUrl: resolvedSourceUrl ?? '',
             standings: standings,
             fixtures: fixtures,
           );
         }
       }
     } catch (e) {
-      debugPrint('Supabase division fetch error: $e');
+      debugPrint('Supabase division/team fetch error: $e');
     }
     return null;
   }

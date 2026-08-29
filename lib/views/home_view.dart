@@ -139,13 +139,12 @@ class _HomeViewState extends State<HomeView> {
       season: _selectedSeason,
     );
 
-    // 2. Try Supabase cloud database if live crawl is offline
-    if (data == null && targetDivision != null) {
-      data = await SupabaseService.fetchDivisionFromSupabase(
-        division: targetDivision,
-        season: _selectedSeason,
-      );
-    }
+    // 2. Try Supabase cloud database
+    data ??= await SupabaseService.fetchDivisionFromSupabase(
+      division: targetDivision,
+      team: targetTeam,
+      season: _selectedSeason,
+    );
 
     // 3. Fallback to parse endpoint if live crawl is still completing
     data ??= await ApiService.fetchDivisionData(

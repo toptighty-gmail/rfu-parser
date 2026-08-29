@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'config/supabase_config.dart';
 import 'services/supabase_service.dart';
 import 'theme/app_theme.dart';
 import 'views/home_view.dart';
@@ -7,9 +8,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Supabase client
-  // Replace these with your actual Supabase URL & Anon Key or configure via environment variables
-  const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  const String envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const String envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+
+  final String supabaseUrl = envUrl.isNotEmpty ? envUrl : SupabaseConfig.fallbackUrl;
+  final String supabaseAnonKey = envAnonKey.isNotEmpty ? envAnonKey : SupabaseConfig.fallbackAnonKey;
 
   await SupabaseService.init(url: supabaseUrl, anonKey: supabaseAnonKey);
 

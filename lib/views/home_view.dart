@@ -127,6 +127,9 @@ class _HomeViewState extends State<HomeView> {
     );
 
     if (data != null) {
+      // 2. Direct client-side upsert to Supabase relational tables (divisions, standings, fixtures)
+      SupabaseService.upsertDivisionData(data);
+
       // Merge custom fixtures into fixtures list
       final existingIds = data.fixtures.map((f) => f.id).toSet();
       for (var cf in customFixtures) {

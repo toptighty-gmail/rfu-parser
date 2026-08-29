@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
+import 'team_logo_image.dart';
 
 class FixtureCard extends StatelessWidget {
   final Fixture fixture;
@@ -31,19 +32,13 @@ class FixtureCard extends StatelessWidget {
 
   Widget _buildTeamLogo(String teamName, String? directLogoUrl) {
     final logoUrl = _resolveLogo(teamName, directLogoUrl);
-    if (logoUrl != null && logoUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: Image.network(
-          logoUrl,
-          width: 24,
-          height: 24,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
-        ),
-      );
-    }
-    return const Icon(Icons.shield, size: 20, color: AppTheme.textMuted);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: TeamLogoImage(
+        logoUrl: logoUrl,
+        size: 24,
+      ),
+    );
   }
 
   @override

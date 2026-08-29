@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../models/standing_entry.dart';
+import '../widgets/team_logo_image.dart';
 import '../theme/app_theme.dart';
 
 class BookletPrintView extends StatelessWidget {
@@ -41,20 +42,13 @@ class BookletPrintView extends StatelessWidget {
 
   Widget _buildTeamLogo(String teamName, String? directLogoUrl, {double size = 22}) {
     final logoUrl = _resolveLogo(teamName, directLogoUrl);
-    if (logoUrl != null && logoUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: Image.network(
-          logoUrl,
-          width: size,
-          height: size,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) =>
-              Icon(Icons.shield, size: size - 4, color: Colors.grey.shade400),
-        ),
-      );
-    }
-    return Icon(Icons.shield, size: size - 4, color: Colors.grey.shade400);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: TeamLogoImage(
+        logoUrl: logoUrl,
+        size: size,
+      ),
+    );
   }
 
   @override

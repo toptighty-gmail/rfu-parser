@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/fixture.dart';
@@ -173,49 +174,64 @@ class SupabaseService {
 
   // --- Team Logos Storage & Database ---
 
+  static final Map<String, String> _localLogosMap = {};
+
   static Future<String?> uploadTeamLogo(String teamName, Uint8List fileBytes, String fileExtension) async {
+    final cleanTeam = teamName.trim();
+    final cleanTeamKey = cleanTeam.toLowerCase();
+    final cleanFileExt = fileExtension.replaceAll('.', '').toLowerCase();
+    final mime = cleanFileExt == 'svg' ? 'image/svg+xml' : (cleanFileExt == 'jpg' ? 'image/jpeg' : 'image/$cleanFileExt');
+    final base64String = base64Encode(fileBytes);
+    final dataUri = 'data:$mime;base64,$base64String';
+
+    String chosenLogoUrl = dataUri;
     final client = _client;
-    if (client == null) return null;
-    try {
-      final cleanTeamName = teamName.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
-      final path = '$cleanTeamName$fileExtension';
 
-      // 1. Upload to Supabase Storage Bucket 'team-logos'
-      await client.storage.from('team-logos').uploadBinary(
-            path,
-            fileBytes,
-            fileOptions: const FileOptions(upsert: true),
-          );
-
-      final publicUrl = client.storage.from('team-logos').getPublicUrl(path);
+    if (client != null) {
+      // 1. Attempt upload to Supabase Storage bucket 'team-logos'
+      try {
+        final cleanPath = '${cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]'), '_')}$fileExtension';
+        await client.storage.from('team-logos').uploadBinary(
+              cleanPath,
+              fileBytes,
+              fileOptions: const FileOptions(upsert: true),
+            );
+        chosenLogoUrl = client.storage.from('team-logos').getPublicUrl(cleanPath);
+      } catch (storageError) {
+        debugPrint('Supabase storage bucket upload error, fallback to data URI: $storageError');
+        chosenLogoUrl = dataUri;
+      }
 
       // 2. Upsert mapping in team_logos table
-      await client.from('team_logos').upsert({
-        'team_name': teamName.trim(),
-        'logo_url': publicUrl,
-        'updated_at': DateTime.now().toIso8601String(),
-      }, onConflict: 'team_name');
-
-      return publicUrl;
-    } catch (e) {
-      debugPrint('Error uploading team logo to Supabase: $e');
-      return null;
+      try {
+        await client.from('team_logos').upsert({
+          'team_name': cleanTeam,
+          'logo_url': chosenLogoUrl,
+          'updated_at': DateTime.now().toIso8601String(),
+        }, onConflict: 'team_name');
+      } catch (dbError) {
+        debugPrint('Supabase team_logos table upsert error: $dbError');
+      }
     }
+
+    // 3. Store in local state map so UI immediately displays it
+    _localLogosMap[cleanTeamKey] = chosenLogoUrl;
+    return chosenLogoUrl;
   }
 
   static Future<Map<String, String>> fetchTeamLogos() async {
+    final Map<String, String> logoMap = Map.from(_localLogosMap);
     final client = _client;
-    if (client == null) return {};
+    if (client == null) return logoMap;
     try {
       final response = await client.from('team_logos').select('team_name, logo_url');
-      final Map<String, String> logoMap = {};
       for (var row in (response as List)) {
         logoMap[row['team_name'].toString().toLowerCase()] = row['logo_url'].toString();
       }
       return logoMap;
     } catch (e) {
       debugPrint('Error fetching team logos from Supabase: $e');
-      return {};
+      return logoMap;
     }
   }
 

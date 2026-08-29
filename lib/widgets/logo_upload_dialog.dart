@@ -157,6 +157,56 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                   ),
                 ),
               ),
+              if (_fileBytes != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppTheme.cardBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.memory(
+                          _fileBytes!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 36, color: AppTheme.rubyAccent),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _fileName ?? 'Selected Image',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '${(_fileBytes!.lengthInBytes / 1024).toStringAsFixed(1)} KB',
+                              style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18, color: AppTheme.textMuted),
+                        onPressed: () => setState(() {
+                          _fileBytes = null;
+                          _fileName = null;
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               if (_error != null) ...[
                 const SizedBox(height: 10),
                 Text(_error!, style: const TextStyle(color: AppTheme.rubyAccent, fontSize: 12)),

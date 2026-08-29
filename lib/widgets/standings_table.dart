@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/standing_entry.dart';
 import '../theme/app_theme.dart';
+import 'team_logo_image.dart';
 
 class StandingsTable extends StatelessWidget {
   final List<StandingEntry> standings;
@@ -112,18 +113,8 @@ class StandingsTable extends StatelessWidget {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (entry.logoUrl != null && entry.logoUrl!.isNotEmpty) ...[
-                                  Image.network(
-                                    entry.logoUrl!,
-                                    width: 24,
-                                    height: 24,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
-                                  ),
-                                  const SizedBox(width: 10),
-                                ] else ...[
-                                  const Icon(Icons.shield, size: 20, color: AppTheme.textMuted),
-                                  const SizedBox(width: 10),
-                                ],
+                                TeamLogoImage(logoUrl: entry.logoUrl, size: 24),
+                                const SizedBox(width: 10),
                                 Text(
                                   entry.teamName,
                                   style: TextStyle(

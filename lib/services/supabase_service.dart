@@ -222,6 +222,8 @@ class SupabaseService {
               : 'v',
           'status': customFix.status,
           'notes': customFix.venue,
+          if (customFix.contextTeam != null) 'context_team': customFix.contextTeam,
+          if (customFix.rfuTeamId != null) 'rfu_team_id': customFix.rfuTeamId,
           'is_custom': true,
         };
         
@@ -261,6 +263,8 @@ class SupabaseService {
         venue: updates['venue'] ?? old.venue,
         competition: updates['competition'] ?? old.competition,
         roundNum: updates['round_num'] ?? old.roundNum,
+        contextTeam: updates['context_team'] ?? old.contextTeam,
+        rfuTeamId: updates['rfu_team_id'] ?? old.rfuTeamId,
         isCustom: true,
       );
       await _saveLocalFixturesCache();
@@ -282,6 +286,8 @@ class SupabaseService {
       if (updates.containsKey('away_team')) payload['away_team'] = updates['away_team'];
       if (updates.containsKey('venue')) payload['notes'] = updates['venue'];
       if (updates.containsKey('status')) payload['status'] = updates['status'];
+      if (updates.containsKey('context_team')) payload['context_team'] = updates['context_team'];
+      if (updates.containsKey('rfu_team_id')) payload['rfu_team_id'] = updates['rfu_team_id'];
       if (updates.containsKey('home_score') || updates.containsKey('away_score')) {
         final h = updates['home_score'];
         final a = updates['away_score'];

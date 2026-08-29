@@ -516,6 +516,18 @@ class SupabaseService {
         final standings = (standingsResp as List).map((row) => StandingEntry.fromJson(row)).toList();
         final fixtures = (fixturesResp as List).map((row) => Fixture.fromJson(row)).toList();
 
+        // Sort fixtures in strict chronological round order (Round 1, Round 2, ... Round 22)
+        fixtures.sort((a, b) {
+          int extractRound(String r) {
+            final m = RegExp(r'(\d+)').firstMatch(r);
+            return m != null ? (int.tryParse(m.group(1)!) ?? 999) : 999;
+          }
+          final rA = extractRound(a.roundNum);
+          final rB = extractRound(b.roundNum);
+          if (rA != rB) return rA.compareTo(rB);
+          return (a.dateIso).compareTo(b.dateIso);
+        });
+
         if (standings.isNotEmpty || fixtures.isNotEmpty) {
           return DivisionData(
             divisionName: resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),

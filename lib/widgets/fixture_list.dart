@@ -68,8 +68,22 @@ class FixtureList extends StatelessWidget {
       );
     }
 
+    int extractRoundNumber(String key) {
+      if (key.toLowerCase().contains('friendly')) return 0;
+      final m = RegExp(r'(\d+)').firstMatch(key);
+      return m != null ? (int.tryParse(m.group(1)!) ?? 999) : 999;
+    }
+
     // When viewing single team fixtures, render a unified sleek schedule list
     if (isTeamFiltered) {
+      final sortedTeamFixtures = List<Fixture>.from(activeFixtures)
+        ..sort((a, b) {
+          final rA = extractRoundNumber(a.roundNum);
+          final rB = extractRoundNumber(b.roundNum);
+          if (rA != rB) return rA.compareTo(rB);
+          return a.dateIso.compareTo(b.dateIso);
+        });
+
       return Container(
         decoration: AppTheme.glassBoxDecoration(),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -93,7 +107,7 @@ class FixtureList extends StatelessWidget {
                       const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'FIXTURE SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${activeFixtures.length} MATCHES)',
+                        'FIXTURE SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 12,
@@ -122,7 +136,7 @@ class FixtureList extends StatelessWidget {
               ),
             ),
 
-            ...activeFixtures.map((f) => FixtureCard(
+            ...sortedTeamFixtures.map((f) => FixtureCard(
                   fixture: f,
                   isAdmin: isAdmin,
                   filterTeam: filterTeam,
@@ -142,10 +156,19 @@ class FixtureList extends StatelessWidget {
       grouped.putIfAbsent(key, () => []).add(f);
     }
 
+    // Sort round entries in strict chronological order (Friendly, Round 1, Round 2, ... Round 22)
+    final sortedEntries = grouped.entries.toList()
+      ..sort((a, b) {
+        final rA = extractRoundNumber(a.key);
+        final rB = extractRoundNumber(b.key);
+        if (rA != rB) return rA.compareTo(rB);
+        return a.key.compareTo(b.key);
+      });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ...grouped.entries.map((entry) {
+        ...sortedEntries.map((entry) {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: AppTheme.glassBoxDecoration(),

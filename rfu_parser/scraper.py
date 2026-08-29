@@ -262,10 +262,15 @@ class RFUParser:
                     venue_tag = card.find(class_='coh-style-verticle-left')
                     venue = venue_tag.get_text(strip=True) if venue_tag else ""
 
+                    # Extract kickoff time (e.g. 14:00, 14:15, 14:30, 15:00, 16:00, 17:30, 19:45)
+                    card_text = card.get_text()
+                    time_match = re.search(r'\b([012]?\d:[0-5]\d)\b', card_text)
+                    ko_time = time_match.group(1) if time_match else "15:00"
+
                     temp_fixtures.append({
                         'date_dt': dt,
                         'date': date_str,
-                        'time': "15:00",
+                        'time': ko_time,
                         'home_team': home_team,
                         'away_team': away_team,
                         'home_score': home_score,

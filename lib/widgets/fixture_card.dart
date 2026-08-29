@@ -72,12 +72,12 @@ class FixtureCard extends StatelessWidget {
           children: [
             // Date & Time & Round
             SizedBox(
-              width: 260,
+              width: 270,
               child: Row(
                 children: [
                   if (fixture.isCustom)
                     Container(
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.goldAccent.withValues(alpha: 0.2),
@@ -87,7 +87,7 @@ class FixtureCard extends StatelessWidget {
                     )
                   else if (fixture.roundNum.isNotEmpty)
                     Container(
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.darkBg,
@@ -102,8 +102,32 @@ class FixtureCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       fixture.date,
-                      overflow: TextOverflow.visible,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkBg,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppTheme.cardBorder),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.access_time, size: 11, color: AppTheme.goldAccent),
+                        const SizedBox(width: 3),
+                        Text(
+                          fixture.time.isNotEmpty ? fixture.time : '15:00',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.goldAccent,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -135,25 +159,27 @@ class FixtureCard extends StatelessWidget {
               ),
             ),
 
-            // Score Box / VS
+            // Score Box / KO Time
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              constraints: const BoxConstraints(minWidth: 64),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              constraints: const BoxConstraints(minWidth: 70),
               decoration: BoxDecoration(
-                color: AppTheme.darkBg,
+                color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppTheme.cardBorder),
+                border: Border.all(
+                  color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.4),
+                ),
               ),
               child: Center(
                 child: Text(
                   isCompleted
                       ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
-                      : (fixture.time.isNotEmpty ? fixture.time : 'VS'),
+                      : (fixture.time.isNotEmpty ? fixture.time : '15:00'),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
-                    color: isCompleted ? AppTheme.goldAccent : AppTheme.textMuted,
+                    color: isCompleted ? AppTheme.goldAccent : AppTheme.textPrimary,
                   ),
                 ),
               ),
@@ -238,20 +264,42 @@ class FixtureCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${fixture.roundNum.isNotEmpty ? "${fixture.roundNum} • " : ""}${fixture.date}',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isCompleted ? AppTheme.emeraldAccent.withValues(alpha: 0.15) : AppTheme.goldAccent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+              Flexible(
                 child: Text(
-                  fixture.status.toUpperCase(),
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isCompleted ? AppTheme.emeraldAccent : AppTheme.goldAccent),
+                  '${fixture.roundNum.isNotEmpty ? "${fixture.roundNum} • " : ""}${fixture.date}',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
                 ),
+              ),
+              const SizedBox(width: 6),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkBg,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppTheme.cardBorder),
+                    ),
+                    child: Text(
+                      'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
+                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.goldAccent),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isCompleted ? AppTheme.emeraldAccent.withValues(alpha: 0.15) : AppTheme.goldAccent.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      fixture.status.toUpperCase(),
+                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isCompleted ? AppTheme.emeraldAccent : AppTheme.goldAccent),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -283,13 +331,21 @@ class FixtureCard extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBg,
+                  color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppTheme.cardBorder),
+                  border: Border.all(
+                    color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Text(
-                  isCompleted ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}' : 'VS',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isCompleted ? AppTheme.goldAccent : AppTheme.textMuted),
+                  isCompleted
+                      ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
+                      : (fixture.time.isNotEmpty ? fixture.time : '15:00'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? AppTheme.goldAccent : AppTheme.textPrimary,
+                  ),
                 ),
               ),
               Expanded(

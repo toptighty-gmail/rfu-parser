@@ -802,12 +802,13 @@ class _HomeViewState extends State<HomeView> {
             await SupabaseService.addCustomFixture(fixture, _selectedDivision);
           }
           if (mounted) {
+            final typeLabel = fixture.competition.toLowerCase().contains('cup') ? 'Cup fixture' : 'Friendly fixture';
             setState(() {
               _activeTab = 'Fixtures';
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Friendly fixture between ${fixture.homeTeam} and ${fixture.awayTeam} added!'),
+                content: Text('$typeLabel between ${fixture.homeTeam} and ${fixture.awayTeam} saved!'),
                 backgroundColor: AppTheme.emeraldAccent,
               ),
             );

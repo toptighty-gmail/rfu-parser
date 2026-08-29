@@ -48,6 +48,12 @@ class Fixture {
     }
 
     final isCustom = json['is_custom'] == true || json['is_custom'] == 1;
+    final comp = json['competition'] ??
+        (json['division'] != null && json['division'].toString().toLowerCase().contains('cup')
+            ? 'Cup Fixture'
+            : (isCustom ? 'Friendly' : 'League'));
+    final isCup = comp.toString().toLowerCase().contains('cup') ||
+        (json['round_num'] != null && json['round_num'].toString().toLowerCase().contains('cup'));
 
     return Fixture(
       id: json['id']?.toString(),
@@ -60,8 +66,8 @@ class Fixture {
       awayScore: aScore,
       status: json['status'] ?? (hScore != null && aScore != null ? 'Completed' : 'Scheduled'),
       venue: json['venue'] ?? json['notes'] ?? 'TBC',
-      competition: json['competition'] ?? (isCustom ? 'Friendly' : 'League'),
-      roundNum: json['round_num'] ?? (isCustom ? 'Friendly Matches' : 'Scheduled'),
+      competition: comp,
+      roundNum: json['round_num'] ?? (isCustom ? (isCup ? 'Cup Matches' : 'Friendly Matches') : 'Scheduled'),
       isCustom: isCustom,
       homeLogoUrl: json['home_logo_url'],
       awayLogoUrl: json['away_logo_url'],

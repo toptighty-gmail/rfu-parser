@@ -191,9 +191,11 @@ class SupabaseService {
     if (client != null) {
       try {
         final payload = {
-          'division': division.isNotEmpty && division != 'ALL / Select Division'
-              ? division
-              : 'Counties 2 Tribute Devon',
+          'division': (customFix.competition.isNotEmpty && customFix.competition != 'Friendly')
+              ? customFix.competition
+              : (division.isNotEmpty && division != 'ALL / Select Division'
+                  ? division
+                  : 'Counties 2 Tribute Devon'),
           'date': customFix.date,
           'time': customFix.time.isNotEmpty ? customFix.time : '15:00',
           'home_team': customFix.homeTeam,
@@ -240,8 +242,8 @@ class SupabaseService {
         awayScore: updates.containsKey('away_score') ? updates['away_score'] : old.awayScore,
         status: updates['status'] ?? old.status,
         venue: updates['venue'] ?? old.venue,
-        competition: 'Friendly',
-        roundNum: 'Friendly Matches',
+        competition: updates['competition'] ?? old.competition,
+        roundNum: updates['round_num'] ?? old.roundNum,
         isCustom: true,
       );
       await _saveLocalFixturesCache();

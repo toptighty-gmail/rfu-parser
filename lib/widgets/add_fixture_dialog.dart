@@ -16,6 +16,7 @@ class AddFixtureDialog extends StatefulWidget {
 class _AddFixtureDialogState extends State<AddFixtureDialog> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = const TimeOfDay(hour: 15, minute: 0);
+  String _fixtureType = 'Friendly'; // 'Friendly' or 'Cup'
 
   late TextEditingController _dateController;
   late TextEditingController _timeController;
@@ -24,6 +25,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   late TextEditingController _homeScoreController;
   late TextEditingController _awayScoreController;
   late TextEditingController _venueController;
+  late TextEditingController _cupNameController;
 
   static final DateFormat _rfuDateFormat = DateFormat('EEEE, d MMM yyyy');
 
@@ -45,6 +47,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       } catch (_) {
         _selectedTime = const TimeOfDay(hour: 15, minute: 0);
       }
+
+      final isCup = f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup');
+      _fixtureType = isCup ? 'Cup' : 'Friendly';
     }
 
     _dateController = TextEditingController(text: _rfuDateFormat.format(_selectedDate));
@@ -53,7 +58,12 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     _awayTeamController = TextEditingController(text: f?.awayTeam ?? '');
     _homeScoreController = TextEditingController(text: f?.homeScore?.toString() ?? '');
     _awayScoreController = TextEditingController(text: f?.awayScore?.toString() ?? '');
-    _venueController = TextEditingController(text: f?.venue ?? 'Friendly Match');
+    _venueController = TextEditingController(text: f?.venue ?? '');
+    _cupNameController = TextEditingController(
+      text: f != null && (f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup'))
+          ? f.competition
+          : 'Devon Senior Cup',
+    );
   }
 
   DateTime _parseFixtureDate(String? dateIso, String? dateStr) {
@@ -153,10 +163,15 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       ),
       title: Row(
         children: [
-          Icon(isEditing ? Icons.edit : Icons.add_circle, color: AppTheme.emeraldAccent),
+          Icon(
+            isEditing ? Icons.edit : (_fixtureType == 'Cup' ? Icons.emoji_events : Icons.sports_rugby),
+            color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+          ),
           const SizedBox(width: 10),
           Text(
-            isEditing ? 'Edit Custom Fixture' : 'Add Friendly Fixture',
+            isEditing
+                ? 'Edit Custom Fixture'
+                : (_fixtureType == 'Cup' ? 'Add Cup Fixture' : 'Add Friendly Fixture'),
             style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18),
           ),
         ],
@@ -166,7 +181,93 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           width: 480,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Fixture Type Selector (Friendly vs Cup)
+              Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: AppTheme.darkBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.cardBorder),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(() => _fixtureType = 'Friendly'),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _fixtureType == 'Friendly' ? AppTheme.goldAccent : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.sports_rugby,
+                                size: 16,
+                                color: _fixtureType == 'Friendly' ? Colors.black : AppTheme.textMuted,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Friendly Match',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: _fixtureType == 'Friendly' ? Colors.black : AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(() => _fixtureType = 'Cup'),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.emoji_events,
+                                size: 16,
+                                color: _fixtureType == 'Cup' ? Colors.black : AppTheme.textMuted,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Cup Fixture',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: _fixtureType == 'Cup' ? Colors.black : AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Cup Name Input (Visible when Cup is selected)
+              if (_fixtureType == 'Cup') ...[
+                _buildInput('Cup Competition (e.g. Devon Senior Cup, Papa Johns Cup)', _cupNameController, icon: Icons.emoji_events),
+                const SizedBox(height: 12),
+              ],
+
               // RFU Standard Date Picker & Time Picker
               Row(
                 children: [
@@ -240,7 +341,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                 ],
               ),
               const SizedBox(height: 12),
-              _buildInput('Venue / Location', _venueController, icon: Icons.location_on),
+              _buildInput('Venue / Location (Optional)', _venueController, icon: Icons.location_on),
             ],
           ),
         ),
@@ -252,12 +353,15 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.emeraldAccent,
+            backgroundColor: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
             foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           onPressed: _save,
-          child: Text(isEditing ? 'Save Changes' : 'Create Fixture', style: const TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(
+            isEditing ? 'Save Changes' : (_fixtureType == 'Cup' ? 'Create Cup Fixture' : 'Create Friendly Fixture'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );
@@ -294,6 +398,14 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     final aScore = int.tryParse(_awayScoreController.text.trim());
     final dateIso = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
+    final isCup = _fixtureType == 'Cup';
+    final competitionName = isCup
+        ? (_cupNameController.text.trim().isNotEmpty ? _cupNameController.text.trim() : 'Cup Match')
+        : 'Friendly';
+    final roundLabel = isCup
+        ? (_cupNameController.text.trim().isNotEmpty ? _cupNameController.text.trim() : 'Cup Matches')
+        : 'Friendly Matches';
+
     final fixture = Fixture(
       id: widget.existingFixture?.id,
       date: rfuFormattedDate,
@@ -305,8 +417,8 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       awayScore: aScore,
       status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',
       venue: _venueController.text.trim(),
-      competition: 'Friendly',
-      roundNum: 'Friendly Matches',
+      competition: competitionName,
+      roundNum: roundLabel,
       isCustom: true,
     );
 

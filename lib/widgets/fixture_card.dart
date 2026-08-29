@@ -76,14 +76,45 @@ class FixtureCard extends StatelessWidget {
               child: Row(
                 children: [
                   if (fixture.isCustom)
-                    Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppTheme.goldAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text('FRIENDLY', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.goldAccent)),
+                    Builder(
+                      builder: (context) {
+                        final isCup = fixture.competition.toLowerCase().contains('cup') ||
+                            fixture.roundNum.toLowerCase().contains('cup');
+                        return Container(
+                          margin: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isCup
+                                ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
+                                : AppTheme.goldAccent.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isCup
+                                  ? AppTheme.emeraldAccent.withValues(alpha: 0.5)
+                                  : AppTheme.goldAccent.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isCup ? Icons.emoji_events : Icons.sports_rugby,
+                                size: 10,
+                                color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                isCup ? 'CUP' : 'FRIENDLY',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     )
                   else if (fixture.roundNum.isNotEmpty)
                     Container(
@@ -265,10 +296,48 @@ class FixtureCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                child: Text(
-                  '${fixture.roundNum.isNotEmpty ? "${fixture.roundNum} • " : ""}${fixture.date}',
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (fixture.isCustom) ...[
+                      Builder(
+                        builder: (_) {
+                          final isCup = fixture.competition.toLowerCase().contains('cup') ||
+                              fixture.roundNum.toLowerCase().contains('cup');
+                          return Container(
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: isCup
+                                  ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
+                                  : AppTheme.goldAccent.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: Text(
+                              isCup ? 'CUP' : 'FRIENDLY',
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ] else if (fixture.roundNum.isNotEmpty) ...[
+                      Text(
+                        '${fixture.roundNum} • ',
+                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                    Flexible(
+                      child: Text(
+                        fixture.date,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 6),

@@ -76,7 +76,9 @@ class FixtureList extends StatelessWidget {
     }
 
     int extractRoundNumber(String key) {
-      if (key.toLowerCase().contains('friendly')) return 0;
+      final k = key.toLowerCase();
+      if (k.contains('cup')) return -2;
+      if (k.contains('friendly')) return -1;
       final m = RegExp(r'(\d+)').firstMatch(key);
       return m != null ? (int.tryParse(m.group(1)!) ?? 999) : 999;
     }
@@ -134,7 +136,7 @@ class FixtureList extends StatelessWidget {
                           children: [
                             Icon(Icons.close, size: 13, color: AppTheme.textMuted),
                             SizedBox(width: 4),
-                            Text('Show All', style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
+                            Text('Clear', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                           ],
                         ),
                       ),
@@ -159,11 +161,14 @@ class FixtureList extends StatelessWidget {
     // Group fixtures by round or match category for full division view
     final Map<String, List<Fixture>> grouped = {};
     for (var f in activeFixtures) {
-      final key = f.isCustom ? 'Friendly Matches' : f.roundNum;
+      final isCup = f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup');
+      final key = f.isCustom
+          ? (isCup ? (f.competition.isNotEmpty && f.competition != 'Cup Match' ? f.competition : 'Cup Matches') : 'Friendly Matches')
+          : f.roundNum;
       grouped.putIfAbsent(key, () => []).add(f);
     }
 
-    // Sort round entries in strict chronological order (Friendly, Round 1, Round 2, ... Round 22)
+    // Sort round entries in strict chronological order (Cup, Friendly, Round 1, Round 2, ... Round 22)
     final sortedEntries = grouped.entries.toList()
       ..sort((a, b) {
         final rA = extractRoundNumber(a.key);
@@ -176,6 +181,9 @@ class FixtureList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ...sortedEntries.map((entry) {
+          final isCupSection = entry.key.toLowerCase().contains('cup');
+          final headerColor = isCupSection ? AppTheme.emeraldAccent : AppTheme.goldAccent;
+
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: AppTheme.glassBoxDecoration(),
@@ -188,15 +196,19 @@ class FixtureList extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 10, left: 4),
                   child: Row(
                     children: [
-                      const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 16),
+                      Icon(
+                        isCupSection ? Icons.emoji_events : Icons.sports_rugby,
+                        color: headerColor,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         entry.key.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.1,
                           fontSize: 13,
-                          color: AppTheme.goldAccent,
+                          color: headerColor,
                         ),
                       ),
                     ],

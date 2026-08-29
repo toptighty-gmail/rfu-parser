@@ -541,9 +541,14 @@ class _HomeViewState extends State<HomeView> {
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: AppTheme.goldAccent.withValues(alpha: 0.12),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.goldAccent.withValues(alpha: 0.18),
+                                AppTheme.emeraldAccent.withValues(alpha: 0.12),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.8), width: 1.5),
+                            border: Border.all(color: AppTheme.goldAccent, width: 1.5),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -590,12 +595,12 @@ class _HomeViewState extends State<HomeView> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.emeraldAccent.withValues(alpha: 0.15),
+                                          color: AppTheme.emeraldAccent.withValues(alpha: 0.18),
                                           borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.4)),
+                                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.5)),
                                         ),
                                         child: Text(
-                                          '${_divisionData!.standings.length} TEAMS IN DIVISION',
+                                          '${_divisionData!.standings.length} TEAMS',
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
@@ -603,8 +608,36 @@ class _HomeViewState extends State<HomeView> {
                                           ),
                                         ),
                                       ),
+                                    if (_divisionData?.fixtures != null && _divisionData!.fixtures.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.goldAccent.withValues(alpha: 0.18),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5)),
+                                        ),
+                                        child: Text(
+                                          '${_divisionData!.fixtures.length} MATCHES',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.goldAccent,
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
+                              ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.goldAccent,
+                                  side: const BorderSide(color: AppTheme.goldAccent),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.swap_horiz, size: 16, color: AppTheme.goldAccent),
+                                label: const Text('Change Division', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                onPressed: _openDivisionsDirectory,
                               ),
                             ],
                           ),

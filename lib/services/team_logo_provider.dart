@@ -135,18 +135,89 @@ class TeamLogoProvider {
       text: 'TOPS',
       iconSvg: '<path d="M12 4L19 16H5L12 4Z" fill="#FFFFFF"/>',
     ),
-    'wellington': _svgBadge(
-      primaryColor: '#C8102E', // Red
-      secondaryColor: '#002B7F', // Navy
-      text: 'WELLY',
-      iconSvg: '<path d="M7 6H17V16H7Z" fill="#002B7F"/>',
+    'old plymothian': _svgBadge(
+      primaryColor: '#001F3F', // Navy
+      secondaryColor: '#C8102E', // Red
+      text: 'OPM',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
     ),
-    'chard': _svgBadge(
-      primaryColor: '#DAA520', // Gold
-      secondaryColor: '#003399', // Blue
-      textColor: '#003399',
-      text: 'CHARD',
-      iconSvg: '<circle cx="12" cy="11" r="5" fill="#003399"/>',
+    'mannamedian': _svgBadge(
+      primaryColor: '#001F3F', // Navy
+      secondaryColor: '#C8102E', // Red
+      text: 'OPM',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
+    ),
+    'ivybridge': _svgBadge(
+      primaryColor: '#005A36', // Green
+      secondaryColor: '#FFFFFF', // White
+      text: 'BRIDGE',
+      iconSvg: '<path d="M4 14C8 10 16 10 20 14H4Z" stroke="#FFFFFF" stroke-width="2" fill="none"/>',
+    ),
+    'devonport': _svgBadge(
+      primaryColor: '#002B7F', // Navy
+      secondaryColor: '#DAA520', // Gold
+      text: 'SERVICES',
+      iconSvg: '<path d="M12 4L15 9L20 10L16 14L17 19L12 16L7 19L8 14L4 10L9 9L12 4Z" fill="#DAA520"/>',
+    ),
+    'harlequins': _svgBadge(
+      primaryColor: '#005A36',
+      secondaryColor: '#990000',
+      text: 'QUINS',
+      iconSvg: '<path d="M12 4L18 12L12 20L6 12Z" fill="#990000" stroke="#FFFFFF" stroke-width="1"/>',
+    ),
+    'bath': _svgBadge(
+      primaryColor: '#002B7F',
+      secondaryColor: '#000000',
+      text: 'BATH',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#DAA520" stroke-width="2" fill="none"/>',
+    ),
+    'saracens': _svgBadge(
+      primaryColor: '#000000',
+      secondaryColor: '#C8102E',
+      text: 'SARRIES',
+      iconSvg: '<path d="M12 4L15 9L20 10L16 14L17 19L12 16L7 19L8 14L4 10L9 9L12 4Z" fill="#C8102E"/>',
+    ),
+    'leicester': _svgBadge(
+      primaryColor: '#005A36',
+      secondaryColor: '#C8102E',
+      text: 'TIGERS',
+      iconSvg: '<path d="M6 6L12 18L18 6" stroke="#C8102E" stroke-width="2.5" fill="none"/>',
+    ),
+    'exeter chiefs': _svgBadge(
+      primaryColor: '#000000',
+      secondaryColor: '#DAA520',
+      text: 'CHIEFS',
+      iconSvg: '<path d="M12 5C8 9 8 13 12 17C16 13 16 9 12 5Z" fill="#DAA520"/>',
+    ),
+    'gloucester': _svgBadge(
+      primaryColor: '#C8102E',
+      secondaryColor: '#FFFFFF',
+      text: 'GLAWS',
+      iconSvg: '<path d="M12 4L19 16H5L12 4Z" fill="#FFFFFF"/>',
+    ),
+    'northampton': _svgBadge(
+      primaryColor: '#005A36',
+      secondaryColor: '#000000',
+      text: 'SAINTS',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#DAA520" stroke-width="2" fill="none"/>',
+    ),
+    'bristol': _svgBadge(
+      primaryColor: '#002B7F',
+      secondaryColor: '#C8102E',
+      text: 'BEARS',
+      iconSvg: '<circle cx="12" cy="11" r="6" fill="#002B7F" stroke="#FFFFFF" stroke-width="1.5"/>',
+    ),
+    'sale': _svgBadge(
+      primaryColor: '#002B7F',
+      secondaryColor: '#FFFFFF',
+      text: 'SHARKS',
+      iconSvg: '<path d="M5 12L12 6L19 12L12 18L5 12Z" fill="#FFFFFF"/>',
+    ),
+    'newcastle': _svgBadge(
+      primaryColor: '#000000',
+      secondaryColor: '#FFFFFF',
+      text: 'FALCONS',
+      iconSvg: '<path d="M6 14C6 9 18 9 18 14H6Z" fill="#FFFFFF"/>',
     ),
   };
 

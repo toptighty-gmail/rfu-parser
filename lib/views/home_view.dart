@@ -5,6 +5,7 @@ import '../models/fixture.dart';
 import '../services/api_service.dart';
 import '../services/division_data_provider.dart';
 import '../services/supabase_service.dart';
+import '../services/team_logo_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/navbar.dart';
 import '../widgets/standings_table.dart';
@@ -106,7 +107,7 @@ class _HomeViewState extends State<HomeView> {
         }
       }
     }
-    return null;
+    return TeamLogoProvider.getPredefinedLogo(teamName);
   }
 
   Future<void> _loadData({String? queryTeam}) async {
@@ -449,7 +450,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
 
-                      // Selected Team Context Banner
+                      // Selected Context Banner (Team Context or Division Context)
                       if (_searchController.text.trim().isNotEmpty)
                         Container(
                           width: double.infinity,
@@ -532,6 +533,80 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ],
                           ),
+                        )
+                      else if (_selectedDivision != 'ALL / Select Division')
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.goldAccent.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.8), width: 1.5),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 12,
+                                  runSpacing: 6,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.emoji_events, color: AppTheme.goldAccent, size: 20),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            color: AppTheme.goldAccent,
+                                            letterSpacing: 1.1,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.darkBg,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: AppTheme.cardBorder),
+                                      ),
+                                      child: Text(
+                                        'SEASON: $_selectedSeason',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_divisionData?.standings != null && _divisionData!.standings.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.emeraldAccent.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.4)),
+                                        ),
+                                        child: Text(
+                                          '${_divisionData!.standings.length} TEAMS IN DIVISION',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.emeraldAccent,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
                       // View Selection 2-Tab Bar (Standings vs Fixtures)
@@ -578,6 +653,7 @@ class _HomeViewState extends State<HomeView> {
                           child: StandingsTable(
                             standings: _divisionData?.standings ?? [],
                             highlightedTeam: _searchController.text.trim(),
+                            logoProvider: _getTeamLogo,
                             onTeamSelected: (team) {
                               setState(() {
                                 _searchController.text = team;

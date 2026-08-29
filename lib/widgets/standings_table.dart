@@ -7,12 +7,14 @@ class StandingsTable extends StatelessWidget {
   final List<StandingEntry> standings;
   final String? highlightedTeam;
   final ValueChanged<String>? onTeamSelected;
+  final String? Function(String teamName)? logoProvider;
 
   const StandingsTable({
     super.key,
     required this.standings,
     this.highlightedTeam,
     this.onTeamSelected,
+    this.logoProvider,
   });
 
   @override
@@ -113,7 +115,10 @@ class StandingsTable extends StatelessWidget {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                TeamLogoImage(logoUrl: entry.logoUrl, size: 24),
+                                TeamLogoImage(
+                                  logoUrl: (logoProvider != null ? logoProvider!(entry.teamName) : null) ?? entry.logoUrl,
+                                  size: 24,
+                                ),
                                 const SizedBox(width: 10),
                                 Text(
                                   entry.teamName,

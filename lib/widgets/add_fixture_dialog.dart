@@ -25,6 +25,8 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   late TextEditingController _awayScoreController;
   late TextEditingController _venueController;
 
+  static final DateFormat _rfuDateFormat = DateFormat('EEEE, d MMM yyyy');
+
   @override
   void initState() {
     super.initState();
@@ -32,22 +34,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
     if (f != null) {
       // Attempt to parse existing fixture date
-      try {
-        if (f.dateIso.isNotEmpty) {
-          _selectedDate = DateTime.parse(f.dateIso);
-        } else if (f.date.contains('-')) {
-          final parts = f.date.split('-');
-          if (parts.length == 3) {
-            if (parts[0].length == 4) {
-              _selectedDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
-            } else {
-              _selectedDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-            }
-          }
-        }
-      } catch (_) {
-        _selectedDate = DateTime.now();
-      }
+      _selectedDate = _parseFixtureDate(f.dateIso, f.date);
 
       // Attempt to parse existing fixture time
       try {
@@ -60,13 +47,36 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       }
     }
 
-    _dateController = TextEditingController(text: DateFormat('dd-MM-yyyy').format(_selectedDate));
+    _dateController = TextEditingController(text: _rfuDateFormat.format(_selectedDate));
     _timeController = TextEditingController(text: _formatTimeOfDay(_selectedTime));
     _homeTeamController = TextEditingController(text: f?.homeTeam ?? '');
     _awayTeamController = TextEditingController(text: f?.awayTeam ?? '');
     _homeScoreController = TextEditingController(text: f?.homeScore?.toString() ?? '');
     _awayScoreController = TextEditingController(text: f?.awayScore?.toString() ?? '');
     _venueController = TextEditingController(text: f?.venue ?? 'Friendly Match');
+  }
+
+  DateTime _parseFixtureDate(String? dateIso, String? dateStr) {
+    if (dateIso != null && dateIso.isNotEmpty) {
+      try {
+        return DateTime.parse(dateIso);
+      } catch (_) {}
+    }
+    if (dateStr != null && dateStr.isNotEmpty) {
+      try {
+        return _rfuDateFormat.parse(dateStr);
+      } catch (_) {}
+      try {
+        return DateFormat('d MMM yyyy').parse(dateStr);
+      } catch (_) {}
+      try {
+        return DateFormat('dd-MM-yyyy').parse(dateStr);
+      } catch (_) {}
+      try {
+        return DateTime.parse(dateStr);
+      } catch (_) {}
+    }
+    return DateTime.now();
   }
 
   String _formatTimeOfDay(TimeOfDay time) {
@@ -99,7 +109,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _dateController.text = DateFormat('dd-MM-yyyy').format(picked);
+        _dateController.text = _rfuDateFormat.format(picked);
       });
     }
   }
@@ -153,14 +163,15 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       ),
       content: SingleChildScrollView(
         child: SizedBox(
-          width: 440,
+          width: 480,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // UK Date Picker & Time Picker
+              // RFU Standard Date Picker & Time Picker
               Row(
                 children: [
                   Expanded(
+                    flex: 3,
                     child: InkWell(
                       onTap: _pickDate,
                       child: IgnorePointer(
@@ -168,7 +179,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                           controller: _dateController,
                           style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                           decoration: InputDecoration(
-                            labelText: 'Date (DD-MM-YYYY)',
+                            labelText: 'Date (e.g. Saturday, 26 Sep 2026)',
                             labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
                             prefixIcon: const Icon(Icons.calendar_month, size: 18, color: AppTheme.goldAccent),
                             suffixIcon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
@@ -186,6 +197,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
+                    flex: 2,
                     child: InkWell(
                       onTap: _pickTime,
                       child: IgnorePointer(
@@ -274,9 +286,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   void _save() {
     final home = _homeTeamController.text.trim();
     final away = _awayTeamController.text.trim();
-    final dateUk = _dateController.text.trim();
+    final rfuFormattedDate = _rfuDateFormat.format(_selectedDate);
 
-    if (home.isEmpty || away.isEmpty || dateUk.isEmpty) return;
+    if (home.isEmpty || away.isEmpty) return;
 
     final hScore = int.tryParse(_homeScoreController.text.trim());
     final aScore = int.tryParse(_awayScoreController.text.trim());
@@ -284,7 +296,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
     final fixture = Fixture(
       id: widget.existingFixture?.id,
-      date: dateUk,
+      date: rfuFormattedDate,
       dateIso: dateIso,
       time: _timeController.text.trim(),
       homeTeam: home,
@@ -294,7 +306,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',
       venue: _venueController.text.trim(),
       competition: 'Friendly',
-      roundNum: 'Friendly',
+      roundNum: 'Friendly Matches',
       isCustom: true,
     );
 

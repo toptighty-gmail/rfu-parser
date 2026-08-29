@@ -13,95 +13,6 @@ headers = {
     'Prefer': 'resolution=merge-duplicates'
 }
 
-browser_headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-}
-
-# Canonical RFU club IDs registry
-KNOWN_RFU_CLUB_IDS = {
-    'plymstock oaks': 16976,
-    'plymstock oaks ii': 16976,
-    'plymstock oaks colts': 16976,
-    'plymstock': 16976,
-    'plymstock albion oaks': 16976,
-    'plymstock oaks club xv': 16976,
-    'old plymothian & mannamedian': 15907,
-    'old plymothian': 15907,
-    'opm': 15907,
-    'withycombe': 25785,
-    'honiton': 10355,
-    'south molton': 19624,
-    'brixham': 3314,
-    'brixham ii': 3314,
-    'tavistock': 21699,
-    'tavistock ii': 21699,
-    'exeter saracens': 7777,
-    'bideford': 2153,
-    'bideford ii': 2153,
-    'topsham': 22933,
-    'topsham ii': 22933,
-    'crediton': 5832,
-    'crediton ii': 5832,
-    'exmouth': 7823,
-    'exmouth ii': 7823,
-    'barnstaple': 1479,
-    'barnstaple ii': 1479,
-    'cullompton': 6003,
-    'cullompton ii': 6003,
-    'devonport services': 6405,
-    'devonport services ii': 6405,
-    'devonport services colts': 6405,
-    'ivybridge': 11333,
-    'paignton': 16301,
-    'paignton ii': 16301,
-    'torquay athletic': 23018,
-    'torquay athletic ii': 23018,
-    'newton abbot': 15156,
-    'newton abbot ii': 15156,
-    'okehampton': 15849,
-    'okehampton ii': 15849,
-    'sidmouth': 19308,
-    'teignmouth': 21876,
-    'camborne': 4001,
-    'redruth': 17743,
-    'cornish pirates': 5644,
-    'plymouth albion': 16968,
-    'bath rugby': 42,
-    'exeter chiefs': 41,
-    'bristol bears': 43,
-    'gloucester rugby': 44,
-    'harlequins': 45,
-    'leicester tigers': 1005,
-    'northampton saints': 1006,
-    'saracens': 1007,
-    'sale sharks': 1009,
-    'newcastle falcons': 1010,
-    'coventry': 5722,
-    'coventry welsh': 5736,
-    'ealing trailfinders': 7084,
-    'bedford blues': 1827,
-    'doncaster knights': 6559,
-    'ampthill': 632,
-    'caldy': 3933,
-    'chinnor': 4817,
-    'chew valley': 4752,
-    'lydney': 13627,
-    'matson': 14175,
-    'st austell': 20038,
-    'old redcliffians': 15926,
-    'burnham-on-sea': 3658,
-    'chard': 4578,
-    'clevedon': 5098,
-    'gordano': 8929,
-    'keynsham': 12053,
-    'wadebridge camels': 24083,
-    'truro': 23351,
-    'tiverton': 22756,
-    'ilfracombe': 11090,
-    'totnes': 23078,
-    'salcombe': 18659,
-}
-
 def sanitize_slug(name):
     return re.sub(r'[^a-zA-Z0-9]+', '_', name.strip().lower()).strip('_')
 
@@ -110,17 +21,38 @@ def get_base_club_name(team_name):
     name = re.sub(r'\s+', ' ', name).strip()
     return name if name else team_name
 
-def find_club_id(team_name):
-    clean = team_name.strip().lower()
-    if clean in KNOWN_RFU_CLUB_IDS:
-        return KNOWN_RFU_CLUB_IDS[clean]
-    base = get_base_club_name(team_name).strip().lower()
-    if base in KNOWN_RFU_CLUB_IDS:
-        return KNOWN_RFU_CLUB_IDS[base]
-    for k, cid in KNOWN_RFU_CLUB_IDS.items():
-        if k in clean or clean in k:
-            return cid
-    return None
+def create_rfu_session():
+    s = requests.Session()
+    s.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://www.englandrugby.com/fixtures-and-results',
+    })
+    try:
+        s.get('https://www.englandrugby.com/fixtures-and-results', timeout=5)
+    except Exception:
+        pass
+    return s
+
+def generate_svg(team_name, p_color='#002B7F', s_color='#D4AF37'):
+    clean = re.sub(r'[^a-zA-Z0-9\s]', '', team_name).strip()
+    words = [w for w in clean.split() if w.upper() not in ['RFC', 'CLUB', 'RUGBY', 'THE', 'AND', '&']]
+    initials = ''.join([w[0].upper() for w in words[:3]]) if words else 'RFC'
+    display_name = (words[0].upper() if words else 'CLUB')[:8]
+    
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{p_color}" />
+      <stop offset="100%" stop-color="{p_color}" stop-opacity="0.85" />
+    </linearGradient>
+  </defs>
+  <path d="M24 2C35 2 44 8 44 18C44 32 24 46 24 46C24 46 4 32 4 18C4 8 13 2 24 2Z" fill="url(#g)" stroke="{s_color}" stroke-width="2"/>
+  <circle cx="24" cy="18" r="9" fill="{s_color}" fill-opacity="0.15" stroke="{s_color}" stroke-width="1"/>
+  <text x="24" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="{s_color}">{initials}</text>
+  <text x="24" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="6.5" fill="#FFFFFF" letter-spacing="0.5">{display_name}</text>
+</svg>'''
+    return svg
 
 def main():
     print("1. Gathering all unique teams from Supabase database...", flush=True)
@@ -176,19 +108,34 @@ def main():
     except Exception as e:
         print(f"Error clearing table: {e}", flush=True)
 
-    print("4. Resolving official RFU club crests (PNG) & uploading to Supabase Storage Bucket...", flush=True)
+    print("4. Resolving official RFU club crests (PNG) from England Rugby API & uploading to Supabase Bucket...", flush=True)
+    rfu_session = create_rfu_session()
 
     def process_team(team_name):
         slug = sanitize_slug(team_name)
         base_name = get_base_club_name(team_name)
         base_slug = sanitize_slug(base_name)
 
-        # 1. Lookup RFU Club ID from registry
-        club_id = find_club_id(team_name)
+        # 1. Search England Rugby API for club ID
+        club_id = None
+        for query in [base_name, team_name]:
+            try:
+                r_s = rfu_session.get(f'https://www.englandrugby.com/api/fixtures-and-result/search?name={query}', timeout=4)
+                if r_s.status_code == 200:
+                    data = r_s.json()
+                    items = data.get('data', []) if isinstance(data, dict) else data
+                    if items and isinstance(items, list):
+                        club_id = items[0].get('_id')
+                        if club_id:
+                            break
+            except Exception:
+                pass
+
+        # 2. If club ID found, fetch official PNG from CDN
         if club_id:
             rfu_img_url = f"https://images.englandrugby.com/club_images/{club_id}.png"
             try:
-                img_resp = requests.get(rfu_img_url, headers=browser_headers, timeout=5)
+                img_resp = rfu_session.get(rfu_img_url, timeout=5)
                 if img_resp.status_code == 200 and len(img_resp.content) > 100:
                     filename = f"{base_slug}.png"
                     # Upload to Supabase Storage Bucket
@@ -206,16 +153,31 @@ def main():
             except Exception:
                 pass
 
-        # 2. Check if custom SVG/JPG exists in storage bucket
+        # 3. Check if custom PNG/SVG/JPG already exists in bucket
         for candidate in [f"{slug}.png", f"{base_slug}.png", f"{slug}.svg", f"{base_slug}.svg", f"{slug}.jpg", f"{base_slug}.jpg"]:
             if candidate in existing_bucket_files:
                 public_url = f"{SUPABASE_URL}/storage/v1/object/public/rfu-parcer-team-logos/{candidate}"
                 return (team_name, public_url, "EXISTING_BUCKET_FILE", candidate)
 
-        # 3. Default to SVG in bucket
-        fallback_file = f"{slug}.svg"
-        public_url = f"{SUPABASE_URL}/storage/v1/object/public/rfu-parcer-team-logos/{fallback_file}"
-        return (team_name, public_url, "BUCKET_SVG_FALLBACK", fallback_file)
+        # 4. Fallback: generate and upload SVG crest to bucket
+        svg_filename = f"{slug}.svg"
+        svg_content = generate_svg(team_name)
+        up_url = f"{SUPABASE_URL}/storage/v1/object/rfu-parcer-team-logos/{svg_filename}"
+        up_headers = {
+            'apikey': SERVICE_KEY,
+            'Authorization': f'Bearer {SERVICE_KEY}',
+            'Content-Type': 'image/svg+xml',
+            'x-upsert': 'true'
+        }
+        try:
+            r_up = requests.post(up_url, headers=up_headers, data=svg_content.encode('utf-8'))
+            if r_up.status_code in [200, 201]:
+                public_url = f"{SUPABASE_URL}/storage/v1/object/public/rfu-parcer-team-logos/{svg_filename}"
+                return (team_name, public_url, "GENERATED_SVG", svg_filename)
+        except Exception:
+            pass
+
+        return (team_name, None, "FAILED", None)
 
     team_list = sorted(list(all_teams))
     results = []
@@ -236,7 +198,7 @@ def main():
                 rfu_png_count += 1
             elif status == "EXISTING_BUCKET_FILE":
                 bucket_existing_count += 1
-            elif status == "BUCKET_SVG_FALLBACK":
+            elif status == "GENERATED_SVG":
                 svg_fallback_count += 1
 
     # Chunk upserts
@@ -246,13 +208,13 @@ def main():
         requests.post(f'{SUPABASE_URL}/rest/v1/team_logos', headers=headers, json=chunk)
 
     print("\n=======================================================", flush=True)
-    print("[SUCCESS] REBUILD & CONSOLIDATION COMPLETE", flush=True)
+    print("[SUCCESS] FULL RFU REBUILD & SYNC COMPLETE", flush=True)
     print("=======================================================", flush=True)
     print(f"Total Unique Teams Processed: {len(team_list)}", flush=True)
     print(f"Total Logos in team_logos Table: {len(batch_payload)}", flush=True)
-    print(f"  * Official RFU CDN PNG crests synced & stored in bucket: {rfu_png_count}", flush=True)
-    print(f"  * Storage Bucket Custom/Existing SVGs & JPGs mapped:    {bucket_existing_count}", flush=True)
-    print(f"  * Fallback SVG crests in bucket:                         {svg_fallback_count}", flush=True)
+    print(f"  * Official RFU CDN PNG crests fetched & stored in bucket: {rfu_png_count}", flush=True)
+    print(f"  * Storage Bucket Custom/Existing crests reused:           {bucket_existing_count}", flush=True)
+    print(f"  * Fallback SVG crests generated:                           {svg_fallback_count}", flush=True)
     print("100% of all logo URLs are now hosted on your Supabase Storage Bucket!", flush=True)
 
 if __name__ == '__main__':

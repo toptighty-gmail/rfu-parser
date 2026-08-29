@@ -622,9 +622,9 @@ class _HomeViewState extends State<HomeView> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildTabButton('Standings', '📊 League Standings', Icons.table_chart),
+                            _buildTabButton('Standings', 'League Standings', Icons.table_chart),
                             const SizedBox(width: 4),
-                            _buildTabButton('Fixtures', '📅 Fixtures & Results', Icons.event),
+                            _buildTabButton('Fixtures', 'Fixtures & Results', Icons.event),
                           ],
                         ),
                       ),

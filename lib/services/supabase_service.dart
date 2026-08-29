@@ -1,43 +1,117 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import '../models/fixture.dart';
+import 'api_service.dart';
 
 class SupabaseService {
-  static SupabaseClient? get _client {
-    try {
-      return Supabase.instance.client;
-    } catch (_) {
-      return null;
+  static SupabaseClient? _client;
+  static bool _initialized = false;
+
+  static const String _kLocalFixturesKey = 'rfu_custom_fixtures_cache';
+  static const String _kLocalLogosKey = 'rfu_team_logos_cache';
+
+  static Future<void> init({String? url, String? anonKey}) async {
+    if (_initialized) return;
+
+    // 1. Restore cached fixtures and logos from persistent storage
+    await _loadFromLocalCache();
+
+    // 2. Initialize Supabase if credentials are provided
+    const envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+    const envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+
+    final resolvedUrl = (url != null && url.isNotEmpty)
+        ? url
+        : (envUrl.isNotEmpty ? envUrl : SupabaseConfig.fallbackUrl);
+    final resolvedAnonKey = (anonKey != null && anonKey.isNotEmpty)
+        ? anonKey
+        : (envAnonKey.isNotEmpty ? envAnonKey : SupabaseConfig.fallbackAnonKey);
+
+    if (resolvedUrl.isNotEmpty && resolvedAnonKey.isNotEmpty) {
+      try {
+        await Supabase.initialize(
+          url: resolvedUrl,
+          // ignore: deprecated_member_use
+          anonKey: resolvedAnonKey,
+        );
+        _client = Supabase.instance.client;
+        _initialized = true;
+        debugPrint('Supabase successfully initialized with project: $resolvedUrl');
+      } catch (e) {
+        debugPrint('Supabase init error (using offline fallback): $e');
+      }
+    } else {
+      debugPrint('Supabase credentials not configured. Operating in offline/local persistence mode.');
     }
   }
 
-  static bool get isInitialized => _client != null;
-
-  // Initialize Supabase client safely
-  static Future<void> init({required String url, required String anonKey}) async {
-    if (url.isEmpty || anonKey.isEmpty || url.contains('your-supabase-project')) {
-      debugPrint('Supabase credentials not configured yet. Running in offline/hybrid mode.');
-      return;
-    }
-    try {
-      await Supabase.initialize(
-        url: url,
-        publishableKey: anonKey,
-      );
-    } catch (e) {
-      debugPrint('Supabase init error: $e');
-    }
-  }
-
-  // --- Custom Fixtures CRUD with Local & Supabase Persistence ---
+  // --- Local Cache Helpers (Browser LocalStorage / SharedPreferences) ---
 
   static final List<Fixture> _localCustomFixtures = [];
+  static final Map<String, String> _localLogosMap = {};
+
+  static Future<void> _loadFromLocalCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Load cached fixtures
+      final fixturesJson = prefs.getString(_kLocalFixturesKey);
+      if (fixturesJson != null && fixturesJson.isNotEmpty) {
+        final List decoded = json.decode(fixturesJson);
+        _localCustomFixtures.clear();
+        for (var item in decoded) {
+          _localCustomFixtures.add(Fixture.fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+
+      // Load cached logos
+      final logosJson = prefs.getString(_kLocalLogosKey);
+      if (logosJson != null && logosJson.isNotEmpty) {
+        final Map<String, dynamic> decoded = json.decode(logosJson);
+        _localLogosMap.clear();
+        decoded.forEach((key, value) {
+          _localLogosMap[key.toLowerCase()] = value.toString();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading local cache: $e');
+    }
+  }
+
+  static Future<void> _saveLocalFixturesCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final listData = _localCustomFixtures.map((f) => f.toJson()).toList();
+      await prefs.setString(_kLocalFixturesKey, json.encode(listData));
+    } catch (e) {
+      debugPrint('Error saving local fixtures cache: $e');
+    }
+  }
+
+  static Future<void> _saveLocalLogosCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kLocalLogosKey, json.encode(_localLogosMap));
+    } catch (e) {
+      debugPrint('Error saving local logos cache: $e');
+    }
+  }
+
+  // --- Custom Fixtures CRUD with Multi-Layer Persistence ---
 
   static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team}) async {
-    final List<Fixture> allFixtures = [];
-    final client = _client;
+    // Ensure cache is loaded
+    if (_localCustomFixtures.isEmpty) {
+      await _loadFromLocalCache();
+    }
 
+    final List<Fixture> allFixtures = [];
+
+    // 1. Fetch from Supabase if connected
+    final client = _client;
     if (client != null) {
       try {
         final response = await client
@@ -56,12 +130,32 @@ class SupabaseService {
       }
     }
 
-    // Merge in-memory local fixtures
+    // 2. Fetch from Python backend API
+    try {
+      final backendFixtures = await ApiService.fetchBackendCustomFixtures(team: team);
+      for (var f in backendFixtures) {
+        if (!allFixtures.any((x) => x.id == f.id)) {
+          allFixtures.add(f);
+        }
+      }
+    } catch (e) {
+      debugPrint('Backend fixtures fetch fallback: $e');
+    }
+
+    // 3. Merge locally stored cache
     for (var f in _localCustomFixtures) {
       if (!allFixtures.any((x) => x.id == f.id)) {
         allFixtures.add(f);
       }
     }
+
+    // Keep memory and disk cache updated with all discovered fixtures
+    for (var f in allFixtures) {
+      if (!_localCustomFixtures.any((x) => x.id == f.id)) {
+        _localCustomFixtures.add(f);
+      }
+    }
+    await _saveLocalFixturesCache();
 
     // Filter by team if requested
     final cleanTeam = team?.trim().toLowerCase();
@@ -95,11 +189,19 @@ class SupabaseService {
       awayLogoUrl: fixture.awayLogoUrl,
     );
 
-    // Save to local memory immediately
+    // 1. Save to local memory and browser persistent storage immediately
     _localCustomFixtures.removeWhere((f) => f.id == generatedId);
     _localCustomFixtures.add(customFix);
+    await _saveLocalFixturesCache();
 
-    // Save to Supabase if client is initialized
+    // 2. Sync to Python backend API
+    try {
+      final payload = customFix.toJson();
+      payload['division'] = division;
+      await ApiService.addBackendCustomFixture(payload);
+    } catch (_) {}
+
+    // 3. Save to Supabase if client is initialized
     final client = _client;
     if (client != null) {
       try {
@@ -140,8 +242,15 @@ class SupabaseService {
         roundNum: 'Friendly Matches',
         isCustom: true,
       );
+      await _saveLocalFixturesCache();
     }
 
+    // Sync to Python backend
+    try {
+      await ApiService.updateBackendCustomFixture(id, updates);
+    } catch (_) {}
+
+    // Sync to Supabase
     final client = _client;
     if (client == null) return true;
     try {
@@ -158,6 +267,14 @@ class SupabaseService {
 
   static Future<bool> deleteCustomFixture(String id) async {
     _localCustomFixtures.removeWhere((f) => f.id == id);
+    await _saveLocalFixturesCache();
+
+    // Sync to Python backend
+    try {
+      await ApiService.deleteBackendCustomFixture(id);
+    } catch (_) {}
+
+    // Sync to Supabase
     final client = _client;
     if (client == null) return true;
     try {
@@ -173,8 +290,6 @@ class SupabaseService {
   }
 
   // --- Team Logos Storage & Database ---
-
-  static final Map<String, String> _localLogosMap = {};
 
   static Future<String?> uploadTeamLogo(String teamName, Uint8List fileBytes, String fileExtension) async {
     final cleanTeam = teamName.trim();
@@ -214,7 +329,7 @@ class SupabaseService {
           uploadSuccess = true;
           break;
         } catch (_) {
-          // Try next bucket name variant
+          // Try next bucket variant
         }
       }
 
@@ -235,20 +350,28 @@ class SupabaseService {
       }
     }
 
-    // 3. Store in local state map so UI immediately displays it
+    // 3. Store in persistent local cache so UI immediately and permanently displays it
     _localLogosMap[cleanTeamKey] = chosenLogoUrl;
+    await _saveLocalLogosCache();
     return chosenLogoUrl;
   }
 
   static Future<Map<String, String>> fetchTeamLogos() async {
+    if (_localLogosMap.isEmpty) {
+      await _loadFromLocalCache();
+    }
     final Map<String, String> logoMap = Map.from(_localLogosMap);
     final client = _client;
     if (client == null) return logoMap;
     try {
       final response = await client.from('team_logos').select('team_name, logo_url');
       for (var row in (response as List)) {
-        logoMap[row['team_name'].toString().toLowerCase()] = row['logo_url'].toString();
+        final k = row['team_name'].toString().toLowerCase();
+        final v = row['logo_url'].toString();
+        logoMap[k] = v;
+        _localLogosMap[k] = v;
       }
+      await _saveLocalLogosCache();
       return logoMap;
     } catch (e) {
       debugPrint('Error fetching team logos from Supabase: $e');

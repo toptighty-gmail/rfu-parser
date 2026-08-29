@@ -253,9 +253,16 @@ def delete_custom_logo(team_name):
     success = CustomLogoStorage.delete_logo(team_name)
     if success:
         return jsonify({"success": True})
-    return jsonify({"error": "Logo not found"}), 404
+@app.route("/api/fixtures/custom", methods=["GET"])
+@app.route("/fixtures/custom", methods=["GET"])
+def get_custom_fixtures():
+    season = request.args.get("season", "").strip()
+    team = request.args.get("team", "").strip()
+    items = CustomFixtureStorage.get_all(season=season if season else None, team=team if team else None)
+    return jsonify({"success": True, "fixtures": items})
 
 @app.route("/api/fixtures/custom", methods=["POST"])
+@app.route("/fixtures/custom", methods=["POST"])
 def add_custom_fixture():
     if not session.get("is_admin"):
         return jsonify({"error": "Admin login required"}), 401

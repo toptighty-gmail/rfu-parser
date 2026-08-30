@@ -48,9 +48,9 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
       backgroundColor: AppTheme.surfaceBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.cardBorder),
+        side: BorderSide(color: AppTheme.cardBorder),
       ),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.cloud_upload, color: AppTheme.goldAccent),
           SizedBox(width: 10),
@@ -65,8 +65,8 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.availableTeams.isNotEmpty) ...[
-                const Text('Select Existing Team:', style: TextStyle(color: AppTheme.textMuted, fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
+                Text('Select Existing Team:', style: TextStyle(color: AppTheme.textMuted, fontSize: 12, fontWeight: FontWeight.bold)),
+                SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
@@ -77,15 +77,15 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: widget.availableTeams.contains(_selectedDropdownTeam) ? _selectedDropdownTeam : null,
-                      hint: const Text('Choose a team from division...', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                      hint: Text('Choose a team from division...', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                       isExpanded: true,
                       dropdownColor: AppTheme.surfaceBg,
-                      icon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
-                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                      icon: Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                      style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                       items: widget.availableTeams.map((team) {
                         return DropdownMenuItem<String>(
                           value: team,
-                          child: Text(team, style: const TextStyle(color: AppTheme.textPrimary)),
+                          child: Text(team, style: TextStyle(color: AppTheme.textPrimary)),
                         );
                       }).toList(),
                       onChanged: (val) {
@@ -99,13 +99,13 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                const Text('Or type team name manually:', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
-                const SizedBox(height: 6),
+                SizedBox(height: 14),
+                Text('Or type team name manually:', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+                SizedBox(height: 6),
               ],
               TextField(
                 controller: _teamController,
-                style: const TextStyle(color: AppTheme.textPrimary),
+                style: TextStyle(color: AppTheme.textPrimary),
                 onChanged: (val) {
                   setState(() {
                     if (widget.availableTeams.contains(val.trim())) {
@@ -118,13 +118,13 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                 decoration: InputDecoration(
                   labelText: 'Team Name',
                   hintText: 'e.g. Exeter Chiefs',
-                  labelStyle: const TextStyle(color: AppTheme.textMuted),
-                  hintStyle: const TextStyle(color: AppTheme.textMuted),
+                  labelStyle: TextStyle(color: AppTheme.textMuted),
+                  hintStyle: TextStyle(color: AppTheme.textMuted),
                   filled: true,
                   fillColor: AppTheme.darkBg,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppTheme.cardBorder),
+                    borderSide: BorderSide(color: AppTheme.cardBorder),
                   ),
                 ),
               ),
@@ -141,8 +141,8 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.attach_file, color: AppTheme.goldAccent),
-                      const SizedBox(width: 8),
+                      Icon(Icons.attach_file, color: AppTheme.goldAccent),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _fileName ?? 'Select Logo Image (PNG, JPG, SVG, WEBP)',
@@ -176,7 +176,7 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                           height: 48,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image, size: 36, color: AppTheme.rubyAccent),
+                              Icon(Icons.broken_image, size: 36, color: AppTheme.rubyAccent),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -186,18 +186,18 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                           children: [
                             Text(
                               _fileName ?? 'Selected Image',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               '${(_fileBytes!.lengthInBytes / 1024).toStringAsFixed(1)} KB',
-                              style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 18, color: AppTheme.textMuted),
+                        icon: Icon(Icons.close, size: 18, color: AppTheme.textMuted),
                         onPressed: () => setState(() {
                           _fileBytes = null;
                           _fileName = null;
@@ -208,8 +208,8 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                 ),
               ],
               if (_error != null) ...[
-                const SizedBox(height: 10),
-                Text(_error!, style: const TextStyle(color: AppTheme.rubyAccent, fontSize: 12)),
+                SizedBox(height: 10),
+                Text(_error!, style: TextStyle(color: AppTheme.rubyAccent, fontSize: 12)),
               ],
             ],
           ),
@@ -218,7 +218,7 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          child: Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(

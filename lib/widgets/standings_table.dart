@@ -22,9 +22,9 @@ class StandingsTable extends StatelessWidget {
   Widget build(BuildContext context) {
     if (standings.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         decoration: AppTheme.glassBoxDecoration(),
-        child: const Center(
+        child: Center(
           child: Text(
             'No standings data available for this selection.',
             style: TextStyle(color: AppTheme.textMuted),
@@ -41,9 +41,9 @@ class StandingsTable extends StatelessWidget {
         children: [
           // Table Title Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             color: AppTheme.surfaceBg,
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.leaderboard, color: AppTheme.goldAccent, size: 20),
                 SizedBox(width: 10),
@@ -73,7 +73,7 @@ class StandingsTable extends StatelessWidget {
                     dataRowMinHeight: 48,
                     dataRowMaxHeight: 56,
                     columnSpacing: 18,
-                    columns: const [
+                    columns: [
                       DataColumn(label: Text('POS', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.goldAccent))),
                       DataColumn(label: Text('TEAM', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary))),
                       DataColumn(label: Text('P', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted))),
@@ -130,9 +130,9 @@ class StandingsTable extends StatelessWidget {
                             ),
                           ),
                           DataCell(Text('${entry.played}')),
-                          DataCell(Text('${entry.won}', style: const TextStyle(color: AppTheme.emeraldAccent, fontWeight: FontWeight.bold))),
+                          DataCell(Text('${entry.won}', style: TextStyle(color: AppTheme.emeraldAccent, fontWeight: FontWeight.bold))),
                           DataCell(Text('${entry.drawn}')),
-                          DataCell(Text('${entry.lost}', style: const TextStyle(color: AppTheme.rubyAccent))),
+                          DataCell(Text('${entry.lost}', style: TextStyle(color: AppTheme.rubyAccent))),
                           DataCell(Text('${entry.pointsFor}')),
                           DataCell(Text('${entry.pointsAgainst}')),
                           DataCell(
@@ -148,7 +148,7 @@ class StandingsTable extends StatelessWidget {
                           DataCell(
                             Text(
                               '${entry.points}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 15,
                                 color: AppTheme.goldAccent,

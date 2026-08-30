@@ -765,7 +765,7 @@ class BookletPrintView extends StatelessWidget {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('PDF generated! Opened in new tab & download started.'),
               backgroundColor: AppTheme.emeraldAccent,
             ),

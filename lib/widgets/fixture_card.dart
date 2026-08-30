@@ -101,13 +101,13 @@ class FixtureCard extends StatelessWidget {
                           Container(
                             width: 6,
                             height: 6,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppTheme.emeraldAccent,
                               shape: BoxShape.circle,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Text(
+                          Text(
                             'NEXT UP',
                             style: TextStyle(
                               fontSize: 9,
@@ -171,14 +171,14 @@ class FixtureCard extends StatelessWidget {
                       ),
                       child: Text(
                         fixture.roundNum,
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.textMuted),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.textMuted),
                       ),
                     ),
                   Expanded(
                     child: Text(
                       fixture.date,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -196,11 +196,11 @@ class FixtureCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time, size: 12, color: AppTheme.goldAccent),
-                        const SizedBox(width: 5),
+                        Icon(Icons.access_time, size: 12, color: AppTheme.goldAccent),
+                        SizedBox(width: 5),
                         Text(
                           'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -324,15 +324,15 @@ class FixtureCard extends StatelessWidget {
                   ),
                 ),
                 if (isAdmin && fixture.isCustom) ...[
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   InkWell(
                     onTap: () => onEdit?.call(fixture),
-                    child: const Icon(Icons.edit, size: 14, color: AppTheme.goldAccent),
+                    child: Icon(Icons.edit, size: 14, color: AppTheme.goldAccent),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   InkWell(
                     onTap: () => onDelete?.call(fixture),
-                    child: const Icon(Icons.delete, size: 14, color: AppTheme.rubyAccent),
+                    child: Icon(Icons.delete, size: 14, color: AppTheme.rubyAccent),
                   ),
                 ],
               ],
@@ -374,7 +374,7 @@ class FixtureCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(3),
                           border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.8)),
                         ),
-                        child: const Text(
+                        child: Text(
                           'NEXT UP',
                           style: TextStyle(
                             fontSize: 8,
@@ -412,14 +412,14 @@ class FixtureCard extends StatelessWidget {
                     ] else if (fixture.roundNum.isNotEmpty) ...[
                       Text(
                         '${fixture.roundNum} • ',
-                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
                       ),
                     ],
                     Flexible(
                       child: Text(
                         fixture.date,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -443,11 +443,11 @@ class FixtureCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time, size: 10, color: AppTheme.goldAccent),
-                        const SizedBox(width: 4),
+                        Icon(Icons.access_time, size: 10, color: AppTheme.goldAccent),
+                        SizedBox(width: 4),
                         Text(
                           'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.4,
@@ -555,17 +555,17 @@ class FixtureCard extends StatelessWidget {
             ],
           ),
           if (fixture.venue.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.location_on, size: 11, color: AppTheme.textMuted),
-                const SizedBox(width: 3),
+                Icon(Icons.location_on, size: 11, color: AppTheme.textMuted),
+                SizedBox(width: 3),
                 Flexible(
                   child: Text(
                     fixture.venue.replaceAll(RegExp(r'\[.*?\]'), '').trim(),
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                    style: TextStyle(fontSize: 10, color: AppTheme.textMuted),
                   ),
                 ),
               ],

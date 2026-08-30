@@ -144,7 +144,7 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
           child: TextField(
             controller: _textController,
             focusNode: _focusNode,
-            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
+            style: TextStyle(color: AppTheme.textPrimary, fontSize: 13),
             onChanged: _onQueryChanged,
             onSubmitted: (val) {
               if (val.trim().isNotEmpty) {
@@ -153,12 +153,12 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
             },
             decoration: InputDecoration(
               hintText: 'Search Team (e.g. Plymstock)...',
-              hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               fillColor: AppTheme.darkBg,
               filled: true,
               prefixIcon: _isLoading
-                  ? const Padding(
+                  ? Padding(
                       padding: EdgeInsets.all(10),
                       child: SizedBox(
                         width: 14,
@@ -166,10 +166,10 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.goldAccent),
                       ),
                     )
-                  : const Icon(Icons.search, color: AppTheme.goldAccent, size: 18),
+                  : Icon(Icons.search, color: AppTheme.goldAccent, size: 18),
               suffixIcon: _textController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
+                      icon: Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
                       onPressed: () {
                         _textController.clear();
                         setState(() {
@@ -182,11 +182,11 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
                   : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                borderSide: BorderSide(color: AppTheme.cardBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.goldAccent, width: 1.5),
+                borderSide: BorderSide(color: AppTheme.goldAccent, width: 1.5),
               ),
             ),
           ),
@@ -212,9 +212,9 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
             ),
             child: ListView.separated(
               shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: 4),
               itemCount: _suggestions.length,
-              separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
+              separatorBuilder: (_, _) => Divider(height: 1, color: AppTheme.cardBorder),
               itemBuilder: (context, index) {
                 final item = _suggestions[index];
                 final teamName = item['name'] ?? item['team_name'] ?? '';
@@ -223,15 +223,15 @@ class _TeamSearchAutocompleteState extends State<TeamSearchAutocomplete> {
                   onTapDown: (_) => _selectTeam(teamName),
                   onTap: () => _selectTeam(teamName),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     child: Row(
                       children: [
-                        const Icon(Icons.sports_rugby, size: 18, color: AppTheme.goldAccent),
-                        const SizedBox(width: 10),
+                        Icon(Icons.sports_rugby, size: 18, color: AppTheme.goldAccent),
+                        SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             teamName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppTheme.textPrimary,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,

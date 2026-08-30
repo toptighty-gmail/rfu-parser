@@ -110,20 +110,20 @@ class FixtureList extends StatelessWidget {
         child: Column(
           children: [
             Icon(isTeamFiltered ? Icons.search_off : Icons.event_busy, color: AppTheme.goldAccent, size: 36),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               isTeamFiltered
                   ? 'No fixtures found for "${filterTeam!.trim()}" in this selection.'
                   : 'No fixtures available for this selection.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
+              style: TextStyle(color: AppTheme.textMuted, fontSize: 14),
             ),
             if (isTeamFiltered && onClearTeamFilter != null) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.goldAccent,
-                  side: const BorderSide(color: AppTheme.goldAccent),
+                  side: BorderSide(color: AppTheme.goldAccent),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 icon: const Icon(Icons.clear_all, size: 16),
@@ -185,11 +185,11 @@ class FixtureList extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
-                      const SizedBox(width: 8),
+                      Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
+                      SizedBox(width: 8),
                       Text(
                         'CHRONOLOGICAL SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 12,
                           color: AppTheme.goldAccent,
@@ -202,7 +202,7 @@ class FixtureList extends StatelessWidget {
                     InkWell(
                       onTap: onClearTeamFilter,
                       borderRadius: BorderRadius.circular(6),
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         child: Row(
                           children: [

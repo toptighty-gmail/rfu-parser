@@ -143,15 +143,15 @@ class AppTheme {
 
   static AppThemeMode get currentMode => themeNotifier.value;
 
-  // Constant palette tokens allowing const widget expressions to compile cleanly
-  static const Color goldAccent = Color(0xFFE5C158);
-  static const Color emeraldAccent = Color(0xFF10B981);
-  static const Color rubyAccent = Color(0xFFEF4444);
-  static const Color textPrimary = Color(0xFFF8FAF8);
-  static const Color textMuted = Color(0xFFA3B8AC);
-  static const Color cardBorder = Color(0x33384260);
-  static const Color darkBg = Color(0xFF041A11);
-  static const Color surfaceBg = Color(0xFF0A291C);
+  // Dynamic getters so all widgets across the app seamlessly adapt to the selected theme
+  static Color get goldAccent => currentMode.goldAccent;
+  static Color get emeraldAccent => currentMode.emeraldAccent;
+  static Color get rubyAccent => currentMode.rubyAccent;
+  static Color get textPrimary => currentMode.textPrimary;
+  static Color get textMuted => currentMode.textMuted;
+  static Color get cardBorder => currentMode.cardBorder;
+  static Color get darkBg => currentMode.darkBg;
+  static Color get surfaceBg => currentMode.surfaceBg;
 
   /// Load persisted theme preference from storage on startup
   static Future<void> initTheme() async {

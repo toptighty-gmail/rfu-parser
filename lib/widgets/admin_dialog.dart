@@ -20,9 +20,9 @@ class _AdminDialogState extends State<AdminDialog> {
       backgroundColor: AppTheme.surfaceBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.cardBorder),
+        side: BorderSide(color: AppTheme.cardBorder),
       ),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.admin_panel_settings, color: AppTheme.goldAccent),
           SizedBox(width: 10),
@@ -33,7 +33,7 @@ class _AdminDialogState extends State<AdminDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Enter the admin password to add/edit custom fixtures and upload team logos:',
             style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
           ),
@@ -45,19 +45,19 @@ class _AdminDialogState extends State<AdminDialog> {
             autocorrect: false,
             enableSuggestions: false,
             textCapitalization: TextCapitalization.none,
-            style: const TextStyle(color: AppTheme.textPrimary),
+            style: TextStyle(color: AppTheme.textPrimary),
             decoration: InputDecoration(
               hintText: '',
               filled: true,
               fillColor: AppTheme.darkBg,
-              prefixIcon: const Icon(Icons.lock, color: AppTheme.goldAccent, size: 18),
+              prefixIcon: Icon(Icons.lock, color: AppTheme.goldAccent, size: 18),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                borderSide: BorderSide(color: AppTheme.cardBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.goldAccent, width: 1.5),
+                borderSide: BorderSide(color: AppTheme.goldAccent, width: 1.5),
               ),
             ),
             onSubmitted: (_) => _submit(),
@@ -67,7 +67,7 @@ class _AdminDialogState extends State<AdminDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          child: Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(

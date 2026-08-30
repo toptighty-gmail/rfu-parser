@@ -12,13 +12,13 @@ class PosterPrintView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Color(0xFF0F172A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('A3 Poster Print View', style: TextStyle(color: AppTheme.goldAccent, fontSize: 16)),
+        title: Text('A3 Poster Print View', style: TextStyle(color: AppTheme.goldAccent, fontSize: 16)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.print, color: AppTheme.goldAccent),
+            icon: Icon(Icons.print, color: AppTheme.goldAccent),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Use Browser Print (Ctrl+P / Cmd+P) for A3 Poster printing.')),
@@ -59,17 +59,17 @@ class PosterPrintView extends StatelessWidget {
                   children: [
                     Text(
                       divisionData.divisionName.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
                         color: AppTheme.goldAccent,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       'OFFICIAL FIXTURES & LEAGUE STANDINGS HUB • ${divisionData.season}',
-                      style: const TextStyle(color: AppTheme.textMuted, letterSpacing: 1.2, fontSize: 12),
+                      style: TextStyle(color: AppTheme.textMuted, letterSpacing: 1.2, fontSize: 12),
                     ),
                   ],
                 ),

@@ -340,7 +340,7 @@ class _HomeViewState extends State<HomeView> {
         onOpenThemeSelector: _openThemeSelectorDialog,
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -379,7 +379,7 @@ class _HomeViewState extends State<HomeView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Row(
+                              Row(
                                 children: [
                                   Icon(Icons.shield, color: AppTheme.emeraldAccent, size: 22),
                                   SizedBox(width: 10),
@@ -400,13 +400,13 @@ class _HomeViewState extends State<HomeView> {
                                 children: [
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0F172A),
+                                      backgroundColor: Color(0xFF0F172A),
                                       foregroundColor: AppTheme.emeraldAccent,
-                                      side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.2),
+                                      side: BorderSide(color: AppTheme.emeraldAccent, width: 1.2),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
-                                    icon: const Icon(Icons.analytics_outlined, size: 18, color: AppTheme.emeraldAccent),
-                                    label: const Text('Database Metrics', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    icon: Icon(Icons.analytics_outlined, size: 18, color: AppTheme.emeraldAccent),
+                                    label: Text('Database Metrics', style: TextStyle(fontWeight: FontWeight.bold)),
                                     onPressed: _openDatabaseMetricsDialog,
                                   ),
                                   ElevatedButton.icon(
@@ -437,13 +437,13 @@ class _HomeViewState extends State<HomeView> {
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                     icon: Icon(Icons.palette_outlined, size: 18, color: currentTheme.goldAccent),
-                                    label: Text('Theme: ${currentTheme.title}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    label: Text('Theme: ${currentTheme.title}', style: TextStyle(fontWeight: FontWeight.bold)),
                                     onPressed: _openThemeSelectorDialog,
                                   ),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppTheme.rubyAccent,
-                                      side: const BorderSide(color: AppTheme.rubyAccent),
+                                      side: BorderSide(color: AppTheme.rubyAccent),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                     icon: const Icon(Icons.lock_open, size: 16),
@@ -478,10 +478,10 @@ class _HomeViewState extends State<HomeView> {
                                       color: AppTheme.goldAccent,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4),
                                   Text(
                                     'Season: ${_divisionData?.season ?? _selectedSeason}',
-                                    style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                                    style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
                                   ),
                                   if (_divisionData?.sourceUrl != null && _divisionData!.sourceUrl!.isNotEmpty) ...[
                                     const SizedBox(height: 10),
@@ -503,14 +503,14 @@ class _HomeViewState extends State<HomeView> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.link, size: 15, color: AppTheme.goldAccent),
-                                            const SizedBox(width: 6),
+                                            Icon(Icons.link, size: 15, color: AppTheme.goldAccent),
+                                            SizedBox(width: 6),
                                             Flexible(
                                               child: Text(
                                                 'Parsing Source URL: ${_divisionData!.sourceUrl}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 12,
                                                   color: AppTheme.goldAccent,
                                                   decoration: TextDecoration.underline,
@@ -527,7 +527,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.refresh, color: AppTheme.goldAccent),
+                              icon: Icon(Icons.refresh, color: AppTheme.goldAccent),
                               tooltip: 'Refresh Data',
                               onPressed: () => _loadData(),
                             ),
@@ -632,11 +632,11 @@ class _HomeViewState extends State<HomeView> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.calendar_month, size: 13, color: AppTheme.goldAccent),
-                                          const SizedBox(width: 5),
+                                          Icon(Icons.calendar_month, size: 13, color: AppTheme.goldAccent),
+                                          SizedBox(width: 5),
                                           Text(
                                             'SEASON: $_selectedSeason',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                               color: AppTheme.textPrimary,
@@ -651,12 +651,12 @@ class _HomeViewState extends State<HomeView> {
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppTheme.textPrimary,
-                                  side: const BorderSide(color: AppTheme.cardBorder),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  side: BorderSide(color: AppTheme.cardBorder),
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
-                                icon: const Icon(Icons.close, size: 14, color: AppTheme.rubyAccent),
-                                label: const Text('Clear Team Filter', style: TextStyle(fontSize: 12)),
+                                icon: Icon(Icons.close, size: 14, color: AppTheme.rubyAccent),
+                                label: Text('Clear Team Filter', style: TextStyle(fontSize: 12)),
                                 onPressed: () {
                                   setState(() {
                                     _searchController.clear();
@@ -694,11 +694,11 @@ class _HomeViewState extends State<HomeView> {
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.emoji_events, color: AppTheme.goldAccent, size: 20),
-                                        const SizedBox(width: 8),
+                                        Icon(Icons.emoji_events, color: AppTheme.goldAccent, size: 20),
+                                        SizedBox(width: 8),
                                         Text(
                                           'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w900,
                                             color: AppTheme.goldAccent,
                                             letterSpacing: 1.1,
@@ -716,7 +716,7 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                       child: Text(
                                         'SEASON: $_selectedSeason',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: AppTheme.textPrimary,
@@ -733,7 +733,7 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                         child: Text(
                                           '${_divisionData!.standings.length} TEAMS',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: AppTheme.emeraldAccent,
@@ -750,7 +750,7 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                         child: Text(
                                           '${_divisionData!.fixtures.length} MATCHES',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: AppTheme.goldAccent,
@@ -763,12 +763,12 @@ class _HomeViewState extends State<HomeView> {
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppTheme.goldAccent,
-                                  side: const BorderSide(color: AppTheme.goldAccent),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  side: BorderSide(color: AppTheme.goldAccent),
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
-                                icon: const Icon(Icons.swap_horiz, size: 16, color: AppTheme.goldAccent),
-                                label: const Text('Change Division', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                icon: Icon(Icons.swap_horiz, size: 16, color: AppTheme.goldAccent),
+                                label: Text('Change Division', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                 onPressed: _openDivisionsDirectory,
                               ),
                             ],
@@ -898,7 +898,7 @@ class _HomeViewState extends State<HomeView> {
               setState(() => _isAdmin = true);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('Admin Mode Authenticated Successfully! You can now add friendly fixtures and upload logos.'),
                     backgroundColor: AppTheme.emeraldAccent,
                   ),
@@ -907,7 +907,7 @@ class _HomeViewState extends State<HomeView> {
             } else {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('Invalid Admin Password. Please try again.'),
                     backgroundColor: AppTheme.rubyAccent,
                   ),
@@ -1016,7 +1016,7 @@ class _HomeViewState extends State<HomeView> {
         onSyncCompleted: () {
           _loadData();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Supabase cloud database successfully synced with official RFU fixtures & standings.'),
               backgroundColor: AppTheme.emeraldAccent,
             ),

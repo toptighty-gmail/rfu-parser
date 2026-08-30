@@ -86,7 +86,7 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
       backgroundColor: AppTheme.surfaceBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.cardBorder),
+        side: BorderSide(color: AppTheme.cardBorder),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 580, maxHeight: 620),
@@ -100,15 +100,15 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: AppTheme.goldAccent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.cloud_sync, color: AppTheme.goldAccent, size: 28),
+                    child: Icon(Icons.cloud_sync, color: AppTheme.goldAccent, size: 28),
                   ),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -129,12 +129,12 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppTheme.textMuted, size: 20),
+                    icon: Icon(Icons.close, color: AppTheme.textMuted, size: 20),
                     onPressed: _isSyncing ? null : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-              const Divider(color: AppTheme.cardBorder, height: 28),
+              Divider(color: AppTheme.cardBorder, height: 28),
 
               // Status / Progress Section
               Container(
@@ -178,13 +178,13 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
                       ],
                     ),
                     if (_isSyncing) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: LinearProgressIndicator(
                           value: _progress,
                           backgroundColor: Colors.black26,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.goldAccent),
+                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.goldAccent),
                           minHeight: 6,
                         ),
                       ),
@@ -195,8 +195,8 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
 
               // Activity Log
               if (_syncLogs.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                const Text(
+                SizedBox(height: 14),
+                Text(
                   'Sync Activity Log:',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textMuted),
                 ),
@@ -213,10 +213,10 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
                       itemCount: _syncLogs.length,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          padding: EdgeInsets.symmetric(vertical: 2),
                           child: Text(
                             _syncLogs[index],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontFamily: 'monospace',
                               color: AppTheme.emeraldAccent,
@@ -239,15 +239,15 @@ class _SyncRfuDialogState extends State<SyncRfuDialog> {
                 children: [
                   TextButton(
                     onPressed: _isSyncing ? null : () => Navigator.of(context).pop(),
-                    child: Text(_isCompleted ? 'Close' : 'Cancel', style: const TextStyle(color: AppTheme.textMuted)),
+                    child: Text(_isCompleted ? 'Close' : 'Cancel', style: TextStyle(color: AppTheme.textMuted)),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   if (hasCurrentDiv && !_isCompleted)
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.goldAccent,
-                        side: const BorderSide(color: AppTheme.goldAccent),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        side: BorderSide(color: AppTheme.goldAccent),
+                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.refresh, size: 16),

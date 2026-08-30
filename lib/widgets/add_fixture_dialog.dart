@@ -131,7 +131,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: AppTheme.goldAccent,
               onPrimary: Colors.black,
               surface: AppTheme.surfaceBg,
@@ -158,7 +158,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: AppTheme.goldAccent,
               onPrimary: Colors.black,
               surface: AppTheme.surfaceBg,
@@ -198,7 +198,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       backgroundColor: AppTheme.surfaceBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.cardBorder),
+        side: BorderSide(color: AppTheme.cardBorder),
       ),
       title: Row(
         children: [
@@ -208,12 +208,12 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                 : (_fixtureType == 'Cup' ? Icons.emoji_events : Icons.sports_rugby),
             color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Text(
             isEditing
                 ? 'Edit Custom Fixture'
                 : (_fixtureType == 'Cup' ? 'Add Cup Fixture' : 'Add Friendly Fixture'),
-            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18),
+            style: TextStyle(color: AppTheme.textPrimary, fontSize: 18),
           ),
         ],
       ),
@@ -236,12 +236,12 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.shield, size: 16, color: AppTheme.goldAccent),
-                      const SizedBox(width: 8),
+                      Icon(Icons.shield, size: 16, color: AppTheme.goldAccent),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'CLUB CONTEXT: ${widget.contextTeam!.toUpperCase()}${widget.rfuTeamId != null ? " [RFU ID: ${widget.rfuTeamId}]" : ""}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -348,18 +348,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                       child: IgnorePointer(
                         child: TextField(
                           controller: _dateController,
-                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                           decoration: InputDecoration(
                             labelText: 'Date (e.g. Saturday, 26 Sep 2026)',
-                            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                            prefixIcon: const Icon(Icons.calendar_month, size: 18, color: AppTheme.goldAccent),
-                            suffixIcon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                            prefixIcon: Icon(Icons.calendar_month, size: 18, color: AppTheme.goldAccent),
+                            suffixIcon: Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
                             filled: true,
                             fillColor: AppTheme.darkBg,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              borderSide: BorderSide(color: AppTheme.cardBorder),
                             ),
                           ),
                         ),
@@ -374,18 +374,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                       child: IgnorePointer(
                         child: TextField(
                           controller: _timeController,
-                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                           decoration: InputDecoration(
                             labelText: 'Time (HH:MM)',
-                            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                            prefixIcon: const Icon(Icons.access_time, size: 18, color: AppTheme.goldAccent),
-                            suffixIcon: const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                            prefixIcon: Icon(Icons.access_time, size: 18, color: AppTheme.goldAccent),
+                            suffixIcon: Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
                             filled: true,
                             fillColor: AppTheme.darkBg,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              borderSide: BorderSide(color: AppTheme.cardBorder),
                             ),
                           ),
                         ),
@@ -418,7 +418,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: AppTheme.cardBorder),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.swap_vert, size: 14, color: AppTheme.goldAccent),
@@ -462,7 +462,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          child: Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -505,7 +505,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
             color: AppTheme.surfaceBg,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: AppTheme.goldAccent, width: 1),
+              side: BorderSide(color: AppTheme.goldAccent, width: 1),
             ),
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -513,18 +513,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                 maxWidth: MediaQuery.of(context).size.width > 600 ? 470 : MediaQuery.of(context).size.width * 0.85,
               ),
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: EdgeInsets.symmetric(vertical: 6),
                 shrinkWrap: true,
                 itemCount: options.length,
-                separatorBuilder: (_, __) => const Divider(color: AppTheme.cardBorder, height: 1),
+                separatorBuilder: (_, __) => Divider(color: AppTheme.cardBorder, height: 1),
                 itemBuilder: (context, index) {
                   final team = options.elementAt(index);
                   return ListTile(
                     dense: true,
-                    leading: const Icon(Icons.sports_rugby, size: 16, color: AppTheme.goldAccent),
+                    leading: Icon(Icons.sports_rugby, size: 16, color: AppTheme.goldAccent),
                     title: Text(
                       team,
-                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     onTap: () => onSelected(team),
                   );
@@ -538,29 +538,29 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         return TextField(
           controller: fieldTextEditingController,
           focusNode: focusNode,
-          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12.5),
+            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 12.5),
             prefixIcon: Icon(icon, size: 18, color: AppTheme.goldAccent),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (fieldTextEditingController.text.isNotEmpty)
                   IconButton(
-                    icon: const Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
+                    icon: Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
                     onPressed: () => fieldTextEditingController.clear(),
                   ),
-                const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
-                const SizedBox(width: 6),
+                Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                SizedBox(width: 6),
               ],
             ),
             filled: true,
             fillColor: AppTheme.darkBg,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppTheme.cardBorder),
+              borderSide: BorderSide(color: AppTheme.cardBorder),
             ),
           ),
         );
@@ -572,17 +572,17 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     return TextField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+      style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+        labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
         prefixIcon: icon != null ? Icon(icon, size: 18, color: AppTheme.goldAccent) : null,
         filled: true,
         fillColor: AppTheme.darkBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppTheme.cardBorder),
+          borderSide: BorderSide(color: AppTheme.cardBorder),
         ),
       ),
     );

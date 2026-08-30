@@ -491,7 +491,10 @@ class BookletPrintView extends StatelessWidget {
                       (f.homeScore != null && f.awayScore != null);
 
                   final isNextUpcoming = identical(f, nextUpcomingFixture) ||
-                      (nextUpcomingFixture != null && f.id == nextUpcomingFixture.id);
+                      (nextUpcomingFixture?.id != null &&
+                       nextUpcomingFixture!.id!.isNotEmpty &&
+                       f.id != null &&
+                       f.id == nextUpcomingFixture.id);
 
                   // Alternating White & Light Grey for standard rows; Bright Yellow ONLY for Next Upcoming Match
                   final rowBg = isNextUpcoming
@@ -1288,7 +1291,12 @@ class BookletPrintView extends StatelessWidget {
               final isCompleted = f.status.toLowerCase() == 'completed' ||
                   (f.homeScore != null && f.awayScore != null);
 
-              final isNextUpcoming = (nextUpcoming != null && (identical(f, nextUpcoming) || f.id == nextUpcoming.id));
+              final isNextUpcoming = nextUpcoming != null &&
+                  (identical(f, nextUpcoming) ||
+                   (nextUpcoming.id != null &&
+                    nextUpcoming.id!.isNotEmpty &&
+                    f.id != null &&
+                    f.id == nextUpcoming.id));
 
               final isEven = index % 2 == 0;
               // Alternating White & Light Grey rows (identical to Standings table); Next match in Bright Yellow

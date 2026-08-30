@@ -717,6 +717,12 @@ class _HomeViewState extends State<HomeView> {
                             isAdmin: _isAdmin,
                             filterTeam: _searchController.text.trim(),
                             logoProvider: _getTeamLogo,
+                            onTeamSelected: (team) {
+                              setState(() {
+                                _searchController.text = team;
+                              });
+                              _loadData(queryTeam: team);
+                            },
                             onClearTeamFilter: () {
                               setState(() {
                                 _searchController.clear();

@@ -8,6 +8,7 @@ class FixtureList extends StatelessWidget {
   final bool isAdmin;
   final String? filterTeam;
   final String? Function(String teamName)? logoProvider;
+  final ValueChanged<String>? onTeamSelected;
   final VoidCallback? onClearTeamFilter;
   final Function(Fixture)? onEditFixture;
   final Function(Fixture)? onDeleteFixture;
@@ -18,6 +19,7 @@ class FixtureList extends StatelessWidget {
     this.isAdmin = false,
     this.filterTeam,
     this.logoProvider,
+    this.onTeamSelected,
     this.onClearTeamFilter,
     this.onEditFixture,
     this.onDeleteFixture,
@@ -150,6 +152,7 @@ class FixtureList extends StatelessWidget {
                   isAdmin: isAdmin,
                   filterTeam: filterTeam,
                   logoProvider: logoProvider,
+                  onTeamSelected: onTeamSelected,
                   onEdit: onEditFixture,
                   onDelete: onDeleteFixture,
                 )),
@@ -220,6 +223,7 @@ class FixtureList extends StatelessWidget {
                       isAdmin: isAdmin,
                       filterTeam: filterTeam,
                       logoProvider: logoProvider,
+                      onTeamSelected: onTeamSelected,
                       onEdit: onEditFixture,
                       onDelete: onDeleteFixture,
                     )),

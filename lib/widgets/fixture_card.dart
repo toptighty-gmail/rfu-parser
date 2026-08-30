@@ -8,6 +8,7 @@ class FixtureCard extends StatelessWidget {
   final bool isAdmin;
   final String? filterTeam;
   final String? Function(String teamName)? logoProvider;
+  final ValueChanged<String>? onTeamSelected;
   final Function(Fixture)? onEdit;
   final Function(Fixture)? onDelete;
 
@@ -17,6 +18,7 @@ class FixtureCard extends StatelessWidget {
     this.isAdmin = false,
     this.filterTeam,
     this.logoProvider,
+    this.onTeamSelected,
     this.onEdit,
     this.onDelete,
   });
@@ -167,26 +169,40 @@ class FixtureCard extends StatelessWidget {
 
             const SizedBox(width: 8),
 
-            // Home Team (Right-aligned name + Logo)
+            // Home Team (Right-aligned name + Logo) - CLICKABLE
             Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      fixture.homeTeam,
-                      textAlign: TextAlign.end,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
-                        color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
-                      ),
+              child: MouseRegion(
+                cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                child: InkWell(
+                  onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.homeTeam) : null,
+                  borderRadius: BorderRadius.circular(6),
+                  hoverColor: AppTheme.goldAccent.withValues(alpha: 0.08),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            fixture.homeTeam,
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
+                              color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                              decoration: onTeamSelected != null ? TextDecoration.underline : TextDecoration.none,
+                              decorationColor: AppTheme.goldAccent.withValues(alpha: 0.3),
+                              decorationStyle: TextDecorationStyle.dotted,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
-                ],
+                ),
               ),
             ),
 
@@ -216,24 +232,38 @@ class FixtureCard extends StatelessWidget {
               ),
             ),
 
-            // Away Team (Logo + Left-aligned name)
+            // Away Team (Logo + Left-aligned name) - CLICKABLE
             Expanded(
-              child: Row(
-                children: [
-                  _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      fixture.awayTeam,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
-                        color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
-                      ),
+              child: MouseRegion(
+                cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                child: InkWell(
+                  onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.awayTeam) : null,
+                  borderRadius: BorderRadius.circular(6),
+                  hoverColor: AppTheme.goldAccent.withValues(alpha: 0.08),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
+                      children: [
+                        _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            fixture.awayTeam,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
+                              color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                              decoration: onTeamSelected != null ? TextDecoration.underline : TextDecoration.none,
+                              decorationColor: AppTheme.goldAccent.withValues(alpha: 0.3),
+                              decorationStyle: TextDecorationStyle.dotted,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
 
@@ -376,24 +406,31 @@ class FixtureCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        fixture.homeTeam,
-                        textAlign: TextAlign.end,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
-                          color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                child: MouseRegion(
+                  cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                  child: InkWell(
+                    onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.homeTeam) : null,
+                    borderRadius: BorderRadius.circular(6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            fixture.homeTeam,
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
+                              color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
-                  ],
+                  ),
                 ),
               ),
               Container(
@@ -418,22 +455,29 @@ class FixtureCard extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Row(
-                  children: [
-                    _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        fixture.awayTeam,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
-                          color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                child: MouseRegion(
+                  cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                  child: InkWell(
+                    onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.awayTeam) : null,
+                    borderRadius: BorderRadius.circular(6),
+                    child: Row(
+                      children: [
+                        _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            fixture.awayTeam,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
+                              color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],

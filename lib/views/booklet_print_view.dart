@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -12,6 +14,67 @@ import '../models/fixture.dart';
 import '../models/standing_entry.dart';
 import '../widgets/team_logo_image.dart';
 import '../theme/app_theme.dart';
+
+class PdfLogoItem {
+  final pw.MemoryImage? rasterImage;
+  final String? svgString;
+
+  const PdfLogoItem({this.rasterImage, this.svgString});
+
+  pw.Widget buildWidget(
+    String teamName, {
+    double size = 16,
+    required PdfColor fallbackBg,
+    required PdfColor accentColor,
+  }) {
+    if (svgString != null && svgString!.isNotEmpty) {
+      try {
+        return pw.Container(
+          width: size,
+          height: size,
+          child: pw.SvgImage(svg: svgString!),
+        );
+      } catch (_) {}
+    }
+
+    if (rasterImage != null) {
+      try {
+        return pw.Container(
+          width: size,
+          height: size,
+          child: pw.Image(
+            rasterImage!,
+            width: size,
+            height: size,
+            fit: pw.BoxFit.contain,
+          ),
+        );
+      } catch (_) {}
+    }
+
+    // Clean circle initial badge fallback (NEVER an empty box or cross)
+    final initial = teamName.trim().isNotEmpty ? teamName.trim().substring(0, 1).toUpperCase() : 'R';
+    return pw.Container(
+      width: size,
+      height: size,
+      decoration: pw.BoxDecoration(
+        color: fallbackBg,
+        shape: pw.BoxShape.circle,
+        border: pw.Border.all(color: accentColor, width: 0.8),
+      ),
+      child: pw.Center(
+        child: pw.Text(
+          initial,
+          style: pw.TextStyle(
+            color: PdfColors.white,
+            fontWeight: pw.FontWeight.bold,
+            fontSize: size * 0.55,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class BookletPrintView extends StatelessWidget {
   final DivisionData divisionData;
@@ -118,10 +181,71 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
+  Future<Map<String, PdfLogoItem>> _preloadAllLogos(
+    List<StandingEntry> standings,
+    List<Fixture> fixtures,
+    String? filterTeam,
+  ) async {
+    final Map<String, PdfLogoItem> cache = {};
+    final Set<String> allTeams = {};
+
+    if (filterTeam != null && filterTeam.trim().isNotEmpty) {
+      allTeams.add(filterTeam.trim());
+    }
+    for (var s in standings) {
+      allTeams.add(s.teamName.trim());
+    }
+    for (var f in fixtures) {
+      allTeams.add(f.homeTeam.trim());
+      allTeams.add(f.awayTeam.trim());
+    }
+
+    final client = http.Client();
+    try {
+      final futures = allTeams.map((teamName) async {
+        final logoUrl = _resolveLogo(teamName, null);
+        if (logoUrl == null || logoUrl.trim().isEmpty) return;
+
+        final url = logoUrl.trim();
+        try {
+          if (url.startsWith('data:image/svg') || url.contains('image/svg+xml')) {
+            final base64Part = url.split(',').last;
+            final bytes = base64Decode(base64Part);
+            final svgStr = utf8.decode(bytes);
+            cache[teamName.toLowerCase()] = PdfLogoItem(svgString: svgStr);
+          } else if (url.startsWith('data:image')) {
+            final base64Part = url.split(',').last;
+            final bytes = base64Decode(base64Part);
+            cache[teamName.toLowerCase()] = PdfLogoItem(rasterImage: pw.MemoryImage(bytes));
+          } else if (url.startsWith('http://') || url.startsWith('https://')) {
+            final res = await client.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
+            if (res.statusCode == 200) {
+              final bytes = res.bodyBytes;
+              final isSvg = url.toLowerCase().contains('.svg') || (res.headers['content-type']?.contains('svg') == true);
+              if (isSvg) {
+                final svgStr = utf8.decode(bytes);
+                cache[teamName.toLowerCase()] = PdfLogoItem(svgString: svgStr);
+              } else {
+                cache[teamName.toLowerCase()] = PdfLogoItem(rasterImage: pw.MemoryImage(bytes));
+              }
+            }
+          }
+        } catch (_) {}
+      });
+
+      await Future.wait(futures);
+    } finally {
+      client.close();
+    }
+
+    return cache;
+  }
+
   Future<Uint8List> _generatePdfDoc(
     PdfPageFormat format,
     List<Fixture> sortedFixtures,
     bool isTeamFiltered,
+    Map<String, PdfLogoItem> logoCache,
   ) async {
     final doc = pw.Document();
     final cleanHighlight = filterTeam?.trim().toLowerCase();
@@ -168,23 +292,12 @@ class BookletPrintView extends StatelessWidget {
                     children: [
                       if (isTeamFiltered) ...[
                         pw.Container(
-                          width: 28,
-                          height: 28,
-                          margin: const pw.EdgeInsets.only(right: 8),
-                          decoration: pw.BoxDecoration(
-                            color: primaryPdf,
-                            shape: pw.BoxShape.circle,
-                            border: pw.Border.all(color: accentPdf, width: 1.2),
-                          ),
-                          child: pw.Center(
-                            child: pw.Text(
-                              filterTeam!.trim().substring(0, 1).toUpperCase(),
-                              style: pw.TextStyle(
-                                color: accentPdf,
-                                fontWeight: pw.FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
+                          margin: const pw.EdgeInsets.only(right: 10),
+                          child: (logoCache[filterTeam!.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                            filterTeam!,
+                            size: 28,
+                            fallbackBg: primaryPdf,
+                            accentColor: accentPdf,
                           ),
                         ),
                       ],
@@ -268,23 +381,12 @@ class BookletPrintView extends StatelessWidget {
                   children: [
                     if (isTeamFiltered) ...[
                       pw.Container(
-                        width: 18,
-                        height: 18,
-                        margin: const pw.EdgeInsets.only(right: 6),
-                        decoration: pw.BoxDecoration(
-                          color: surfacePdf,
-                          shape: pw.BoxShape.circle,
-                          border: pw.Border.all(color: accentPdf, width: 1),
-                        ),
-                        child: pw.Center(
-                          child: pw.Text(
-                            filterTeam!.trim().substring(0, 1).toUpperCase(),
-                            style: pw.TextStyle(
-                              color: accentPdf,
-                              fontWeight: pw.FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                          ),
+                        margin: const pw.EdgeInsets.only(right: 8),
+                        child: (logoCache[filterTeam!.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                          filterTeam!,
+                          size: 18,
+                          fallbackBg: surfacePdf,
+                          accentColor: accentPdf,
                         ),
                       ),
                     ],
@@ -303,7 +405,7 @@ class BookletPrintView extends StatelessWidget {
                 border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.8),
                 columnWidths: const {
                   0: pw.FixedColumnWidth(28),  // Pos
-                  1: pw.FlexColumnWidth(5.0),  // Club Name + Shield
+                  1: pw.FlexColumnWidth(5.0),  // Club Name + Logo
                   2: pw.FixedColumnWidth(26),  // P
                   3: pw.FixedColumnWidth(26),  // W
                   4: pw.FixedColumnWidth(26),  // D
@@ -346,10 +448,6 @@ class BookletPrintView extends StatelessWidget {
                         ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
                         : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
 
-                    final teamInitial = s.teamName.trim().isNotEmpty
-                        ? s.teamName.trim().substring(0, 1).toUpperCase()
-                        : '';
-
                     return pw.TableRow(
                       decoration: pw.BoxDecoration(
                         color: rowBg,
@@ -368,26 +466,14 @@ class BookletPrintView extends StatelessWidget {
                           padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8.5),
                           child: pw.Row(
                             children: [
-                              // Vector Shield Badge for Club
-                              pw.Container(
-                                width: 16,
-                                height: 16,
-                                margin: const pw.EdgeInsets.only(right: 6),
-                                decoration: pw.BoxDecoration(
-                                  color: isMatched ? PdfColor.fromHex('#DC2626') : surfacePdf,
-                                  borderRadius: pw.BorderRadius.circular(3),
-                                ),
-                                child: pw.Center(
-                                  child: pw.Text(
-                                    teamInitial,
-                                    style: pw.TextStyle(
-                                      color: PdfColors.white,
-                                      fontWeight: pw.FontWeight.bold,
-                                      fontSize: 9,
-                                    ),
-                                  ),
-                                ),
+                              // Real Team Logo in PDF
+                              (logoCache[s.teamName.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                                s.teamName,
+                                size: 16,
+                                fallbackBg: isMatched ? PdfColor.fromHex('#DC2626') : surfacePdf,
+                                accentColor: accentPdf,
                               ),
+                              pw.SizedBox(width: 6),
                               pw.Expanded(
                                 child: pw.Text(
                                   s.teamName,
@@ -429,7 +515,7 @@ class BookletPrintView extends StatelessWidget {
               pw.NewPage(),
             ],
 
-            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH FULL DATES & FULL ROUND NAMES)
+            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH FULL DATES, ROUND NAMES & TEAM LOGOS)
             pw.Container(
               margin: const pw.EdgeInsets.only(top: 4, bottom: 8),
               child: pw.Row(
@@ -437,23 +523,12 @@ class BookletPrintView extends StatelessWidget {
                 children: [
                   if (isTeamFiltered) ...[
                     pw.Container(
-                      width: 20,
-                      height: 20,
-                      margin: const pw.EdgeInsets.only(right: 7),
-                      decoration: pw.BoxDecoration(
-                        color: surfacePdf,
-                        shape: pw.BoxShape.circle,
-                        border: pw.Border.all(color: accentPdf, width: 1),
-                      ),
-                      child: pw.Center(
-                        child: pw.Text(
-                          filterTeam!.trim().substring(0, 1).toUpperCase(),
-                          style: pw.TextStyle(
-                            color: accentPdf,
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
+                      margin: const pw.EdgeInsets.only(right: 8),
+                      child: (logoCache[filterTeam!.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                        filterTeam!,
+                        size: 20,
+                        fallbackBg: surfacePdf,
+                        accentColor: accentPdf,
                       ),
                     ),
                   ],
@@ -476,9 +551,9 @@ class BookletPrintView extends StatelessWidget {
               border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.6),
               columnWidths: const {
                 0: pw.FixedColumnWidth(215), // Full Date & Round Name & KO Badge
-                1: pw.FlexColumnWidth(3.0),  // Home Team
+                1: pw.FlexColumnWidth(3.0),  // Home Team + Logo
                 2: pw.FixedColumnWidth(48),  // Score / VS Box
-                3: pw.FlexColumnWidth(3.0),  // Away Team
+                3: pw.FlexColumnWidth(3.0),  // Away Team + Logo
                 4: pw.FixedColumnWidth(54),  // Status
               },
               children: [
@@ -619,19 +694,33 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
 
-                        // Home Team
+                        // Home Team + Logo in PDF
                         pw.Padding(
                           padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: pdfRowPad),
-                          child: pw.Text(
-                            f.homeTeam,
-                            textAlign: pw.TextAlign.right,
-                            style: pw.TextStyle(
-                              fontSize: 9,
-                              fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
-                              color: isNextUpcoming
-                                  ? PdfColor.fromHex('#991B1B')
-                                  : (isHomeMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
-                            ),
+                          child: pw.Row(
+                            mainAxisAlignment: pw.MainAxisAlignment.end,
+                            children: [
+                              pw.Expanded(
+                                child: pw.Text(
+                                  f.homeTeam,
+                                  textAlign: pw.TextAlign.right,
+                                  style: pw.TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
+                                    color: isNextUpcoming
+                                        ? PdfColor.fromHex('#991B1B')
+                                        : (isHomeMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
+                                  ),
+                                ),
+                              ),
+                              pw.SizedBox(width: 4),
+                              (logoCache[f.homeTeam.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                                f.homeTeam,
+                                size: 12,
+                                fallbackBg: surfacePdf,
+                                accentColor: accentPdf,
+                              ),
+                            ],
                           ),
                         ),
 
@@ -665,19 +754,32 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
 
-                        // Away Team
+                        // Away Team + Logo in PDF
                         pw.Padding(
                           padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: pdfRowPad),
-                          child: pw.Text(
-                            f.awayTeam,
-                            textAlign: pw.TextAlign.left,
-                            style: pw.TextStyle(
-                              fontSize: 9,
-                              fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
-                              color: isNextUpcoming
-                                  ? PdfColor.fromHex('#991B1B')
-                                  : (isAwayMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
-                            ),
+                          child: pw.Row(
+                            children: [
+                              (logoCache[f.awayTeam.trim().toLowerCase()] ?? const PdfLogoItem()).buildWidget(
+                                f.awayTeam,
+                                size: 12,
+                                fallbackBg: surfacePdf,
+                                accentColor: accentPdf,
+                              ),
+                              pw.SizedBox(width: 4),
+                              pw.Expanded(
+                                child: pw.Text(
+                                  f.awayTeam,
+                                  textAlign: pw.TextAlign.left,
+                                  style: pw.TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
+                                    color: isNextUpcoming
+                                        ? PdfColor.fromHex('#991B1B')
+                                        : (isAwayMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
@@ -761,6 +863,21 @@ class BookletPrintView extends StatelessWidget {
     bool isTeamFiltered,
   ) async {
     try {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preparing PDF and embedding team logos...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      final logoCache = await _preloadAllLogos(
+        divisionData.standings,
+        activeFixtures,
+        filterTeam,
+      );
+
       final safeName = (filterTeam ?? divisionData.divisionName)
           .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
       final fileName = 'RFU_Schedule_$safeName.pdf';
@@ -769,6 +886,7 @@ class BookletPrintView extends StatelessWidget {
         PdfPageFormat.a4,
         activeFixtures,
         isTeamFiltered,
+        logoCache,
       );
 
       if (kIsWeb) {

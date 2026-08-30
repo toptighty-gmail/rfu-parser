@@ -83,7 +83,7 @@ class FixtureCard extends StatelessWidget {
           children: [
             // Date & Time & Round & Next-Up Badge
             SizedBox(
-              width: 290,
+              width: 310,
               child: Row(
                 children: [
                   if (isNextFixture)
@@ -182,16 +182,32 @@ class FixtureCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
+                  // Prominent Kickoff Time with Clock Icon and Gold Border
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBg,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppTheme.cardBorder),
+                      color: AppTheme.goldAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: AppTheme.goldAccent.withValues(alpha: 0.45),
+                        width: 1,
+                      ),
                     ),
-                    child: Text(
-                      'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.goldAccent),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.access_time, size: 11, color: AppTheme.goldAccent),
+                        const SizedBox(width: 4),
+                        Text(
+                          fixture.time.isNotEmpty ? fixture.time : '15:00',
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: AppTheme.goldAccent,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -230,7 +246,7 @@ class FixtureCard extends StatelessWidget {
               ),
             ),
 
-            // Score / VS Box
+            // Score / VS Box (Always 'VS' for upcoming matches, Score for completed)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 14),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -238,7 +254,8 @@ class FixtureCard extends StatelessWidget {
                 color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.4),
+                  color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.45),
+                  width: 1,
                 ),
               ),
               child: Text(
@@ -412,16 +429,31 @@ class FixtureCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Mobile Prominent Kickoff Box
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBg,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppTheme.cardBorder),
+                      color: AppTheme.goldAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        color: AppTheme.goldAccent.withValues(alpha: 0.45),
+                        width: 1,
+                      ),
                     ),
-                    child: Text(
-                      'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
-                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.goldAccent),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.access_time, size: 10, color: AppTheme.goldAccent),
+                        const SizedBox(width: 3),
+                        Text(
+                          fixture.time.isNotEmpty ? fixture.time : '15:00',
+                          style: const TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.goldAccent,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -478,7 +510,8 @@ class FixtureCard extends StatelessWidget {
                   color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.4),
+                    color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.45),
+                    width: 1,
                   ),
                 ),
                 child: Text(

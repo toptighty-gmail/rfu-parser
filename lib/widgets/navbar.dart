@@ -272,14 +272,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                   const SizedBox(width: 6),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
+                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.15),
                                       foregroundColor: theme.goldAccent,
-                                      side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                      side: BorderSide(color: theme.goldAccent, width: 1.2),
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                     icon: Icon(Icons.palette_outlined, size: 16, color: theme.goldAccent),
-                                    label: const Text('Theme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    label: Text(theme.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                     onPressed: onOpenThemeSelector,
                                   ),
                                   const SizedBox(width: 6),

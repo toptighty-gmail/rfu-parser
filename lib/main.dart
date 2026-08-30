@@ -7,6 +7,9 @@ import 'views/home_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize saved theme preference
+  await AppTheme.initTheme();
+
   // Initialize Supabase client
   const String envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
   const String envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
@@ -24,11 +27,16 @@ class RFUHubApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RFU Fixtures & League Tables Hub',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const HomeView(),
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'RFU Fixtures & League Tables Hub',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.getTheme(themeMode),
+          home: const HomeView(),
+        );
+      },
     );
   }
 }

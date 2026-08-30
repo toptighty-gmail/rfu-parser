@@ -19,6 +19,7 @@ import '../widgets/teams_directory_dialog.dart';
 import '../widgets/divisions_directory_dialog.dart';
 import '../widgets/sync_rfu_dialog.dart';
 import '../widgets/admin_database_metrics_dialog.dart';
+import '../widgets/theme_selector_dialog.dart';
 import 'booklet_print_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -332,6 +333,7 @@ class _HomeViewState extends State<HomeView> {
         onOpenBookletPrint: _openBookletPrint,
         onSyncRfuData: _openSyncRfuDialog,
         onOpenDatabaseMetrics: _openDatabaseMetricsDialog,
+        onOpenThemeSelector: _openThemeSelectorDialog,
       ),
       body: _isLoading
           ? const Center(
@@ -853,6 +855,13 @@ class _HomeViewState extends State<HomeView> {
           _loadData(queryTeam: team);
         },
       ),
+    );
+  }
+
+  void _openThemeSelectorDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => const ThemeSelectorDialog(),
     );
   }
 

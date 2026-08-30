@@ -189,7 +189,7 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                               const SizedBox(width: 4),
                               _buildSwatch(mode.goldAccent, 'Accent'),
                               const SizedBox(width: 4),
-                              _buildSwatch(mode.emeraldAccent, 'Sub'),
+                              _buildSwatch(mode.tertiaryAccent, '3rd'),
                             ],
                           ),
                         ],

@@ -11,6 +11,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF0A291C),
     cardBorder: Color(0x3334D399),
     goldAccent: Color(0xFFE5C158),
+    tertiaryAccent: Color(0xFF10B981), // Emerald Turf
     emeraldAccent: Color(0xFF10B981),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFF8FAF8),
@@ -24,6 +25,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF0D1C34),
     cardBorder: Color(0x3338BDF8),
     goldAccent: Color(0xFF38BDF8),
+    tertiaryAccent: Color(0xFFF59E0B), // Warm Amber
     emeraldAccent: Color(0xFF0284C7),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFF0F6FC),
@@ -37,6 +39,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF171717),
     cardBorder: Color(0x33F59E0B),
     goldAccent: Color(0xFFF59E0B),
+    tertiaryAccent: Color(0xFF06B6D4), // Electric Cyan
     emeraldAccent: Color(0xFFD97706),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFF5F5F5),
@@ -50,8 +53,9 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF260C10),
     cardBorder: Color(0x33F43F5E),
     goldAccent: Color(0xFFFFFFFF),
+    tertiaryAccent: Color(0xFFE5C158), // Championship Gold
     emeraldAccent: Color(0xFFEF4444),
-    rubyAccent: Color(0xFFDC2626),
+    rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFFFF1F2),
     textMuted: Color(0xFFFDA4AF),
   ),
@@ -63,6 +67,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF0A1F42),
     cardBorder: Color(0x33FACC15),
     goldAccent: Color(0xFFFACC15),
+    tertiaryAccent: Color(0xFFFB923C), // Vibrant Tangerine
     emeraldAccent: Color(0xFF3B82F6),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFEFF6FF),
@@ -76,8 +81,9 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF220D1A),
     cardBorder: Color(0x33E2E8F0),
     goldAccent: Color(0xFFE2E8F0),
+    tertiaryAccent: Color(0xFFE5C158), // Warm Gold
     emeraldAccent: Color(0xFFFB7185),
-    rubyAccent: Color(0xFFE11D48),
+    rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFFFF1F2),
     textMuted: Color(0xFFCBD5E1),
   ),
@@ -89,6 +95,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF072617),
     cardBorder: Color(0x3322C55E),
     goldAccent: Color(0xFFFFFFFF),
+    tertiaryAccent: Color(0xFFE5C158), // Warm Gold
     emeraldAccent: Color(0xFF22C55E),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFF0FDF4),
@@ -102,6 +109,7 @@ enum AppThemeMode {
     surfaceBg: Color(0xFF131A29),
     cardBorder: Color(0x33384260),
     goldAccent: Color(0xFFE5C158),
+    tertiaryAccent: Color(0xFF10B981), // Emerald Green
     emeraldAccent: Color(0xFF10B981),
     rubyAccent: Color(0xFFEF4444),
     textPrimary: Color(0xFFF3F4F6),
@@ -115,6 +123,7 @@ enum AppThemeMode {
   final Color surfaceBg;
   final Color cardBorder;
   final Color goldAccent;
+  final Color tertiaryAccent;
   final Color emeraldAccent;
   final Color rubyAccent;
   final Color textPrimary;
@@ -128,6 +137,7 @@ enum AppThemeMode {
     required this.surfaceBg,
     required this.cardBorder,
     required this.goldAccent,
+    required this.tertiaryAccent,
     required this.emeraldAccent,
     required this.rubyAccent,
     required this.textPrimary,
@@ -145,6 +155,7 @@ class AppTheme {
 
   // Dynamic getters so all widgets across the app seamlessly adapt to the selected theme
   static Color get goldAccent => currentMode.goldAccent;
+  static Color get tertiaryAccent => currentMode.tertiaryAccent;
   static Color get emeraldAccent => currentMode.emeraldAccent;
   static Color get rubyAccent => currentMode.rubyAccent;
   static Color get textPrimary => currentMode.textPrimary;
@@ -190,7 +201,7 @@ class AppTheme {
       primaryColor: mode.goldAccent,
       colorScheme: ColorScheme.dark(
         primary: mode.goldAccent,
-        secondary: mode.emeraldAccent,
+        secondary: mode.tertiaryAccent,
         surface: mode.surfaceBg,
         error: mode.rubyAccent,
       ),

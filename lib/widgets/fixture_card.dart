@@ -65,14 +65,14 @@ class FixtureCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isNextFixture
-              ? AppTheme.emeraldAccent.withValues(alpha: 0.05)
+              ? AppTheme.rubyAccent.withValues(alpha: 0.08)
               : AppTheme.surfaceBg,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isNextFixture
-                ? AppTheme.emeraldAccent.withValues(alpha: 0.75)
+                ? AppTheme.rubyAccent.withValues(alpha: 0.85)
                 : fixture.isCustom
-                    ? AppTheme.goldAccent.withValues(alpha: 0.5)
+                    ? AppTheme.tertiaryAccent.withValues(alpha: 0.7)
                     : (isHomeMatched || isAwayMatched)
                         ? AppTheme.goldAccent.withValues(alpha: 0.3)
                         : AppTheme.cardBorder,
@@ -91,9 +91,9 @@ class FixtureCard extends StatelessWidget {
                       margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppTheme.emeraldAccent.withValues(alpha: 0.22),
+                        color: AppTheme.rubyAccent.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.8)),
+                        border: Border.all(color: AppTheme.rubyAccent.withValues(alpha: 0.9), width: 1.2),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -102,7 +102,7 @@ class FixtureCard extends StatelessWidget {
                             width: 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: AppTheme.emeraldAccent,
+                              color: AppTheme.rubyAccent,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -113,7 +113,7 @@ class FixtureCard extends StatelessWidget {
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.5,
-                              color: AppTheme.emeraldAccent,
+                              color: AppTheme.rubyAccent,
                             ),
                           ),
                         ],
@@ -124,18 +124,16 @@ class FixtureCard extends StatelessWidget {
                       builder: (context) {
                         final isCup = fixture.competition.toLowerCase().contains('cup') ||
                             fixture.roundNum.toLowerCase().contains('cup');
+                        final badgeColor = isCup ? AppTheme.goldAccent : AppTheme.tertiaryAccent;
                         return Container(
                           margin: const EdgeInsets.only(right: 6),
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: isCup
-                                ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
-                                : AppTheme.goldAccent.withValues(alpha: 0.2),
+                            color: badgeColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: isCup
-                                  ? AppTheme.emeraldAccent.withValues(alpha: 0.5)
-                                  : AppTheme.goldAccent.withValues(alpha: 0.5),
+                              color: badgeColor.withValues(alpha: 0.8),
+                              width: 1,
                             ),
                           ),
                           child: Row(
@@ -144,7 +142,7 @@ class FixtureCard extends StatelessWidget {
                               Icon(
                                 isCup ? Icons.emoji_events : Icons.sports_rugby,
                                 size: 10,
-                                color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                                color: badgeColor,
                               ),
                               const SizedBox(width: 3),
                               Text(
@@ -152,7 +150,7 @@ class FixtureCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
-                                  color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                                  color: badgeColor,
                                 ),
                               ),
                             ],
@@ -347,12 +345,12 @@ class FixtureCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: isNextFixture ? AppTheme.emeraldAccent.withValues(alpha: 0.05) : AppTheme.surfaceBg,
+        color: isNextFixture ? AppTheme.rubyAccent.withValues(alpha: 0.08) : AppTheme.surfaceBg,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isNextFixture
-              ? AppTheme.emeraldAccent.withValues(alpha: 0.75)
-              : (fixture.isCustom ? AppTheme.goldAccent.withValues(alpha: 0.4) : AppTheme.cardBorder),
+              ? AppTheme.rubyAccent.withValues(alpha: 0.85)
+              : (fixture.isCustom ? AppTheme.tertiaryAccent.withValues(alpha: 0.6) : AppTheme.cardBorder),
           width: isNextFixture ? 1.5 : 1,
         ),
       ),
@@ -370,9 +368,9 @@ class FixtureCard extends StatelessWidget {
                         margin: const EdgeInsets.only(right: 5),
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: AppTheme.emeraldAccent.withValues(alpha: 0.22),
+                          color: AppTheme.rubyAccent.withValues(alpha: 0.22),
                           borderRadius: BorderRadius.circular(3),
-                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.8)),
+                          border: Border.all(color: AppTheme.rubyAccent.withValues(alpha: 0.9), width: 1),
                         ),
                         child: Text(
                           'NEXT UP',
@@ -380,7 +378,7 @@ class FixtureCard extends StatelessWidget {
                             fontSize: 8,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.4,
-                            color: AppTheme.emeraldAccent,
+                            color: AppTheme.rubyAccent,
                           ),
                         ),
                       ),
@@ -389,21 +387,21 @@ class FixtureCard extends StatelessWidget {
                         builder: (_) {
                           final isCup = fixture.competition.toLowerCase().contains('cup') ||
                               fixture.roundNum.toLowerCase().contains('cup');
+                          final badgeColor = isCup ? AppTheme.goldAccent : AppTheme.tertiaryAccent;
                           return Container(
                             margin: const EdgeInsets.only(right: 6),
                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                             decoration: BoxDecoration(
-                              color: isCup
-                                  ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
-                                  : AppTheme.goldAccent.withValues(alpha: 0.2),
+                              color: badgeColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(3),
+                              border: Border.all(color: badgeColor.withValues(alpha: 0.8), width: 1),
                             ),
                             child: Text(
                               isCup ? 'CUP' : 'FRIENDLY',
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
-                                color: isCup ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                                color: badgeColor,
                               ),
                             ),
                           );

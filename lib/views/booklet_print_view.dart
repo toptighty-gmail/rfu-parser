@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js' as js;
 import 'package:intl/intl.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
@@ -105,17 +108,37 @@ class BookletPrintView extends StatelessWidget {
           style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.print, color: AppTheme.goldAccent),
-            tooltip: 'Print Page (Ctrl+P / Cmd+P)',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Press Ctrl+P (or Cmd+P on Mac) in your browser to print this document.'),
-                  backgroundColor: AppTheme.emeraldAccent,
-                ),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.goldAccent,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: const Icon(Icons.picture_as_pdf, size: 18),
+              label: const Text(
+                'Print / Save as PDF',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              onPressed: () {
+                if (kIsWeb) {
+                  try {
+                    js.context.callMethod('print');
+                    return;
+                  } catch (e) {
+                    debugPrint('Web print error: $e');
+                  }
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Press Ctrl+P (or Cmd+P on Mac) in your browser to save as PDF or print.'),
+                    backgroundColor: AppTheme.emeraldAccent,
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

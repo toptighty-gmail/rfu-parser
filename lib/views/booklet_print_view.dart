@@ -15,6 +15,7 @@ import '../models/standing_entry.dart';
 import '../widgets/team_logo_image.dart';
 import '../widgets/fixture_list.dart';
 import '../services/rfu_team_registry.dart';
+import '../services/team_logo_provider.dart';
 import '../theme/app_theme.dart';
 
 class PdfLogoItem {
@@ -174,12 +175,21 @@ class BookletPrintView extends StatelessWidget {
     if (defaultLogoUrl != null && defaultLogoUrl.trim().isNotEmpty) {
       return defaultLogoUrl.trim();
     }
-    final clean = teamName.trim().toLowerCase();
+    final clean = teamName.trim().toLowerCase().replaceAll('salatsh', 'saltash');
+    
+    // 1. Direct custom logo match
     if (customLogosMap.containsKey(clean)) {
       return customLogosMap[clean];
     }
-    // Alias match for OPMs / Old Plymothian
-    if (clean == 'opms' || clean == 'opm' || clean == 'opms ii' || clean.contains('plymothian')) {
+    
+    // 2. Base club name (strip II, III, 2nd, RFC, etc.)
+    final baseName = clean.replaceAll(RegExp(r'\b(ii|iii|iv|2nd|3rd|4th|extra|rfc|rugby club|club|xv)\b'), '').trim();
+    if (baseName.isNotEmpty && customLogosMap.containsKey(baseName)) {
+      return customLogosMap[baseName];
+    }
+    
+    // 3. Alias match for OPMs / Old Plymothian
+    if (clean == 'opms' || clean == 'opm' || clean.contains('plymothian')) {
       for (var entry in customLogosMap.entries) {
         final k = entry.key.toLowerCase();
         if (k.contains('plymothian') || k == 'opms' || k == 'opm') {
@@ -187,19 +197,37 @@ class BookletPrintView extends StatelessWidget {
         }
       }
     }
+    
+    // 4. Standings list exact match
     for (var s in divisionData.standings) {
       if (s.teamName.trim().toLowerCase() == clean && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
         return s.logoUrl;
       }
     }
-    for (var s in divisionData.standings) {
-      if ((s.teamName.toLowerCase().contains(clean) || clean.contains(s.teamName.toLowerCase())) &&
-          s.logoUrl != null &&
-          s.logoUrl!.isNotEmpty) {
-        return s.logoUrl;
+    
+    // 5. Standings list base match
+    if (baseName.isNotEmpty) {
+      for (var s in divisionData.standings) {
+        final sClean = s.teamName.trim().toLowerCase();
+        if ((sClean.contains(baseName) || baseName.contains(sClean)) && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
+          return s.logoUrl;
+        }
       }
     }
-    return null;
+    
+    // 6. Predefined Vector Logo Provider (Saltash, Plymstock, Torquay, Ivybridge, etc.)
+    final predefined = TeamLogoProvider.getPredefinedLogo(clean);
+    if (predefined != null && !predefined.contains('generic')) {
+      return predefined;
+    }
+    if (baseName.isNotEmpty) {
+      final basePredefined = TeamLogoProvider.getPredefinedLogo(baseName);
+      if (basePredefined != null) {
+        return basePredefined;
+      }
+    }
+    
+    return predefined;
   }
 
   Widget _buildTeamLogo(String teamName, String? directLogoUrl, {double size = 20}) {

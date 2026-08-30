@@ -141,35 +141,43 @@ class TeamLogoProvider {
       text: 'ALL WHITES',
       iconSvg: '<circle cx="12" cy="11" r="6" stroke="#002B7F" stroke-width="2" fill="#FFFFFF"/>',
     ),
+    'saltash': _svgBadge(
+      primaryColor: '#B31B1B', // Cardinal Red
+      secondaryColor: '#FFFFFF', // White
+      textColor: '#FFFFFF',
+      text: 'ASHES',
+      iconSvg: '<path d="M12 4L6 18H18L12 4Z" fill="#FFFFFF"/><circle cx="12" cy="14" r="2" fill="#B31B1B"/>',
+    ),
+    'salatsh': _svgBadge(
+      primaryColor: '#B31B1B', // Cardinal Red
+      secondaryColor: '#FFFFFF', // White
+      textColor: '#FFFFFF',
+      text: 'ASHES',
+      iconSvg: '<path d="M12 4L6 18H18L12 4Z" fill="#FFFFFF"/><circle cx="12" cy="14" r="2" fill="#B31B1B"/>',
+    ),
+    'ivybridge': _svgBadge(
+      primaryColor: '#006400', // Green
+      secondaryColor: '#FFD700', // Gold
+      text: 'BRIDGE',
+      iconSvg: '<path d="M6 14C6 8 18 8 18 14" stroke="#FFD700" stroke-width="2.5" fill="none"/>',
+    ),
+    'devonport': _svgBadge(
+      primaryColor: '#002B7F', // Navy
+      secondaryColor: '#FFFFFF', // White
+      text: 'SERVICES',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#FFFFFF" stroke-width="2" fill="none"/>',
+    ),
     'topsham': _svgBadge(
       primaryColor: '#006400', // Green
       secondaryColor: '#FFFFFF', // White
       text: 'TOPS',
       iconSvg: '<path d="M12 4L19 16H5L12 4Z" fill="#FFFFFF"/>',
     ),
-    'old plymothian': _svgBadge(
-      primaryColor: '#001F3F', // Navy
-      secondaryColor: '#C8102E', // Red
-      text: 'OPM',
-      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
-    ),
     'mannamedian': _svgBadge(
       primaryColor: '#001F3F', // Navy
       secondaryColor: '#C8102E', // Red
       text: 'OPM',
       iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
-    ),
-    'ivybridge': _svgBadge(
-      primaryColor: '#005A36', // Green
-      secondaryColor: '#FFFFFF', // White
-      text: 'BRIDGE',
-      iconSvg: '<path d="M4 14C8 10 16 10 20 14H4Z" stroke="#FFFFFF" stroke-width="2" fill="none"/>',
-    ),
-    'devonport': _svgBadge(
-      primaryColor: '#002B7F', // Navy
-      secondaryColor: '#DAA520', // Gold
-      text: 'SERVICES',
-      iconSvg: '<path d="M12 4L15 9L20 10L16 14L17 19L12 16L7 19L8 14L4 10L9 9L12 4Z" fill="#DAA520"/>',
     ),
     'harlequins': _svgBadge(
       primaryColor: '#005A36',

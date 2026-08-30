@@ -18,16 +18,16 @@ class BookletPrintView extends StatelessWidget {
   final String? filterTeam;
   final Map<String, String> customLogosMap;
 
-  // Plymouth Oaks British Racing Green theme color
-  static const String plymstockGreenHex = '#005A36';
-  static const Color plymstockGreenColor = Color(0xFF005A36);
-
   const BookletPrintView({
     super.key,
     required this.divisionData,
     this.filterTeam,
     this.customLogosMap = const {},
   });
+
+  static PdfColor _toPdfColor(Color c) {
+    return PdfColor(c.r, c.g, c.b, c.a);
+  }
 
   static DateTime _parseFixtureDate(Fixture f) {
     if (f.dateIso.isNotEmpty) {
@@ -137,7 +137,14 @@ class BookletPrintView extends StatelessWidget {
       }
     }
 
-    final plymstockGreenPdf = PdfColor.fromHex(plymstockGreenHex);
+    final theme = AppTheme.currentMode;
+    final primaryPdf = _toPdfColor(theme.darkBg);
+    final surfacePdf = _toPdfColor(theme.surfaceBg);
+    final accentPdf = _toPdfColor(theme.goldAccent);
+    final tertiaryPdf = _toPdfColor(theme.tertiaryAccent);
+    final borderPdf = _toPdfColor(theme.cardBorder);
+    final textPrimaryPdf = _toPdfColor(theme.textPrimary);
+    final textMutedPdf = _toPdfColor(theme.textMuted);
 
     doc.addPage(
       pw.MultiPage(
@@ -148,9 +155,9 @@ class BookletPrintView extends StatelessWidget {
             margin: const pw.EdgeInsets.only(bottom: 12),
             padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: pw.BoxDecoration(
-              color: plymstockGreenPdf, // Plymouth Oaks British Racing Green
+              color: surfacePdf,
               borderRadius: pw.BorderRadius.circular(6),
-              border: pw.Border.all(color: PdfColor.fromHex('#004529'), width: 1),
+              border: pw.Border.all(color: accentPdf, width: 1.2),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -165,15 +172,15 @@ class BookletPrintView extends StatelessWidget {
                           height: 28,
                           margin: const pw.EdgeInsets.only(right: 8),
                           decoration: pw.BoxDecoration(
-                            color: PdfColor.fromHex('#003D24'),
+                            color: primaryPdf,
                             shape: pw.BoxShape.circle,
-                            border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1.2),
+                            border: pw.Border.all(color: accentPdf, width: 1.2),
                           ),
                           child: pw.Center(
                             child: pw.Text(
                               filterTeam!.trim().substring(0, 1).toUpperCase(),
                               style: pw.TextStyle(
-                                color: PdfColor.fromHex('#F59E0B'),
+                                color: accentPdf,
                                 fontWeight: pw.FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -187,7 +194,7 @@ class BookletPrintView extends StatelessWidget {
                           pw.Text(
                             divisionData.divisionName.toUpperCase(),
                             style: pw.TextStyle(
-                              color: PdfColor.fromHex('#FDE68A'),
+                              color: accentPdf,
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 13.5,
                             ),
@@ -198,7 +205,7 @@ class BookletPrintView extends StatelessWidget {
                                 ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
                                 : 'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
                             style: pw.TextStyle(
-                              color: PdfColor.fromHex('#E2E8F0'),
+                              color: textPrimaryPdf,
                               fontSize: 9,
                               fontWeight: pw.FontWeight.normal,
                             ),
@@ -211,14 +218,14 @@ class BookletPrintView extends StatelessWidget {
                 pw.Container(
                   padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: pw.BoxDecoration(
-                    color: PdfColor.fromHex('#003D24'),
+                    color: primaryPdf,
                     borderRadius: pw.BorderRadius.circular(4),
-                    border: pw.Border.all(color: PdfColor.fromHex('#007A48')),
+                    border: pw.Border.all(color: accentPdf),
                   ),
                   child: pw.Text(
                     'Copyrighted Sean Cook 2026',
                     style: pw.TextStyle(
-                      color: PdfColor.fromHex('#FDE68A'),
+                      color: accentPdf,
                       fontWeight: pw.FontWeight.bold,
                       fontSize: 8.5,
                     ),
@@ -240,11 +247,11 @@ class BookletPrintView extends StatelessWidget {
               children: [
                 pw.Text(
                   'Generated by RFU Hub | Official England Rugby League Data',
-                  style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+                  style: pw.TextStyle(fontSize: 8, color: textMutedPdf),
                 ),
                 pw.Text(
                   'Page ${context.pageNumber} of ${context.pagesCount}',
-                  style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+                  style: pw.TextStyle(fontSize: 8, color: textMutedPdf),
                 ),
               ],
             ),
@@ -265,15 +272,15 @@ class BookletPrintView extends StatelessWidget {
                         height: 18,
                         margin: const pw.EdgeInsets.only(right: 6),
                         decoration: pw.BoxDecoration(
-                          color: plymstockGreenPdf,
+                          color: surfacePdf,
                           shape: pw.BoxShape.circle,
-                          border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1),
+                          border: pw.Border.all(color: accentPdf, width: 1),
                         ),
                         child: pw.Center(
                           child: pw.Text(
                             filterTeam!.trim().substring(0, 1).toUpperCase(),
                             style: pw.TextStyle(
-                              color: PdfColors.white,
+                              color: accentPdf,
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 10,
                             ),
@@ -286,7 +293,7 @@ class BookletPrintView extends StatelessWidget {
                       style: pw.TextStyle(
                         fontSize: 13,
                         fontWeight: pw.FontWeight.bold,
-                        color: plymstockGreenPdf,
+                        color: surfacePdf,
                       ),
                     ),
                   ],
@@ -309,22 +316,22 @@ class BookletPrintView extends StatelessWidget {
                   11: pw.FixedColumnWidth(38), // PTS
                 },
                 children: [
-                  // Table Header in Plymouth Oaks Green
+                  // Table Header in Active Theme Surface Color
                   pw.TableRow(
-                    decoration: pw.BoxDecoration(color: plymstockGreenPdf),
+                    decoration: pw.BoxDecoration(color: surfacePdf),
                     children: [
-                      _buildPdfHeaderCell('#'),
-                      _buildPdfHeaderCell('CLUB', align: pw.TextAlign.left),
-                      _buildPdfHeaderCell('P'),
-                      _buildPdfHeaderCell('W'),
-                      _buildPdfHeaderCell('D'),
-                      _buildPdfHeaderCell('L'),
-                      _buildPdfHeaderCell('PF'),
-                      _buildPdfHeaderCell('PA'),
-                      _buildPdfHeaderCell('+/-'),
-                      _buildPdfHeaderCell('TB'),
-                      _buildPdfHeaderCell('LB'),
-                      _buildPdfHeaderCell('PTS', isHighlight: true),
+                      _buildPdfHeaderCell('#', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('CLUB', align: pw.TextAlign.left, accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('P', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('W', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('D', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('L', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('PF', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('PA', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('+/-', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('TB', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('LB', accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                      _buildPdfHeaderCell('PTS', isHighlight: true, accentPdf: accentPdf, textPdf: textPrimaryPdf),
                     ],
                   ),
                   // Table Rows: Context Team highlighted in BRIGHT YELLOW with RED BORDER
@@ -367,7 +374,7 @@ class BookletPrintView extends StatelessWidget {
                                 height: 16,
                                 margin: const pw.EdgeInsets.only(right: 6),
                                 decoration: pw.BoxDecoration(
-                                  color: isMatched ? PdfColor.fromHex('#DC2626') : plymstockGreenPdf,
+                                  color: isMatched ? PdfColor.fromHex('#DC2626') : surfacePdf,
                                   borderRadius: pw.BorderRadius.circular(3),
                                 ),
                                 child: pw.Center(
@@ -434,14 +441,15 @@ class BookletPrintView extends StatelessWidget {
                       height: 20,
                       margin: const pw.EdgeInsets.only(right: 7),
                       decoration: pw.BoxDecoration(
-                        color: plymstockGreenPdf,
+                        color: surfacePdf,
                         shape: pw.BoxShape.circle,
+                        border: pw.Border.all(color: accentPdf, width: 1),
                       ),
                       child: pw.Center(
                         child: pw.Text(
                           filterTeam!.trim().substring(0, 1).toUpperCase(),
                           style: pw.TextStyle(
-                            color: PdfColors.white,
+                            color: accentPdf,
                             fontWeight: pw.FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -457,7 +465,7 @@ class BookletPrintView extends StatelessWidget {
                       style: pw.TextStyle(
                         fontSize: 12,
                         fontWeight: pw.FontWeight.bold,
-                        color: plymstockGreenPdf,
+                        color: surfacePdf,
                       ),
                     ),
                   ),
@@ -474,15 +482,15 @@ class BookletPrintView extends StatelessWidget {
                 4: pw.FixedColumnWidth(54),  // Status
               },
               children: [
-                // Header in Plymouth Oaks Green
+                // Header in Active Theme Surface Color
                 pw.TableRow(
-                  decoration: pw.BoxDecoration(color: plymstockGreenPdf),
+                  decoration: pw.BoxDecoration(color: surfacePdf),
                   children: [
-                    _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left, fontSize: 9),
-                    _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right, fontSize: 9),
-                    _buildPdfHeaderCell('SCORE', align: pw.TextAlign.center, fontSize: 9),
-                    _buildPdfHeaderCell('AWAY TEAM', align: pw.TextAlign.left, fontSize: 9),
-                    _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9),
+                    _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left, fontSize: 9, accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                    _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right, fontSize: 9, accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                    _buildPdfHeaderCell('SCORE', align: pw.TextAlign.center, fontSize: 9, accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                    _buildPdfHeaderCell('AWAY TEAM', align: pw.TextAlign.left, fontSize: 9, accentPdf: accentPdf, textPdf: textPrimaryPdf),
+                    _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9, accentPdf: accentPdf, textPdf: textPrimaryPdf),
                   ],
                 ),
                 // Fixture Rows: Dynamic vertical padding to fill the A4 page; Next Match in Bright Yellow / Red Border
@@ -546,7 +554,11 @@ class BookletPrintView extends StatelessWidget {
                                       pw.Container(
                                         padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
                                         decoration: pw.BoxDecoration(
-                                          color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#E2E8F0'),
+                                          color: isNextUpcoming
+                                              ? PdfColor.fromHex('#FDE047')
+                                              : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
+                                                  ? tertiaryPdf
+                                                  : PdfColor.fromHex('#E2E8F0')),
                                           borderRadius: pw.BorderRadius.circular(2),
                                         ),
                                         child: pw.Text(
@@ -554,7 +566,11 @@ class BookletPrintView extends StatelessWidget {
                                           style: pw.TextStyle(
                                             fontSize: 6.8,
                                             fontWeight: pw.FontWeight.bold,
-                                            color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#475569'),
+                                            color: isNextUpcoming
+                                                ? PdfColor.fromHex('#991B1B')
+                                                : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
+                                                    ? PdfColors.white
+                                                    : PdfColor.fromHex('#475569')),
                                           ),
                                         ),
                                       ),
@@ -619,19 +635,19 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
 
-                        // Score / VS Center Box
+                        // Score / VS Box (Always 'VS' for upcoming matches, Score for completed)
                         pw.Center(
                           child: pw.Container(
                             margin: pw.EdgeInsets.symmetric(vertical: pdfBoxMargin),
-                            padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: pw.BoxDecoration(
                               color: isCompleted
-                                  ? PdfColor.fromHex('#005A36')
+                                  ? surfacePdf
                                   : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
                               borderRadius: pw.BorderRadius.circular(3),
                               border: pw.Border.all(
                                 color: isCompleted
-                                    ? PdfColor.fromHex('#004529')
+                                    ? borderPdf
                                     : (isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#F59E0B')),
                                 width: 0.6,
                               ),
@@ -642,7 +658,7 @@ class BookletPrintView extends StatelessWidget {
                                 fontSize: 8.5,
                                 fontWeight: pw.FontWeight.bold,
                                 color: isCompleted
-                                    ? PdfColors.white
+                                    ? textPrimaryPdf
                                     : (isNextUpcoming ? PdfColors.white : PdfColor.fromHex('#B45309')),
                               ),
                             ),
@@ -702,7 +718,14 @@ class BookletPrintView extends StatelessWidget {
     return doc.save();
   }
 
-  pw.Widget _buildPdfHeaderCell(String text, {pw.TextAlign align = pw.TextAlign.center, double fontSize = 9.5, bool isHighlight = false}) {
+  pw.Widget _buildPdfHeaderCell(
+    String text, {
+    pw.TextAlign align = pw.TextAlign.center,
+    double fontSize = 9.5,
+    bool isHighlight = false,
+    required PdfColor accentPdf,
+    required PdfColor textPdf,
+  }) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 7.5),
       child: pw.Text(
@@ -711,7 +734,7 @@ class BookletPrintView extends StatelessWidget {
         style: pw.TextStyle(
           fontSize: fontSize,
           fontWeight: pw.FontWeight.bold,
-          color: isHighlight ? PdfColor.fromHex('#FDE68A') : PdfColors.white,
+          color: isHighlight ? accentPdf : textPdf,
         ),
       ),
     );
@@ -821,219 +844,226 @@ class BookletPrintView extends StatelessWidget {
       }
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
-      appBar: AppBar(
-        backgroundColor: plymstockGreenColor, // Plymouth Oaks British Racing Green
-        elevation: 1,
-        title: Text(
-          isTeamFiltered
-              ? 'A4 Print: ${filterTeam!.trim().toUpperCase()}'
-              : 'A4 Print: ${divisionData.divisionName}',
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.goldAccent,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              icon: const Icon(Icons.picture_as_pdf, size: 18),
-              label: const Text(
-                'Print / Save as PDF',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-              onPressed: () => _exportPdf(context, activeFixtures, isTeamFiltered),
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, theme, _) {
+        return Scaffold(
+          backgroundColor: theme.darkBg,
+          appBar: AppBar(
+            backgroundColor: theme.surfaceBg,
+            elevation: 1,
+            title: Text(
+              isTeamFiltered
+                  ? 'A4 Print: ${filterTeam!.trim().toUpperCase()}'
+                  : 'A4 Print: ${divisionData.divisionName}',
+              style: TextStyle(color: theme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 960),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.goldAccent,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                ],
+                  icon: const Icon(Icons.picture_as_pdf, size: 18),
+                  label: const Text(
+                    'Print / Save as PDF',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  onPressed: () => _exportPdf(context, activeFixtures, isTeamFiltered),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Document Header Banner (Plymouth Oaks British Racing Green)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: plymstockGreenColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF004529)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (isTeamFiltered) ...[
-                          _buildTeamLogo(filterTeam!, null, size: 36),
-                          const SizedBox(width: 14),
-                        ],
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                divisionData.divisionName.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Color(0xFFFDE68A),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 960),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Document Header Banner
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: theme.surfaceBg,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: theme.goldAccent, width: 1.5),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (isTeamFiltered) ...[
+                              _buildTeamLogo(filterTeam!, null, size: 36),
+                              const SizedBox(width: 14),
+                            ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    divisionData.divisionName.toUpperCase(),
+                                    style: TextStyle(
+                                      color: theme.goldAccent,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    isTeamFiltered
+                                        ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
+                                        : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
+                                    style: TextStyle(
+                                      color: theme.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: theme.darkBg,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: theme.goldAccent),
+                              ),
+                              child: Text(
+                                'Copyrighted Sean Cook 2026',
+                                style: TextStyle(
+                                  color: theme.goldAccent,
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 16,
+                                  fontSize: 10,
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                isTeamFiltered
-                                    ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
-                                    : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
-                                style: const TextStyle(
-                                  color: Color(0xFFE2E8F0),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // SECTION 1: LEAGUE TABLE STANDINGS (WITH CONTEXT TEAM LOGO IN HEADER)
+                      _buildSectionHeader(
+                        '1. LEAGUE TABLE STANDINGS',
+                        Icons.table_chart,
+                        theme: theme,
+                        leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPrintStandingsTable(divisionData.standings, filterTeam, theme),
+
+                      const SizedBox(height: 28),
+
+                      // PAGE BREAK DIVIDER
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            const Expanded(child: Divider(color: Color(0xFF94A3B8), thickness: 1.5)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.arrow_downward, size: 14, color: Color(0xFF475569)),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'PAGE BREAK  |  FIXTURES & RESULTS START ON PAGE 2',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF475569),
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF003D24),
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: const Color(0xFF007A48)),
-                          ),
-                          child: const Text(
-                            'Copyrighted Sean Cook 2026',
-                            style: TextStyle(
-                              color: Color(0xFFFDE68A),
-                              fontWeight: FontWeight.w900,
-                              fontSize: 10,
-                              letterSpacing: 0.5,
                             ),
-                          ),
+                            const Expanded(child: Divider(color: Color(0xFF94A3B8), thickness: 1.5)),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                  // SECTION 1: LEAGUE TABLE STANDINGS (WITH CONTEXT TEAM LOGO IN HEADER)
-                  _buildSectionHeader(
-                    '1. LEAGUE TABLE STANDINGS',
-                    Icons.table_chart,
-                    leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPrintStandingsTable(divisionData.standings, filterTeam),
+                      // SECTION 2: FIXTURES & RESULTS (WITH CONTEXT TEAM LOGO)
+                      _buildSectionHeader(
+                        isTeamFiltered
+                            ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${activeFixtures.length} MATCHES)'
+                            : '2. FIXTURES & RESULTS — ALL ROUNDS (${activeFixtures.length} MATCHES)',
+                        Icons.event,
+                        theme: theme,
+                        leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPrintFixtures(activeFixtures, filterTeam, nextUpcoming, theme),
 
-                  const SizedBox(height: 28),
+                      const SizedBox(height: 24),
 
-                  // PAGE BREAK DIVIDER
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        const Expanded(child: Divider(color: Color(0xFF94A3B8), thickness: 1.5)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFCBD5E1)),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.arrow_downward, size: 14, color: Color(0xFF475569)),
-                                SizedBox(width: 6),
-                                Text(
-                                  'PAGE BREAK  |  FIXTURES & RESULTS START ON PAGE 2',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF475569),
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      // Footer
+                      const Center(
+                        child: Text(
+                          'Generated by RFU Hub | Official England Rugby League Data',
+                          style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontStyle: FontStyle.italic),
                         ),
-                        const Expanded(child: Divider(color: Color(0xFF94A3B8), thickness: 1.5)),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // SECTION 2: FIXTURES & RESULTS (WITH CONTEXT TEAM LOGO)
-                  _buildSectionHeader(
-                    isTeamFiltered
-                        ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${activeFixtures.length} MATCHES)'
-                        : '2. FIXTURES & RESULTS — ALL ROUNDS (${activeFixtures.length} MATCHES)',
-                    Icons.event,
-                    leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPrintFixtures(activeFixtures, filterTeam, nextUpcoming),
-
-                  const SizedBox(height: 24),
-
-                  // Footer
-                  const Center(
-                    child: Text(
-                      'Generated by RFU Hub | Official England Rugby League Data',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon, {Widget? leadingWidget}) {
+  Widget _buildSectionHeader(String title, IconData icon, {required AppThemeMode theme, Widget? leadingWidget}) {
     return Row(
       children: [
         if (leadingWidget != null) ...[
           leadingWidget,
           const SizedBox(width: 10),
         ] else ...[
-          Icon(icon, color: plymstockGreenColor, size: 18),
+          Icon(icon, color: theme.surfaceBg, size: 18),
           const SizedBox(width: 8),
         ],
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              color: plymstockGreenColor,
+            style: TextStyle(
+              color: theme.surfaceBg,
               fontWeight: FontWeight.w900,
               fontSize: 14.5,
               letterSpacing: 0.5,
@@ -1044,7 +1074,7 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
-  Widget _buildPrintStandingsTable(List<StandingEntry> standings, String? highlightTeam) {
+  Widget _buildPrintStandingsTable(List<StandingEntry> standings, String? highlightTeam, AppThemeMode theme) {
     if (standings.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -1087,28 +1117,28 @@ class BookletPrintView extends StatelessWidget {
         },
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
-          // Header Row in Plymouth Oaks Green
-          const TableRow(
+          // Header Row in Theme Surface Color
+          TableRow(
             decoration: BoxDecoration(
-              color: plymstockGreenColor,
-              borderRadius: BorderRadius.only(
+              color: theme.surfaceBg,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5),
               ),
             ),
             children: [
-              _HeaderCell('#'),
-              _HeaderCell('CLUB', align: TextAlign.left),
-              _HeaderCell('P'),
-              _HeaderCell('W'),
-              _HeaderCell('D'),
-              _HeaderCell('L'),
-              _HeaderCell('PF'),
-              _HeaderCell('PA'),
-              _HeaderCell('+/-'),
-              _HeaderCell('TB'),
-              _HeaderCell('LB'),
-              _HeaderCell('PTS', isHighlight: true),
+              _HeaderCell('#', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('CLUB', align: TextAlign.left, accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('P', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('W', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('D', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('L', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('PF', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('PA', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('+/-', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('TB', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('LB', accentColor: theme.goldAccent, textColor: theme.textPrimary),
+              _HeaderCell('PTS', isHighlight: true, accentColor: theme.goldAccent, textColor: theme.textPrimary),
             ],
           ),
 
@@ -1148,10 +1178,9 @@ class BookletPrintView extends StatelessWidget {
                       Expanded(
                         child: Text(
                           s.teamName,
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isMatched ? FontWeight.w900 : FontWeight.w700,
+                            fontSize: 13,
+                            fontWeight: isMatched ? FontWeight.w900 : FontWeight.w600,
                             color: isMatched ? const Color(0xFF991B1B) : const Color(0xFF0F172A),
                           ),
                         ),
@@ -1159,19 +1188,21 @@ class BookletPrintView extends StatelessWidget {
                     ],
                   ),
                 ),
-                _buildCell('${s.played}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.won}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.drawn}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.lost}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.pointsFor}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.pointsAgainst}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.played}', textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.won}', isBold: true, textColor: isMatched ? const Color(0xFF991B1B) : const Color(0xFF16A34A)),
+                _buildCell('${s.drawn}', textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.lost}', textColor: isMatched ? const Color(0xFF991B1B) : const Color(0xFFDC2626)),
+                _buildCell('${s.pointsFor}', textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.pointsAgainst}', textColor: isMatched ? const Color(0xFF991B1B) : null),
                 _buildCell(
                   s.pointsDiff >= 0 ? '+${s.pointsDiff}' : '${s.pointsDiff}',
-                  fontSize: 12.5,
-                  textColor: s.pointsDiff >= 0 ? const Color(0xFF15803D) : const Color(0xFFDC2626),
+                  isBold: true,
+                  textColor: isMatched
+                      ? const Color(0xFF991B1B)
+                      : (s.pointsDiff >= 0 ? const Color(0xFF16A34A) : const Color(0xFFDC2626)),
                 ),
-                _buildCell('${s.tryBonus}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
-                _buildCell('${s.lossBonus}', fontSize: 12.5, textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.tryBonus}', textColor: isMatched ? const Color(0xFF991B1B) : null),
+                _buildCell('${s.lossBonus}', textColor: isMatched ? const Color(0xFF991B1B) : null),
                 _buildCell(
                   '${s.points}',
                   isBold: true,
@@ -1202,7 +1233,7 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
-  Widget _buildPrintFixtures(List<Fixture> fixtures, String? highlightTeam, Fixture? nextUpcoming) {
+  Widget _buildPrintFixtures(List<Fixture> fixtures, String? highlightTeam, Fixture? nextUpcoming, AppThemeMode theme) {
     if (fixtures.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -1230,31 +1261,31 @@ class BookletPrintView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Table Header in Plymouth Oaks Green
+          // Table Header in Theme Surface Color
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: const BoxDecoration(
-              color: plymstockGreenColor,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: theme.surfaceBg,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 SizedBox(
                   width: 320,
                   child: Text(
                     'DATE & ROUND',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: theme.textPrimary, letterSpacing: 0.5),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'HOME TEAM',
                     textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: theme.textPrimary, letterSpacing: 0.5),
                   ),
                 ),
                 SizedBox(
@@ -1262,7 +1293,7 @@ class BookletPrintView extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'SCORE',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFFDE68A), letterSpacing: 0.5),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: theme.goldAccent, letterSpacing: 0.5),
                     ),
                   ),
                 ),
@@ -1270,16 +1301,16 @@ class BookletPrintView extends StatelessWidget {
                   child: Text(
                     'AWAY TEAM',
                     textAlign: TextAlign.start,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: theme.textPrimary, letterSpacing: 0.5),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 SizedBox(
                   width: 76,
                   child: Center(
                     child: Text(
                       'STATUS',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: theme.textPrimary, letterSpacing: 0.5),
                     ),
                   ),
                 ),
@@ -1313,7 +1344,6 @@ class BookletPrintView extends StatelessWidget {
                     f.id == nextUpcoming.id));
 
               final isEven = index % 2 == 0;
-              // Alternating White & Light Grey rows (identical to Standings table); Next match in Bright Yellow
               final rowBg = isNextUpcoming
                   ? const Color(0xFFFEF08A) // Bright Yellow Highlight
                   : (isEven ? Colors.white : const Color(0xFFF9FAFB));
@@ -1351,7 +1381,7 @@ class BookletPrintView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
                                 color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 fullRound,
@@ -1366,55 +1396,42 @@ class BookletPrintView extends StatelessWidget {
                           if (isNextUpcoming) ...[
                             const SizedBox(width: 5),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFDC2626), // Bold Red Badge
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.star, size: 10, color: Colors.white),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    'NEXT MATCH',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 0.4,
-                                    ),
-                                  ),
-                                ],
+                              child: const Text(
+                                'NEXT MATCH',
+                                style: TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                           ],
-                          const SizedBox(width: 6),
-                          // KO Time Badge
+                          const Spacer(),
+                          // KO Time Box
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                             decoration: BoxDecoration(
                               color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFFEF3C7),
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFF59E0B),
-                                width: 0.8,
+                                width: 1,
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.access_time, size: 10, color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309)),
-                                const SizedBox(width: 2.5),
-                                Text(
-                                  'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309),
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.bold,
+                                color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309),
+                              ),
                             ),
                           ),
                         ],
@@ -1455,12 +1472,12 @@ class BookletPrintView extends StatelessWidget {
                       constraints: const BoxConstraints(minWidth: 54),
                       decoration: BoxDecoration(
                         color: isCompleted
-                            ? plymstockGreenColor
+                            ? theme.surfaceBg
                             : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
                           color: isCompleted
-                              ? const Color(0xFF004529)
+                              ? theme.cardBorder
                               : (isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFF59E0B)),
                           width: 1,
                         ),
@@ -1474,7 +1491,7 @@ class BookletPrintView extends StatelessWidget {
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
                             color: isCompleted
-                                ? Colors.white
+                                ? theme.textPrimary
                                 : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
                           ),
                         ),
@@ -1541,8 +1558,16 @@ class _HeaderCell extends StatelessWidget {
   final String text;
   final TextAlign align;
   final bool isHighlight;
+  final Color accentColor;
+  final Color textColor;
 
-  const _HeaderCell(this.text, {this.align = TextAlign.center, this.isHighlight = false});
+  const _HeaderCell(
+    this.text, {
+    this.align = TextAlign.center,
+    this.isHighlight = false,
+    required this.accentColor,
+    required this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1554,7 +1579,7 @@ class _HeaderCell extends StatelessWidget {
         style: TextStyle(
           fontSize: 11.5,
           fontWeight: FontWeight.w900,
-          color: isHighlight ? const Color(0xFFFDE68A) : Colors.white,
+          color: isHighlight ? accentColor : textColor,
           letterSpacing: 0.5,
         ),
       ),

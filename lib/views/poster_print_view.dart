@@ -12,7 +12,7 @@ class PosterPrintView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0F172A),
+      backgroundColor: AppTheme.darkBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text('A3 Poster Print View', style: TextStyle(color: AppTheme.goldAccent, fontSize: 16)),

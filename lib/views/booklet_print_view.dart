@@ -301,42 +301,42 @@ class BookletPrintView extends StatelessWidget {
               pw.NewPage(),
             ],
 
-            // SECTION 2: FIXTURES & RESULTS (CONDENSED 1-LINE PER FIXTURE ON NEXT PAGE)
+            // SECTION 2: FIXTURES & RESULTS (SPACIOUS 1-LINE PER FIXTURE ON PAGE 2)
             pw.Container(
-              margin: const pw.EdgeInsets.only(top: 4, bottom: 6),
+              margin: const pw.EdgeInsets.only(top: 4, bottom: 8),
               child: pw.Text(
                 isTeamFiltered
                     ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${sortedFixtures.length} MATCHES)'
                     : '2. FIXTURES & RESULTS — ALL ROUNDS (${sortedFixtures.length} MATCHES)',
                 style: pw.TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: pw.FontWeight.bold,
                   color: PdfColor.fromHex('#B45309'),
                 ),
               ),
             ),
             pw.Table(
-              border: pw.TableBorder.all(color: PdfColor.fromHex('#E5E7EB'), width: 0.5),
+              border: pw.TableBorder.all(color: PdfColor.fromHex('#E5E7EB'), width: 0.6),
               columnWidths: const {
-                0: pw.FixedColumnWidth(175), // Date, Round, KO & Next Match Badge
-                1: pw.FlexColumnWidth(3),    // Home Team
-                2: pw.FixedColumnWidth(48),  // Score / VS Box
-                3: pw.FlexColumnWidth(3),    // Away Team
-                4: pw.FixedColumnWidth(54),  // Status
+                0: pw.FixedColumnWidth(180), // Date, Round, KO & Next Match Badge
+                1: pw.FlexColumnWidth(3.2),  // Home Team
+                2: pw.FixedColumnWidth(52),  // Score / VS Box
+                3: pw.FlexColumnWidth(3.2),  // Away Team
+                4: pw.FixedColumnWidth(58),  // Status
               },
               children: [
                 // Header
                 pw.TableRow(
                   decoration: pw.BoxDecoration(color: PdfColor.fromHex('#0F172A')),
                   children: [
-                    _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left),
-                    _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right),
-                    _buildPdfHeaderCell('SCORE', align: pw.TextAlign.center),
-                    _buildPdfHeaderCell('AWAY TEAM', align: pw.TextAlign.left),
-                    _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center),
+                    _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left, fontSize: 9),
+                    _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right, fontSize: 9),
+                    _buildPdfHeaderCell('SCORE', align: pw.TextAlign.center, fontSize: 9),
+                    _buildPdfHeaderCell('AWAY TEAM', align: pw.TextAlign.left, fontSize: 9),
+                    _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9),
                   ],
                 ),
-                // Condensed Single-Line Fixture Rows
+                // Spacious Single-Line Fixture Rows to fill Page 2 nicely
                 ...sortedFixtures.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final f = entry.value;
@@ -367,7 +367,7 @@ class BookletPrintView extends StatelessWidget {
                     children: [
                       // Date, Round, KO Time & Next Match Badge on ONE Line
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                         child: pw.Row(
                           children: [
                             pw.Expanded(
@@ -376,7 +376,7 @@ class BookletPrintView extends StatelessWidget {
                                   pw.Text(
                                     shortDate,
                                     style: pw.TextStyle(
-                                      fontSize: 8,
+                                      fontSize: 8.5,
                                       fontWeight: pw.FontWeight.bold,
                                       color: isNextUpcoming ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937'),
                                     ),
@@ -384,7 +384,7 @@ class BookletPrintView extends StatelessWidget {
                                   if (shortRound.isNotEmpty) ...[
                                     pw.SizedBox(width: 3),
                                     pw.Container(
-                                      padding: const pw.EdgeInsets.symmetric(horizontal: 2.5, vertical: 1),
+                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
                                       decoration: pw.BoxDecoration(
                                         color: isNextUpcoming ? PdfColor.fromHex('#FDE68A') : PdfColor.fromHex('#E2E8F0'),
                                         borderRadius: pw.BorderRadius.circular(2),
@@ -392,7 +392,7 @@ class BookletPrintView extends StatelessWidget {
                                       child: pw.Text(
                                         shortRound,
                                         style: pw.TextStyle(
-                                          fontSize: 6.5,
+                                          fontSize: 7,
                                           fontWeight: pw.FontWeight.bold,
                                           color: isNextUpcoming ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#475569'),
                                         ),
@@ -402,7 +402,7 @@ class BookletPrintView extends StatelessWidget {
                                   if (isNextUpcoming) ...[
                                     pw.SizedBox(width: 3),
                                     pw.Container(
-                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
                                       decoration: pw.BoxDecoration(
                                         color: PdfColor.fromHex('#B45309'),
                                         borderRadius: pw.BorderRadius.circular(2),
@@ -410,7 +410,7 @@ class BookletPrintView extends StatelessWidget {
                                       child: pw.Text(
                                         'NEXT MATCH',
                                         style: pw.TextStyle(
-                                          fontSize: 6,
+                                          fontSize: 6.5,
                                           fontWeight: pw.FontWeight.bold,
                                           color: PdfColors.white,
                                         ),
@@ -421,7 +421,7 @@ class BookletPrintView extends StatelessWidget {
                               ),
                             ),
                             pw.Container(
-                              padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                              padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
                               decoration: pw.BoxDecoration(
                                 color: isNextUpcoming ? PdfColor.fromHex('#FDE68A') : PdfColor.fromHex('#FEF3C7'),
                                 borderRadius: pw.BorderRadius.circular(2),
@@ -433,7 +433,7 @@ class BookletPrintView extends StatelessWidget {
                               child: pw.Text(
                                 'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
                                 style: pw.TextStyle(
-                                  fontSize: 7,
+                                  fontSize: 7.5,
                                   fontWeight: pw.FontWeight.bold,
                                   color: PdfColor.fromHex('#B45309'),
                                 ),
@@ -445,12 +445,12 @@ class BookletPrintView extends StatelessWidget {
 
                       // Home Team
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                         child: pw.Text(
                           f.homeTeam,
                           textAlign: pw.TextAlign.right,
                           style: pw.TextStyle(
-                            fontSize: 8.5,
+                            fontSize: 9.5,
                             fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
                             color: isNextUpcoming
                                 ? PdfColor.fromHex('#92400E')
@@ -462,24 +462,24 @@ class BookletPrintView extends StatelessWidget {
                       // Score / VS Center Box
                       pw.Center(
                         child: pw.Container(
-                          margin: const pw.EdgeInsets.symmetric(vertical: 2),
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                          margin: const pw.EdgeInsets.symmetric(vertical: 3),
+                          padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: pw.BoxDecoration(
                             color: isCompleted
                                 ? PdfColor.fromHex('#0F172A')
                                 : (isNextUpcoming ? PdfColor.fromHex('#F59E0B') : PdfColor.fromHex('#FEF3C7')),
-                            borderRadius: pw.BorderRadius.circular(2),
+                            borderRadius: pw.BorderRadius.circular(3),
                             border: pw.Border.all(
                               color: isCompleted
                                   ? PdfColor.fromHex('#334155')
                                   : (isNextUpcoming ? PdfColor.fromHex('#B45309') : PdfColor.fromHex('#F59E0B')),
-                              width: 0.5,
+                              width: 0.6,
                             ),
                           ),
                           child: pw.Text(
                             isCompleted ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}' : 'VS',
                             style: pw.TextStyle(
-                              fontSize: 8,
+                              fontSize: 8.5,
                               fontWeight: pw.FontWeight.bold,
                               color: isCompleted
                                   ? PdfColors.white
@@ -491,12 +491,12 @@ class BookletPrintView extends StatelessWidget {
 
                       // Away Team
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                         child: pw.Text(
                           f.awayTeam,
                           textAlign: pw.TextAlign.left,
                           style: pw.TextStyle(
-                            fontSize: 8.5,
+                            fontSize: 9.5,
                             fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
                             color: isNextUpcoming
                                 ? PdfColor.fromHex('#92400E')
@@ -508,8 +508,8 @@ class BookletPrintView extends StatelessWidget {
                       // Status Badge
                       pw.Center(
                         child: pw.Container(
-                          margin: const pw.EdgeInsets.symmetric(vertical: 2),
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                          margin: const pw.EdgeInsets.symmetric(vertical: 3),
+                          padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
                           decoration: pw.BoxDecoration(
                             color: isCompleted
                                 ? PdfColor.fromHex('#DCFCE7')
@@ -518,7 +518,7 @@ class BookletPrintView extends StatelessWidget {
                           child: pw.Text(
                             isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
                             style: pw.TextStyle(
-                              fontSize: 7,
+                              fontSize: 7.5,
                               fontWeight: pw.FontWeight.bold,
                               color: isCompleted
                                   ? PdfColor.fromHex('#15803D')
@@ -540,14 +540,14 @@ class BookletPrintView extends StatelessWidget {
     return doc.save();
   }
 
-  pw.Widget _buildPdfHeaderCell(String text, {pw.TextAlign align = pw.TextAlign.center, bool isHighlight = false}) {
+  pw.Widget _buildPdfHeaderCell(String text, {pw.TextAlign align = pw.TextAlign.center, double fontSize = 9.5, bool isHighlight = false}) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 7),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 7.5),
       child: pw.Text(
         text,
         textAlign: align,
         style: pw.TextStyle(
-          fontSize: 9.5,
+          fontSize: fontSize,
           fontWeight: pw.FontWeight.bold,
           color: isHighlight ? PdfColor.fromHex('#F59E0B') : PdfColor.fromHex('#CBD5E1'),
         ),
@@ -1092,18 +1092,18 @@ class BookletPrintView extends StatelessWidget {
                     )
                   : null,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10.5),
             child: Row(
               children: [
                 // Date, Round, KO Time & Next Match Badge on ONE Single Line
                 SizedBox(
-                  width: 275,
+                  width: 285,
                   child: Row(
                     children: [
                       Text(
                         shortDate,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: isNextUpcoming ? const Color(0xFF92400E) : const Color(0xFF1F2937),
                         ),
@@ -1111,7 +1111,7 @@ class BookletPrintView extends StatelessWidget {
                       if (shortRound.isNotEmpty) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 2),
                           decoration: BoxDecoration(
                             color: isNextUpcoming ? const Color(0xFFFDE68A) : const Color(0xFFE2E8F0),
                             borderRadius: BorderRadius.circular(3),
@@ -1119,7 +1119,7 @@ class BookletPrintView extends StatelessWidget {
                           child: Text(
                             shortRound,
                             style: TextStyle(
-                              fontSize: 9.5,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: isNextUpcoming ? const Color(0xFF92400E) : const Color(0xFF475569),
                             ),
@@ -1129,7 +1129,7 @@ class BookletPrintView extends StatelessWidget {
                       if (isNextUpcoming) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFFB45309),
                             borderRadius: BorderRadius.circular(3),
@@ -1137,12 +1137,12 @@ class BookletPrintView extends StatelessWidget {
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.star, size: 9, color: Colors.white),
-                              SizedBox(width: 2),
+                              Icon(Icons.star, size: 9.5, color: Colors.white),
+                              SizedBox(width: 2.5),
                               Text(
                                 'NEXT MATCH',
                                 style: TextStyle(
-                                  fontSize: 8.5,
+                                  fontSize: 9,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
                                   letterSpacing: 0.4,
@@ -1155,7 +1155,7 @@ class BookletPrintView extends StatelessWidget {
                       const SizedBox(width: 5),
                       // KO Time Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
                         decoration: BoxDecoration(
                           color: isNextUpcoming ? const Color(0xFFFDE68A) : const Color(0xFFFEF3C7),
                           borderRadius: BorderRadius.circular(3),
@@ -1167,12 +1167,12 @@ class BookletPrintView extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.access_time, size: 9.5, color: Color(0xFFB45309)),
+                            const Icon(Icons.access_time, size: 10, color: Color(0xFFB45309)),
                             const SizedBox(width: 2.5),
                             Text(
                               'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
                               style: const TextStyle(
-                                fontSize: 9.5,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFFB45309),
                               ),
@@ -1197,7 +1197,7 @@ class BookletPrintView extends StatelessWidget {
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 12.5,
                             fontWeight: (isHomeMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
                             color: isNextUpcoming
                                 ? const Color(0xFF92400E)
@@ -1206,7 +1206,7 @@ class BookletPrintView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      _buildTeamLogo(f.homeTeam, f.homeLogoUrl, size: 18),
+                      _buildTeamLogo(f.homeTeam, f.homeLogoUrl, size: 20),
                     ],
                   ),
                 ),
@@ -1214,8 +1214,8 @@ class BookletPrintView extends StatelessWidget {
                 // Score / VS Box
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  constraints: const BoxConstraints(minWidth: 52),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  constraints: const BoxConstraints(minWidth: 54),
                   decoration: BoxDecoration(
                     color: isCompleted
                         ? const Color(0xFF0F172A)
@@ -1234,7 +1234,7 @@ class BookletPrintView extends StatelessWidget {
                           ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
                           : 'VS',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         color: isCompleted
                             ? Colors.white
@@ -1248,14 +1248,14 @@ class BookletPrintView extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      _buildTeamLogo(f.awayTeam, f.awayLogoUrl, size: 18),
+                      _buildTeamLogo(f.awayTeam, f.awayLogoUrl, size: 20),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
                           f.awayTeam,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 12.5,
                             fontWeight: (isAwayMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
                             color: isNextUpcoming
                                 ? const Color(0xFF92400E)
@@ -1271,7 +1271,7 @@ class BookletPrintView extends StatelessWidget {
 
                 // Status Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                   decoration: BoxDecoration(
                     color: isCompleted
                         ? const Color(0xFFDCFCE7)
@@ -1281,7 +1281,7 @@ class BookletPrintView extends StatelessWidget {
                   child: Text(
                     isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 8.5,
+                      fontSize: 9,
                       fontWeight: FontWeight.bold,
                       color: isCompleted
                           ? const Color(0xFF15803D)

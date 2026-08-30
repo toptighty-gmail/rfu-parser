@@ -233,17 +233,44 @@ class BookletPrintView extends StatelessWidget {
         },
         build: (pw.Context context) {
           return [
-            // SECTION 1: STANDINGS TABLE (EXPANDED TO COMFORTABLY FILL A4 PAGE 1)
+            // SECTION 1: STANDINGS TABLE (PAGE 1 WITH CONTEXT TEAM LOGO IN HEADER)
             if (divisionData.standings.isNotEmpty) ...[
               pw.Container(
                 margin: const pw.EdgeInsets.only(bottom: 8),
-                child: pw.Text(
-                  '1. LEAGUE TABLE STANDINGS',
-                  style: pw.TextStyle(
-                    fontSize: 13,
-                    fontWeight: pw.FontWeight.bold,
-                    color: PdfColor.fromHex('#B45309'),
-                  ),
+                child: pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    if (isTeamFiltered) ...[
+                      pw.Container(
+                        width: 18,
+                        height: 18,
+                        margin: const pw.EdgeInsets.only(right: 6),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColor.fromHex('#1E293B'),
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1),
+                        ),
+                        child: pw.Center(
+                          child: pw.Text(
+                            filterTeam!.trim().substring(0, 1).toUpperCase(),
+                            style: pw.TextStyle(
+                              color: PdfColor.fromHex('#F59E0B'),
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    pw.Text(
+                      '1. LEAGUE TABLE STANDINGS',
+                      style: pw.TextStyle(
+                        fontSize: 13,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColor.fromHex('#B45309'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               pw.Table(
@@ -281,7 +308,7 @@ class BookletPrintView extends StatelessWidget {
                       _buildPdfHeaderCell('PTS', isHighlight: true),
                     ],
                   ),
-                  // Table Rows: Context Team highlighted in BRIGHT YELLOW with BOLD RED ACCENT
+                  // Table Rows: Context Team highlighted in BRIGHT YELLOW with RED BORDER
                   ...divisionData.standings.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final s = entry.value;
@@ -345,23 +372,6 @@ class BookletPrintView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (isMatched) ...[
-                                pw.Container(
-                                  padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
-                                  decoration: pw.BoxDecoration(
-                                    color: PdfColor.fromHex('#DC2626'),
-                                    borderRadius: pw.BorderRadius.circular(2),
-                                  ),
-                                  child: pw.Text(
-                                    'MY CLUB',
-                                    style: pw.TextStyle(
-                                      color: PdfColors.white,
-                                      fontSize: 6.5,
-                                      fontWeight: pw.FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ),
@@ -393,7 +403,7 @@ class BookletPrintView extends StatelessWidget {
               pw.NewPage(),
             ],
 
-            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH TEAM LOGO IN CONTEXT)
+            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH ALTERNATING WHITE/GREY ROWS + YELLOW/RED NEXT MATCH)
             pw.Container(
               margin: const pw.EdgeInsets.only(top: 4, bottom: 8),
               child: pw.Row(
@@ -456,7 +466,7 @@ class BookletPrintView extends StatelessWidget {
                     _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9),
                   ],
                 ),
-                // Fixture Rows: Next Upcoming Match Highlighted in BRIGHT YELLOW with RED BORDER
+                // Fixture Rows: Alternating White & Grey (Consistent with Standings), Next Match in Bright Yellow / Red Border
                 ...sortedFixtures.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final f = entry.value;
@@ -473,11 +483,10 @@ class BookletPrintView extends StatelessWidget {
                   final isNextUpcoming = identical(f, nextUpcomingFixture) ||
                       (nextUpcomingFixture != null && f.id == nextUpcomingFixture.id);
 
+                  // Alternating White & Light Grey for standard rows; Bright Yellow ONLY for Next Upcoming Match
                   final rowBg = isNextUpcoming
                       ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
-                      : ((isHomeMatched || isAwayMatched)
-                          ? PdfColor.fromHex('#FFFBEB')
-                          : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#FAFAFA')));
+                      : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
 
                   final shortDate = _formatShortDate(f);
                   final shortRound = _formatShortRound(f.roundNum);
@@ -903,8 +912,12 @@ class BookletPrintView extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // SECTION 1: LEAGUE TABLE STANDINGS (LARGE, PROMINENT & SPACIOUS)
-                  _buildSectionHeader('1. LEAGUE TABLE STANDINGS', Icons.table_chart),
+                  // SECTION 1: LEAGUE TABLE STANDINGS (WITH CONTEXT TEAM LOGO IN HEADER)
+                  _buildSectionHeader(
+                    '1. LEAGUE TABLE STANDINGS',
+                    Icons.table_chart,
+                    leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
+                  ),
                   const SizedBox(height: 10),
                   _buildPrintStandingsTable(divisionData.standings, filterTeam),
 
@@ -956,7 +969,7 @@ class BookletPrintView extends StatelessWidget {
                         ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${activeFixtures.length} MATCHES)'
                         : '2. FIXTURES & RESULTS — ALL ROUNDS (${activeFixtures.length} MATCHES)',
                     Icons.event,
-                    leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 22) : null,
+                    leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
                   ),
                   const SizedBox(height: 10),
                   _buildPrintFixtures(activeFixtures, filterTeam, nextUpcoming),
@@ -984,7 +997,7 @@ class BookletPrintView extends StatelessWidget {
       children: [
         if (leadingWidget != null) ...[
           leadingWidget,
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
         ] else ...[
           Icon(icon, color: const Color(0xFFB45309), size: 18),
           const SizedBox(width: 8),
@@ -1072,7 +1085,7 @@ class BookletPrintView extends StatelessWidget {
             ],
           ),
 
-          // Data Rows with bright yellow highlight & red border for context team
+          // Data Rows with clean alternating rows; context team in bright yellow with red border
           ...standings.asMap().entries.map((entry) {
             final idx = entry.key;
             final s = entry.value;
@@ -1116,24 +1129,6 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (isMatched) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFDC2626),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'MY CLUB',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -1243,11 +1238,10 @@ class BookletPrintView extends StatelessWidget {
           final isNextUpcoming = (nextUpcoming != null && (identical(f, nextUpcoming) || f.id == nextUpcoming.id));
 
           final isEven = index % 2 == 0;
+          // Alternating White & Light Grey rows (identical to Standings table); Next match in Bright Yellow
           final rowBg = isNextUpcoming
               ? const Color(0xFFFEF08A) // Bright Yellow Highlight
-              : ((isHomeMatched || isAwayMatched)
-                  ? const Color(0xFFFFFBEB)
-                  : (isEven ? Colors.white : const Color(0xFFFAFAFA)));
+              : (isEven ? Colors.white : const Color(0xFFF9FAFB));
 
           final shortDate = _formatShortDate(f);
           final shortRound = _formatShortRound(f.roundNum);

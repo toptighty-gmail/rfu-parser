@@ -225,7 +225,12 @@ class _HomeViewState extends State<HomeView> {
     if (data != null) {
       // Only persist to Supabase if data came from a real source (live crawl / Supabase).
       // Offline-generated (mock) data must NEVER overwrite the database.
-      if (!data.isOfflineGenerated) {
+      // Also, if the backend returns crawled data but the source_url is empty, it means the backend fell back to generated data.
+      final bool hasValidSourceUrl = data.sourceUrl != null && 
+                                     data.sourceUrl!.trim().isNotEmpty && 
+                                     data.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+
+      if (!data.isOfflineGenerated && hasValidSourceUrl) {
         SupabaseService.upsertDivisionData(data);
       }
 

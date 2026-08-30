@@ -5,17 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum AppThemeMode {
   englandRfuOfficial(
     id: 'england_rfu_official',
-    title: 'Navy & Rose Red (Official RFU)',
-    subtitle: 'Official England Rugby & RFU Website Theme (Deep Navy, Rose Red & White)',
-    darkBg: Color(0xFF081026),
-    surfaceBg: Color(0xFF0F1E3D),
-    cardBorder: Color(0x33E11D48),
-    goldAccent: Color(0xFFE11D48), // England Rugby Rose Red
-    tertiaryAccent: Color(0xFFF59E0B), // Championship Gold
+    title: 'RFU Navy & Cyan (Official Website)',
+    subtitle: 'Exact Official RFU Colors: #141B4D RFU Navy, #00D0FF Electric Cyan & Rose Red',
+    darkBg: Color(0xFF0D1338), // Official England Rugby Deep Navy
+    surfaceBg: Color(0xFF141B4D), // Exact crawled CSS --ssa-color-palette-rfu-navy: rgb(20, 27, 77)
+    cardBorder: Color(0x4440E3FF), // Exact RFU cyan glow border: rgb(64, 227, 255)
+    goldAccent: Color(0xFF00D0FF), // Exact RFU lightblue gradient: rgb(0, 208, 255)
+    tertiaryAccent: Color(0xFFB61626), // Exact RFU Rose Red: rgb(182, 22, 38)
     emeraldAccent: Color(0xFF10B981),
-    rubyAccent: Color(0xFFDC2626),
+    rubyAccent: Color(0xFFB61626), // Official Rose Red
     textPrimary: Color(0xFFFFFFFF),
-    textMuted: Color(0xFF94A3B8),
+    textMuted: Color(0xFF9497B0),
   ),
   plymouthOaks(
     id: 'plymouth_oaks',

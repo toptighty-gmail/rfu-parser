@@ -142,13 +142,13 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF081026),
+                                          color: const Color(0xFF141B4D),
                                           borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFFE11D48)),
+                                          border: Border.all(color: const Color(0xFF00D0FF)),
                                         ),
                                         child: const Text(
                                           'OFFICIAL RFU',
-                                          style: TextStyle(color: Color(0xFFE11D48), fontSize: 9, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: Color(0xFF00D0FF), fontSize: 9, fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ],

@@ -184,6 +184,22 @@ class _HomeViewState extends State<HomeView> {
       data = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
     }
 
+    // 4b. Ensure Fixtures are always populated even if database only had standings
+    if (data != null && data.fixtures.isEmpty && targetDivision != null) {
+      final fallbackData = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
+      data = DivisionData(
+        divisionName: data.divisionName,
+        season: data.season,
+        rfuCompetitionId: data.rfuCompetitionId,
+        rfuDivisionId: data.rfuDivisionId,
+        tierLevel: data.tierLevel,
+        region: data.region,
+        sourceUrl: data.sourceUrl,
+        standings: data.standings,
+        fixtures: fallbackData.fixtures,
+      );
+    }
+
     // 5. Fetch custom fixtures ONLY when viewing a team context
     // In pure division context, show only official RFU league fixtures!
     final customFixtures = hasTeam

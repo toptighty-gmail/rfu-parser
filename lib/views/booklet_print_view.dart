@@ -296,7 +296,6 @@ class BookletPrintView extends StatelessWidget {
     final primaryPdf = _toPdfColor(theme.darkBg);
     final surfacePdf = _toPdfColor(theme.surfaceBg);
     final accentPdf = _toPdfColor(theme.goldAccent);
-    final tertiaryPdf = _toPdfColor(theme.tertiaryAccent);
     final borderPdf = _toPdfColor(theme.cardBorder);
     final textPrimaryPdf = _toPdfColor(theme.textPrimary);
     final textMutedPdf = _toPdfColor(theme.textMuted);
@@ -659,10 +658,12 @@ class BookletPrintView extends StatelessWidget {
                                         padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
                                         decoration: pw.BoxDecoration(
                                           color: isNextUpcoming
-                                              ? PdfColor.fromHex('#FDE047')
-                                              : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
-                                                  ? tertiaryPdf
-                                                  : PdfColor.fromHex('#E2E8F0')),
+                                              ? PdfColor.fromHex('#DC2626')
+                                              : (f.isCustom || fullRound.toLowerCase().contains('friendly')
+                                                  ? PdfColor.fromHex('#FACC15') // Vivid Radiant Yellow
+                                                  : (fullRound.toLowerCase().contains('cup')
+                                                      ? PdfColor.fromHex('#A855F7') // Vivid Purple
+                                                      : PdfColor.fromHex('#E2E8F0'))),
                                           borderRadius: pw.BorderRadius.circular(2),
                                         ),
                                         child: pw.Text(
@@ -671,10 +672,12 @@ class BookletPrintView extends StatelessWidget {
                                             fontSize: 6.8,
                                             fontWeight: pw.FontWeight.bold,
                                             color: isNextUpcoming
-                                                ? PdfColor.fromHex('#991B1B')
-                                                : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
-                                                    ? PdfColors.white
-                                                    : PdfColor.fromHex('#475569')),
+                                                ? PdfColors.white
+                                                : (f.isCustom || fullRound.toLowerCase().contains('friendly')
+                                                    ? PdfColor.fromHex('#0F172A') // High contrast dark
+                                                    : (fullRound.toLowerCase().contains('cup')
+                                                        ? PdfColors.white
+                                                        : PdfColor.fromHex('#475569'))),
                                           ),
                                         ),
                                       ),
@@ -1518,10 +1521,12 @@ class BookletPrintView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
                                 color: isNextUpcoming
-                                    ? const Color(0xFFFDE047)
-                                    : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
-                                        ? theme.tertiaryAccent.withValues(alpha: 0.2)
-                                        : const Color(0xFFE2E8F0)),
+                                    ? const Color(0xFFFF1E27)
+                                    : (f.isCustom || fullRound.toLowerCase().contains('friendly')
+                                        ? const Color(0xFFFACC15) // Vivid Yellow
+                                        : (fullRound.toLowerCase().contains('cup')
+                                            ? const Color(0xFFA855F7) // Vivid Purple
+                                            : const Color(0xFFE2E8F0))),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -1530,10 +1535,12 @@ class BookletPrintView extends StatelessWidget {
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: isNextUpcoming
-                                      ? const Color(0xFF991B1B)
-                                      : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
-                                          ? theme.tertiaryAccent
-                                          : const Color(0xFF475569)),
+                                      ? Colors.white
+                                      : (f.isCustom || fullRound.toLowerCase().contains('friendly')
+                                          ? const Color(0xFF0F172A) // High contrast dark
+                                          : (fullRound.toLowerCase().contains('cup')
+                                              ? Colors.white
+                                              : const Color(0xFF475569))),
                                 ),
                               ),
                             ),
@@ -1543,8 +1550,14 @@ class BookletPrintView extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFDC2626), // Bold Red Badge
+                                color: const Color(0xFFFF1E27), // Vivid Bright Red Badge
                                 borderRadius: BorderRadius.circular(4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFFF1E27).withValues(alpha: 0.4),
+                                    blurRadius: 6,
+                                  ),
+                                ],
                               ),
                               child: const Text(
                                 'NEXT MATCH',

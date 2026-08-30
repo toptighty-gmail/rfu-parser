@@ -89,11 +89,17 @@ class FixtureCard extends StatelessWidget {
                   if (isNextFixture)
                     Container(
                       margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
                       decoration: BoxDecoration(
-                        color: AppTheme.rubyAccent.withValues(alpha: 0.22),
+                        color: const Color(0xFFFF1E27), // Vivid Bright Red
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppTheme.rubyAccent.withValues(alpha: 0.9), width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF1E27).withValues(alpha: 0.45),
+                            blurRadius: 8,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -101,19 +107,19 @@ class FixtureCard extends StatelessWidget {
                           Container(
                             width: 6,
                             height: 6,
-                            decoration: BoxDecoration(
-                              color: AppTheme.rubyAccent,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
                               shape: BoxShape.circle,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          Text(
+                          const Text(
                             'NEXT UP',
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
-                              color: AppTheme.rubyAccent,
+                              letterSpacing: 0.6,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -124,33 +130,37 @@ class FixtureCard extends StatelessWidget {
                       builder: (context) {
                         final isCup = fixture.competition.toLowerCase().contains('cup') ||
                             fixture.roundNum.toLowerCase().contains('cup');
-                        final badgeColor = isCup ? AppTheme.goldAccent : AppTheme.tertiaryAccent;
+                        final badgeBg = isCup ? const Color(0xFFA855F7) : const Color(0xFFFACC15); // Vivid Purple / Vivid Yellow
+                        final badgeFg = isCup ? Colors.white : const Color(0xFF0F172A); // High Contrast Dark on Yellow
                         return Container(
                           margin: const EdgeInsets.only(right: 6),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
                           decoration: BoxDecoration(
-                            color: badgeColor.withValues(alpha: 0.2),
+                            color: badgeBg,
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: badgeColor.withValues(alpha: 0.8),
-                              width: 1,
-                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: badgeBg.withValues(alpha: 0.35),
+                                blurRadius: 6,
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 isCup ? Icons.emoji_events : Icons.sports_rugby,
-                                size: 10,
-                                color: badgeColor,
+                                size: 10.5,
+                                color: badgeFg,
                               ),
-                              const SizedBox(width: 3),
+                              const SizedBox(width: 3.5),
                               Text(
                                 isCup ? 'CUP' : 'FRIENDLY',
                                 style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                  color: badgeColor,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.5,
+                                  color: badgeFg,
                                 ),
                               ),
                             ],
@@ -366,19 +376,24 @@ class FixtureCard extends StatelessWidget {
                     if (isNextFixture)
                       Container(
                         margin: const EdgeInsets.only(right: 5),
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.rubyAccent.withValues(alpha: 0.22),
+                          color: const Color(0xFFFF1E27), // Vivid Bright Red
                           borderRadius: BorderRadius.circular(3),
-                          border: Border.all(color: AppTheme.rubyAccent.withValues(alpha: 0.9), width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF1E27).withValues(alpha: 0.4),
+                              blurRadius: 6,
+                            ),
+                          ],
                         ),
-                        child: Text(
+                        child: const Text(
                           'NEXT UP',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: 8.5,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 0.4,
-                            color: AppTheme.rubyAccent,
+                            letterSpacing: 0.5,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -387,21 +402,22 @@ class FixtureCard extends StatelessWidget {
                         builder: (_) {
                           final isCup = fixture.competition.toLowerCase().contains('cup') ||
                               fixture.roundNum.toLowerCase().contains('cup');
-                          final badgeColor = isCup ? AppTheme.goldAccent : AppTheme.tertiaryAccent;
+                          final badgeBg = isCup ? const Color(0xFFA855F7) : const Color(0xFFFACC15); // Vivid Yellow for Friendly
+                          final badgeFg = isCup ? Colors.white : const Color(0xFF0F172A); // High Contrast Dark
                           return Container(
                             margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: badgeColor.withValues(alpha: 0.2),
+                              color: badgeBg,
                               borderRadius: BorderRadius.circular(3),
-                              border: Border.all(color: badgeColor.withValues(alpha: 0.8), width: 1),
                             ),
                             child: Text(
                               isCup ? 'CUP' : 'FRIENDLY',
                               style: TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                                color: badgeColor,
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4,
+                                color: badgeFg,
                               ),
                             ),
                           );

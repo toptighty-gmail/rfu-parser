@@ -51,8 +51,10 @@ class FixtureCard extends StatelessWidget {
         (fixture.homeScore != null && fixture.awayScore != null);
 
     final cleanFilter = filterTeam?.trim();
-    final isHomeMatched = FixtureList.isExactTeamMatch(fixture.homeTeam, cleanFilter);
-    final isAwayMatched = FixtureList.isExactTeamMatch(fixture.awayTeam, cleanFilter);
+    final isHomeMatched = FixtureList.isExactTeamMatch(fixture.homeTeam, cleanFilter) ||
+        (fixture.isCustom && fixture.homeTeam.toLowerCase().contains(cleanFilter?.toLowerCase() ?? ''));
+    final isAwayMatched = FixtureList.isExactTeamMatch(fixture.awayTeam, cleanFilter) ||
+        (fixture.isCustom && fixture.awayTeam.toLowerCase().contains(cleanFilter?.toLowerCase() ?? ''));
 
     if (isDesktop) {
       // Desktop / Tablet Single-Row Sleek Layout

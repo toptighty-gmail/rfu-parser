@@ -61,6 +61,16 @@ class FixtureList extends StatelessWidget {
 
     final activeFixtures = isTeamFiltered
         ? fixtures.where((f) {
+            // For custom fixtures (e.g. Friendlies / Cup entries entered in admin mode)
+            if (f.isCustom) {
+              if (f.contextTeam != null && isExactTeamMatch(f.contextTeam!, cleanFilter)) return true;
+              if (isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter)) return true;
+              final cleanLower = cleanFilter.toLowerCase();
+              final baseWords = cleanLower.split(' ').where((w) => w.length > 3 && !['club', 'rugby'].contains(w)).toList();
+              for (var w in baseWords) {
+                if (f.homeTeam.toLowerCase().contains(w) || f.awayTeam.toLowerCase().contains(w)) return true;
+              }
+            }
             return isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter);
           }).toList()
         : fixtures;

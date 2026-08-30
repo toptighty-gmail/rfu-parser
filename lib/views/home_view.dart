@@ -258,7 +258,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildTabButton(String tabId, String label, IconData icon, AppThemeMode theme) {
     final isActive = _activeTab == tabId;
-    final activeTextColor = Colors.black;
+    final activeTextColor = theme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black;
     return InkWell(
       onTap: () => setState(() => _activeTab = tabId),
       borderRadius: BorderRadius.circular(8),
@@ -578,14 +578,18 @@ class _HomeViewState extends State<HomeView> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.shield, size: 15, color: Colors.black),
+                                          Icon(
+                                            Icons.shield,
+                                            size: 15,
+                                            color: currentTheme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black,
+                                          ),
                                           const SizedBox(width: 6),
                                           Text(
                                             'TEAM: ${_searchController.text.trim().toUpperCase()}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11.5,
                                               fontWeight: FontWeight.w900,
-                                              color: Colors.black,
+                                              color: currentTheme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black,
                                               letterSpacing: 0.6,
                                             ),
                                           ),

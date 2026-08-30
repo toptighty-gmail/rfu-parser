@@ -3,6 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode {
+  englandRfuOfficial(
+    id: 'england_rfu_official',
+    title: 'Navy & Rose Red (Official RFU)',
+    subtitle: 'Official England Rugby & RFU Website Theme (Deep Navy, Rose Red & White)',
+    darkBg: Color(0xFF081026),
+    surfaceBg: Color(0xFF0F1E3D),
+    cardBorder: Color(0x33E11D48),
+    goldAccent: Color(0xFFE11D48), // England Rugby Rose Red
+    tertiaryAccent: Color(0xFFF59E0B), // Championship Gold
+    emeraldAccent: Color(0xFF10B981),
+    rubyAccent: Color(0xFFDC2626),
+    textPrimary: Color(0xFFFFFFFF),
+    textMuted: Color(0xFF94A3B8),
+  ),
   plymouthOaks(
     id: 'plymouth_oaks',
     title: 'Green & Gold',

@@ -66,6 +66,7 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                 final isCurrent = _selected == mode;
                 final isOriginal = mode == AppThemeMode.rfuChampionship;
                 final isPlymouthOaks = mode == AppThemeMode.plymouthOaks;
+                final isRfuOfficial = mode == AppThemeMode.englandRfuOfficial;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -136,6 +137,21 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                                         fontSize: 14.5,
                                       ),
                                     ),
+                                    if (isRfuOfficial) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF081026),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFE11D48)),
+                                        ),
+                                        child: const Text(
+                                          'OFFICIAL RFU',
+                                          style: TextStyle(color: Color(0xFFE11D48), fontSize: 9, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
                                     if (isPlymouthOaks) ...[
                                       const SizedBox(width: 8),
                                       Container(

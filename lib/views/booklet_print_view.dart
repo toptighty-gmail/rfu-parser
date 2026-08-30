@@ -83,6 +83,15 @@ class BookletPrintView extends StatelessWidget {
     if (customLogosMap.containsKey(clean)) {
       return customLogosMap[clean];
     }
+    // Alias match for OPMs / Old Plymothian
+    if (clean == 'opms' || clean == 'opm' || clean == 'opms ii' || clean.contains('plymothian')) {
+      for (var entry in customLogosMap.entries) {
+        final k = entry.key.toLowerCase();
+        if (k.contains('plymothian') || k == 'opms' || k == 'opm') {
+          return entry.value;
+        }
+      }
+    }
     for (var s in divisionData.standings) {
       if (s.teamName.trim().toLowerCase() == clean && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
         return s.logoUrl;
@@ -476,208 +485,213 @@ class BookletPrintView extends StatelessWidget {
                     _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9),
                   ],
                 ),
-                // Fixture Rows: Alternating White & Grey; Full Date + Full Round Name; Next Match in Bright Yellow / Red Border
-                ...sortedFixtures.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final f = entry.value;
-                  final isHomeMatched = cleanHighlight != null &&
-                      cleanHighlight.isNotEmpty &&
-                      f.homeTeam.toLowerCase().contains(cleanHighlight);
-                  final isAwayMatched = cleanHighlight != null &&
-                      cleanHighlight.isNotEmpty &&
-                      f.awayTeam.toLowerCase().contains(cleanHighlight);
+                // Fixture Rows: Dynamic vertical padding to fill the A4 page; Next Match in Bright Yellow / Red Border
+                ...(() {
+                  final double pdfRowPad = ((630.0 / (sortedFixtures.isNotEmpty ? sortedFixtures.length : 1) - 13.0) / 2.0).clamp(2.5, 18.0);
+                  final double pdfBoxMargin = (pdfRowPad * 0.35).clamp(1.0, 5.0);
 
-                  final isCompleted = f.status.toLowerCase() == 'completed' ||
-                      (f.homeScore != null && f.awayScore != null);
+                  return sortedFixtures.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final f = entry.value;
+                    final isHomeMatched = cleanHighlight != null &&
+                        cleanHighlight.isNotEmpty &&
+                        f.homeTeam.toLowerCase().contains(cleanHighlight);
+                    final isAwayMatched = cleanHighlight != null &&
+                        cleanHighlight.isNotEmpty &&
+                        f.awayTeam.toLowerCase().contains(cleanHighlight);
 
-                  final isNextUpcoming = identical(f, nextUpcomingFixture) ||
-                      (nextUpcomingFixture?.id != null &&
-                       nextUpcomingFixture!.id!.isNotEmpty &&
-                       f.id != null &&
-                       f.id == nextUpcomingFixture.id);
+                    final isCompleted = f.status.toLowerCase() == 'completed' ||
+                        (f.homeScore != null && f.awayScore != null);
 
-                  // Alternating White & Light Grey for standard rows; Bright Yellow ONLY for Next Upcoming Match
-                  final rowBg = isNextUpcoming
-                      ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
-                      : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
+                    final isNextUpcoming = identical(f, nextUpcomingFixture) ||
+                        (nextUpcomingFixture?.id != null &&
+                         nextUpcomingFixture!.id!.isNotEmpty &&
+                         f.id != null &&
+                         f.id == nextUpcomingFixture.id);
 
-                  final fullDate = _formatFullDate(f);
-                  final fullRound = _formatFullRound(f.roundNum);
+                    // Alternating White & Light Grey for standard rows; Bright Yellow ONLY for Next Upcoming Match
+                    final rowBg = isNextUpcoming
+                        ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
+                        : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
 
-                  return pw.TableRow(
-                    decoration: pw.BoxDecoration(
-                      color: rowBg,
-                      border: isNextUpcoming
-                          ? pw.Border.all(color: PdfColor.fromHex('#DC2626'), width: 1.5) // Red Border
-                          : null,
-                    ),
-                    children: [
-                      // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Clean Line
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                        child: pw.Row(
-                          children: [
-                            pw.Expanded(
-                              child: pw.Row(
-                                children: [
-                                  pw.Text(
-                                    fullDate,
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      fontWeight: pw.FontWeight.bold,
-                                      color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#1F2937'),
+                    final fullDate = _formatFullDate(f);
+                    final fullRound = _formatFullRound(f.roundNum);
+
+                    return pw.TableRow(
+                      decoration: pw.BoxDecoration(
+                        color: rowBg,
+                        border: isNextUpcoming
+                            ? pw.Border.all(color: PdfColor.fromHex('#DC2626'), width: 1.5) // Red Border
+                            : null,
+                      ),
+                      children: [
+                        // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Clean Line
+                        pw.Padding(
+                          padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: pdfRowPad),
+                          child: pw.Row(
+                            children: [
+                              pw.Expanded(
+                                child: pw.Row(
+                                  children: [
+                                    pw.Text(
+                                      fullDate,
+                                      style: pw.TextStyle(
+                                        fontSize: 8,
+                                        fontWeight: pw.FontWeight.bold,
+                                        color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#1F2937'),
+                                      ),
                                     ),
+                                    if (fullRound.isNotEmpty) ...[
+                                      pw.SizedBox(width: 3),
+                                      pw.Container(
+                                        padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
+                                        decoration: pw.BoxDecoration(
+                                          color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#E2E8F0'),
+                                          borderRadius: pw.BorderRadius.circular(2),
+                                        ),
+                                        child: pw.Text(
+                                          fullRound,
+                                          style: pw.TextStyle(
+                                            fontSize: 6.8,
+                                            fontWeight: pw.FontWeight.bold,
+                                            color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#475569'),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    if (isNextUpcoming) ...[
+                                      pw.SizedBox(width: 3),
+                                      pw.Container(
+                                        padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
+                                        decoration: pw.BoxDecoration(
+                                          color: PdfColor.fromHex('#DC2626'), // Bold Red Badge
+                                          borderRadius: pw.BorderRadius.circular(2),
+                                        ),
+                                        child: pw.Text(
+                                          'NEXT MATCH',
+                                          style: pw.TextStyle(
+                                            fontSize: 6.5,
+                                            fontWeight: pw.FontWeight.bold,
+                                            color: PdfColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              pw.Container(
+                                padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
+                                decoration: pw.BoxDecoration(
+                                  color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#FEF3C7'),
+                                  borderRadius: pw.BorderRadius.circular(2),
+                                  border: pw.Border.all(
+                                    color: isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#F59E0B'),
+                                    width: 0.6,
                                   ),
-                                  if (fullRound.isNotEmpty) ...[
-                                    pw.SizedBox(width: 3),
-                                    pw.Container(
-                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
-                                      decoration: pw.BoxDecoration(
-                                        color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#E2E8F0'),
-                                        borderRadius: pw.BorderRadius.circular(2),
-                                      ),
-                                      child: pw.Text(
-                                        fullRound,
-                                        style: pw.TextStyle(
-                                          fontSize: 6.8,
-                                          fontWeight: pw.FontWeight.bold,
-                                          color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#475569'),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  if (isNextUpcoming) ...[
-                                    pw.SizedBox(width: 3),
-                                    pw.Container(
-                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
-                                      decoration: pw.BoxDecoration(
-                                        color: PdfColor.fromHex('#DC2626'), // Bold Red Badge
-                                        borderRadius: pw.BorderRadius.circular(2),
-                                      ),
-                                      child: pw.Text(
-                                        'NEXT MATCH',
-                                        style: pw.TextStyle(
-                                          fontSize: 6.5,
-                                          fontWeight: pw.FontWeight.bold,
-                                          color: PdfColors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            pw.Container(
-                              padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
-                              decoration: pw.BoxDecoration(
-                                color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#FEF3C7'),
-                                borderRadius: pw.BorderRadius.circular(2),
-                                border: pw.Border.all(
-                                  color: isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#F59E0B'),
-                                  width: 0.6,
+                                ),
+                                child: pw.Text(
+                                  'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
+                                  style: pw.TextStyle(
+                                    fontSize: 7.2,
+                                    fontWeight: pw.FontWeight.bold,
+                                    color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#B45309'),
+                                  ),
                                 ),
                               ),
-                              child: pw.Text(
-                                'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
-                                style: pw.TextStyle(
-                                  fontSize: 7.2,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#B45309'),
-                                ),
+                            ],
+                          ),
+                        ),
+
+                        // Home Team
+                        pw.Padding(
+                          padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: pdfRowPad),
+                          child: pw.Text(
+                            f.homeTeam,
+                            textAlign: pw.TextAlign.right,
+                            style: pw.TextStyle(
+                              fontSize: 9,
+                              fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
+                              color: isNextUpcoming
+                                  ? PdfColor.fromHex('#991B1B')
+                                  : (isHomeMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
+                            ),
+                          ),
+                        ),
+
+                        // Score / VS Center Box
+                        pw.Center(
+                          child: pw.Container(
+                            margin: pw.EdgeInsets.symmetric(vertical: pdfBoxMargin),
+                            padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            decoration: pw.BoxDecoration(
+                              color: isCompleted
+                                  ? PdfColor.fromHex('#005A36')
+                                  : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
+                              borderRadius: pw.BorderRadius.circular(3),
+                              border: pw.Border.all(
+                                color: isCompleted
+                                    ? PdfColor.fromHex('#004529')
+                                    : (isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#F59E0B')),
+                                width: 0.6,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      // Home Team
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                        child: pw.Text(
-                          f.homeTeam,
-                          textAlign: pw.TextAlign.right,
-                          style: pw.TextStyle(
-                            fontSize: 9,
-                            fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
-                            color: isNextUpcoming
-                                ? PdfColor.fromHex('#991B1B')
-                                : (isHomeMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
-                          ),
-                        ),
-                      ),
-
-                      // Score / VS Center Box
-                      pw.Center(
-                        child: pw.Container(
-                          margin: const pw.EdgeInsets.symmetric(vertical: 3),
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                          decoration: pw.BoxDecoration(
-                            color: isCompleted
-                                ? PdfColor.fromHex('#005A36')
-                                : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
-                            borderRadius: pw.BorderRadius.circular(3),
-                            border: pw.Border.all(
-                              color: isCompleted
-                                  ? PdfColor.fromHex('#004529')
-                                  : (isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#F59E0B')),
-                              width: 0.6,
-                            ),
-                          ),
-                          child: pw.Text(
-                            isCompleted ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}' : 'VS',
-                            style: pw.TextStyle(
-                              fontSize: 8.5,
-                              fontWeight: pw.FontWeight.bold,
-                              color: isCompleted
-                                  ? PdfColors.white
-                                  : (isNextUpcoming ? PdfColors.white : PdfColor.fromHex('#B45309')),
+                            child: pw.Text(
+                              isCompleted ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}' : 'VS',
+                              style: pw.TextStyle(
+                                fontSize: 8.5,
+                                fontWeight: pw.FontWeight.bold,
+                                color: isCompleted
+                                    ? PdfColors.white
+                                    : (isNextUpcoming ? PdfColors.white : PdfColor.fromHex('#B45309')),
+                              ),
                             ),
                           ),
                         ),
-                      ),
 
-                      // Away Team
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                        child: pw.Text(
-                          f.awayTeam,
-                          textAlign: pw.TextAlign.left,
-                          style: pw.TextStyle(
-                            fontSize: 9,
-                            fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
-                            color: isNextUpcoming
-                                ? PdfColor.fromHex('#991B1B')
-                                : (isAwayMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
+                        // Away Team
+                        pw.Padding(
+                          padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: pdfRowPad),
+                          child: pw.Text(
+                            f.awayTeam,
+                            textAlign: pw.TextAlign.left,
+                            style: pw.TextStyle(
+                              fontSize: 9,
+                              fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
+                              color: isNextUpcoming
+                                  ? PdfColor.fromHex('#991B1B')
+                                  : (isAwayMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#1F2937')),
+                            ),
                           ),
                         ),
-                      ),
 
-                      // Status Badge
-                      pw.Center(
-                        child: pw.Container(
-                          margin: const pw.EdgeInsets.symmetric(vertical: 3),
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
-                          decoration: pw.BoxDecoration(
-                            color: isCompleted
-                                ? PdfColor.fromHex('#DCFCE7')
-                                : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
-                            borderRadius: pw.BorderRadius.circular(2),
-                          ),
-                          child: pw.Text(
-                            isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
-                            style: pw.TextStyle(
-                              fontSize: 7.2,
-                              fontWeight: pw.FontWeight.bold,
+                        // Status Badge
+                        pw.Center(
+                          child: pw.Container(
+                            margin: pw.EdgeInsets.symmetric(vertical: pdfBoxMargin),
+                            padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                            decoration: pw.BoxDecoration(
                               color: isCompleted
+                                  ? PdfColor.fromHex('#DCFCE7')
+                                  : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
+                              borderRadius: pw.BorderRadius.circular(2),
+                            ),
+                            child: pw.Text(
+                              isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
+                              style: pw.TextStyle(
+                                fontSize: 7.2,
+                                fontWeight: pw.FontWeight.bold,
+                                color: isCompleted
                                   ? PdfColor.fromHex('#15803D')
                                   : (isNextUpcoming ? PdfColors.white : PdfColor.fromHex('#B45309')),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }),
+                      ],
+                    );
+                  });
+                })(),
               ],
             ),
           ];
@@ -1306,6 +1320,7 @@ class BookletPrintView extends StatelessWidget {
 
               final fullDate = _formatFullDate(f);
               final fullRound = _formatFullRound(f.roundNum);
+              final double screenRowPad = ((680.0 / (fixtures.isNotEmpty ? fixtures.length : 1) - 16.0) / 2.0).clamp(5.0, 20.0);
 
               return Container(
                 decoration: BoxDecoration(
@@ -1314,7 +1329,7 @@ class BookletPrintView extends StatelessWidget {
                       ? Border.all(color: const Color(0xFFDC2626), width: 2) // Red Border
                       : null,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10.5),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: screenRowPad),
                 child: Row(
                   children: [
                     // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Single Line

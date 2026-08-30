@@ -99,6 +99,15 @@ class _HomeViewState extends State<HomeView> {
     if (_customLogosMap.containsKey(clean)) {
       return _customLogosMap[clean];
     }
+    // Alias check for OPMs / Old Plymothian
+    if (clean == 'opms' || clean == 'opm' || clean == 'opms ii' || clean.contains('plymothian')) {
+      for (var entry in _customLogosMap.entries) {
+        final k = entry.key.toLowerCase();
+        if (k.contains('plymothian') || k == 'opms' || k == 'opm') {
+          return entry.value;
+        }
+      }
+    }
     for (var entry in _customLogosMap.entries) {
       final key = entry.key.toLowerCase().trim();
       if (clean == key || clean.contains(key) || key.contains(clean)) {

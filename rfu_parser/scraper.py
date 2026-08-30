@@ -898,7 +898,15 @@ class RFUParser:
                 timeout=12
             )
             if resp.status_code == 200:
-                parsed = self.parse_html(resp.text, url)
+                table_data = self.parse_table(resp.text)
+                fixtures_data = self.parse_fixtures(resp.text)
+                parsed = RFUDataResult(
+                    division_name=division_name or "",
+                    season=season_str,
+                    standings=table_data,
+                    fixtures=fixtures_data,
+                    source_url=url
+                )
                 if parsed and parsed.standings:
                     parsed.season = season_str
                     parsed.standings = self.format_standings_for_season(parsed.standings, season_str)

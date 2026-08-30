@@ -7,11 +7,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedDivision;
   final List<String> divisions;
   final ValueChanged<String> onDivisionSelected;
+
   final String selectedSeason;
   final List<String> seasons;
   final ValueChanged<String?> onSeasonChanged;
+
   final String? searchedTeam;
   final ValueChanged<String> onTeamSelected;
+
   final VoidCallback onOpenDivisionsDirectory;
   final VoidCallback onOpenTeamsDirectory;
   final bool isAdmin;
@@ -48,17 +51,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(135);
 
-  Widget _buildBrandLogo(BuildContext context, {bool compact = false}) {
+  Widget _buildBrandLogo(BuildContext context, AppThemeMode theme, {bool compact = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
-            color: AppTheme.goldAccent.withValues(alpha: 0.15),
+            color: theme.goldAccent.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 22),
+          child: Icon(Icons.sports_rugby, color: theme.goldAccent, size: 22),
         ),
         const SizedBox(width: 10),
         Column(
@@ -73,32 +76,32 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                     fontSize: compact ? 16 : 18,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
-                    color: AppTheme.goldAccent,
+                    color: theme.goldAccent,
                   ),
                 ),
                 const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                   decoration: BoxDecoration(
-                    color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                    color: theme.goldAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.4), width: 1),
+                    border: Border.all(color: theme.goldAccent.withValues(alpha: 0.4), width: 1),
                   ),
-                  child: const Text(
+                  child: Text(
                     AppConfig.version,
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.goldAccent,
+                      color: theme.goldAccent,
                     ),
                   ),
                 ),
               ],
             ),
             if (!compact)
-              const Text(
+              Text(
                 AppConfig.appSubTitle,
-                style: TextStyle(fontSize: 10.5, color: AppTheme.textMuted),
+                style: TextStyle(fontSize: 10.5, color: theme.textMuted),
               ),
           ],
         ),
@@ -106,21 +109,21 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildSeasonSelector() {
+  Widget _buildSeasonSelector(AppThemeMode theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.goldAccent.withValues(alpha: 0.12),
+        color: theme.goldAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
+        border: Border.all(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: seasons.contains(selectedSeason) ? selectedSeason : (seasons.isNotEmpty ? seasons.first : '2025-2026'),
-          dropdownColor: AppTheme.surfaceBg,
+          dropdownColor: theme.surfaceBg,
           isDense: true,
-          icon: const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 15),
-          style: const TextStyle(color: AppTheme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold),
+          icon: Icon(Icons.calendar_month, color: theme.goldAccent, size: 15),
+          style: TextStyle(color: theme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold),
           items: seasons.map((s) {
             return DropdownMenuItem(
               value: s,
@@ -133,14 +136,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildDivisionButton(bool hasSelectedDivision) {
+  Widget _buildDivisionButton(AppThemeMode theme, bool hasSelectedDivision) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
+        backgroundColor: hasSelectedDivision ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.12),
+        foregroundColor: hasSelectedDivision ? Colors.black : theme.goldAccent,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.5),
+          color: hasSelectedDivision ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.5),
           width: 1,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -148,7 +151,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.emoji_events,
         size: 16,
-        color: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
+        color: hasSelectedDivision ? Colors.black : theme.goldAccent,
       ),
       label: Text(
         hasSelectedDivision ? 'Div: $selectedDivision' : 'Select Division...',
@@ -156,21 +159,21 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
+          color: hasSelectedDivision ? Colors.black : theme.goldAccent,
         ),
       ),
       onPressed: onOpenDivisionsDirectory,
     );
   }
 
-  Widget _buildTeamButton(bool hasSearchedTeam) {
+  Widget _buildTeamButton(AppThemeMode theme, bool hasSearchedTeam) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
+        backgroundColor: hasSearchedTeam ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.12),
+        foregroundColor: hasSearchedTeam ? Colors.black : theme.goldAccent,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.5),
+          color: hasSearchedTeam ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.5),
           width: 1,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -178,7 +181,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.search,
         size: 16,
-        color: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
+        color: hasSearchedTeam ? Colors.black : theme.goldAccent,
       ),
       label: Text(
         hasSearchedTeam ? 'Team: ${searchedTeam!.trim()}' : 'Search Team...',
@@ -186,7 +189,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
+          color: hasSearchedTeam ? Colors.black : theme.goldAccent,
         ),
       ),
       onPressed: onOpenTeamsDirectory,
@@ -200,156 +203,168 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     final hasSearchedTeam = searchedTeam != null && searchedTeam!.trim().isNotEmpty;
     final hasSelectedDivision = selectedDivision != 'ALL / Select Division';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceBg.withValues(alpha: 0.97),
-        border: const Border(bottom: BorderSide(color: AppTheme.cardBorder, width: 1)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: ResponsiveLayout.maxContentWidth),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 24 : 12,
-                vertical: 8,
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, theme, _) {
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.surfaceBg.withValues(alpha: 0.98),
+            border: Border(bottom: BorderSide(color: theme.cardBorder, width: 1.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Row 1: Brand Title & Global Action Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            ],
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: ResponsiveLayout.maxContentWidth),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 24 : 12,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildBrandLogo(context, compact: !isDesktop),
-                      Flexible(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          reverse: true,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
-                                  foregroundColor: AppTheme.goldAccent,
-                                  side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.cloud_sync, size: 16, color: AppTheme.goldAccent),
-                                label: const Text('Sync RFU', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onSyncRfuData,
-                              ),
-                              const SizedBox(width: 6),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
-                                  foregroundColor: AppTheme.goldAccent,
-                                  side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.picture_as_pdf, size: 16, color: AppTheme.goldAccent),
-                                label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onOpenBookletPrint,
-                              ),
-                              const SizedBox(width: 6),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
-                                  foregroundColor: AppTheme.goldAccent,
-                                  side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.palette_outlined, size: 16, color: AppTheme.goldAccent),
-                                label: const Text('Theme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onOpenThemeSelector,
-                              ),
-                              const SizedBox(width: 6),
-                              if (isAdmin) ...[
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0F172A),
-                                    foregroundColor: AppTheme.emeraldAccent,
-                                    side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.1),
-                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      // Row 1: Brand Title & Global Action Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildBrandLogo(context, theme, compact: !isDesktop),
+                          Flexible(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              reverse: true,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
+                                      foregroundColor: theme.goldAccent,
+                                      side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: Icon(Icons.cloud_sync, size: 16, color: theme.goldAccent),
+                                    label: const Text('Sync RFU', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    onPressed: onSyncRfuData,
                                   ),
-                                  icon: const Icon(Icons.analytics_outlined, size: 16, color: AppTheme.emeraldAccent),
-                                  label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  onPressed: onOpenDatabaseMetrics,
-                                ),
-                                const SizedBox(width: 6),
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.emeraldAccent,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  const SizedBox(width: 6),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
+                                      foregroundColor: theme.goldAccent,
+                                      side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: Icon(Icons.picture_as_pdf, size: 16, color: theme.goldAccent),
+                                    label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    onPressed: onOpenBookletPrint,
                                   ),
-                                  icon: const Icon(Icons.add, size: 16),
-                                  label: const Text('Add Fixture', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  onPressed: onAddFixture,
-                                ),
-                                const SizedBox(width: 6),
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.goldAccent,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  const SizedBox(width: 6),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
+                                      foregroundColor: theme.goldAccent,
+                                      side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: Icon(Icons.palette_outlined, size: 16, color: theme.goldAccent),
+                                    label: const Text('Theme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    onPressed: onOpenThemeSelector,
                                   ),
-                                  icon: const Icon(Icons.cloud_upload, size: 16, color: Colors.black),
-                                  label: const Text('Upload Logo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  onPressed: onUploadLogo,
-                                ),
-                                const SizedBox(width: 6),
-                              ],
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent,
-                                  side: BorderSide(color: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: Icon(isAdmin ? Icons.lock_open : Icons.lock, size: 15),
-                                label: Text(isAdmin ? 'Logout' : 'Admin Login', style: const TextStyle(fontSize: 12)),
-                                onPressed: onAdminToggle,
+                                  const SizedBox(width: 6),
+                                  if (isAdmin) ...[
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: theme.darkBg,
+                                        foregroundColor: theme.emeraldAccent,
+                                        side: BorderSide(color: theme.emeraldAccent, width: 1.1),
+                                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      icon: Icon(Icons.analytics_outlined, size: 16, color: theme.emeraldAccent),
+                                      label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      onPressed: onOpenDatabaseMetrics,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: theme.emeraldAccent,
+                                        foregroundColor: Colors.black,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      icon: const Icon(Icons.add, size: 16),
+                                      label: const Text('Add Fixture', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      onPressed: onAddFixture,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: theme.goldAccent,
+                                        foregroundColor: Colors.black,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      icon: const Icon(Icons.cloud_upload, size: 16, color: Colors.black),
+                                      label: const Text('Upload Logo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      onPressed: onUploadLogo,
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: isAdmin ? theme.rubyAccent : theme.goldAccent,
+                                      side: BorderSide(color: isAdmin ? theme.rubyAccent : theme.goldAccent),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: Icon(isAdmin ? Icons.lock_open : Icons.lock, size: 15),
+                                    label: Text(isAdmin ? 'Logout' : 'Admin Login', style: const TextStyle(fontSize: 12)),
+                                    onPressed: onAdminToggle,
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                  // Row 2: Prominent Division, Season, and Team Search Controls
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _buildDivisionButton(hasSelectedDivision),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildSeasonSelector(),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 3,
-                        child: _buildTeamButton(hasSearchedTeam),
+                      // Row 2: Prominent Division, Season, and Team Search Controls
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: _buildDivisionButton(theme, hasSelectedDivision),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildSeasonSelector(theme),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 3,
+                            child: _buildTeamButton(theme, hasSearchedTeam),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

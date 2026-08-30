@@ -294,10 +294,14 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 900;
 
-    return Scaffold(
-      appBar: Navbar(
-        selectedDivision: _selectedDivision,
-        divisions: _divisions,
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, currentTheme, _) {
+        return Scaffold(
+          backgroundColor: currentTheme.darkBg,
+          appBar: Navbar(
+            selectedDivision: _selectedDivision,
+            divisions: _divisions,
         onDivisionSelected: (newDiv) {
           setState(() {
             _selectedDivision = newDiv;
@@ -824,6 +828,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
             ),
+        );
+      },
     );
   }
 

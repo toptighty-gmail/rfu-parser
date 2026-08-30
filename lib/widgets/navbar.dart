@@ -194,14 +194,13 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth >= ResponsiveLayout.tabletBreakpoint;
-    final isTablet = screenWidth >= ResponsiveLayout.mobileBreakpoint && screenWidth < ResponsiveLayout.tabletBreakpoint;
+    final isDesktop = screenWidth >= 1000;
     final hasSearchedTeam = searchedTeam != null && searchedTeam!.trim().isNotEmpty;
     final hasSelectedDivision = selectedDivision != 'ALL / Select Division';
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceBg.withValues(alpha: 0.96),
+        color: AppTheme.surfaceBg.withValues(alpha: 0.97),
         border: const Border(bottom: BorderSide(color: AppTheme.cardBorder, width: 1)),
       ),
       child: SafeArea(
@@ -211,234 +210,127 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             constraints: const BoxConstraints(maxWidth: ResponsiveLayout.maxContentWidth),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 32 : (isTablet ? 20 : 12),
-                vertical: 10,
+                horizontal: isDesktop ? 24 : 12,
+                vertical: 8,
               ),
-              child: isDesktop
-                  // 1. Desktop & Ultra-High-Res PC (>= 1100px) Single-Row Layout
-                  ? Row(
-                      children: [
-                        _buildBrandLogo(context),
-                        const SizedBox(width: 20),
-
-                        // Center Controls (Division, Season, Team Search)
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _buildDivisionButton(hasSelectedDivision),
-                                const SizedBox(width: 8),
-                                _buildSeasonSelector(),
-                                const SizedBox(width: 8),
-                                _buildTeamButton(hasSearchedTeam),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Row 1: Brand Title & Global Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildBrandLogo(context, compact: !isDesktop),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
+                                  foregroundColor: AppTheme.goldAccent,
+                                  side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.cloud_sync, size: 16, color: AppTheme.goldAccent),
+                                label: const Text('Sync RFU', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                onPressed: onSyncRfuData,
+                              ),
+                              const SizedBox(width: 6),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
+                                  foregroundColor: AppTheme.goldAccent,
+                                  side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.picture_as_pdf, size: 16, color: AppTheme.goldAccent),
+                                label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                onPressed: onOpenBookletPrint,
+                              ),
+                              const SizedBox(width: 6),
+                              if (isAdmin) ...[
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF0F172A),
+                                    foregroundColor: AppTheme.emeraldAccent,
+                                    side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.1),
+                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  icon: const Icon(Icons.analytics_outlined, size: 16, color: AppTheme.emeraldAccent),
+                                  label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  onPressed: onOpenDatabaseMetrics,
+                                ),
+                                const SizedBox(width: 6),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.emeraldAccent,
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  icon: const Icon(Icons.add, size: 16),
+                                  label: const Text('Add Fixture', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  onPressed: onAddFixture,
+                                ),
+                                const SizedBox(width: 6),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.goldAccent,
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  icon: const Icon(Icons.cloud_upload, size: 16, color: Colors.black),
+                                  label: const Text('Upload Logo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  onPressed: onUploadLogo,
+                                ),
+                                const SizedBox(width: 6),
                               ],
-                            ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent,
+                                  side: BorderSide(color: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: Icon(isAdmin ? Icons.lock_open : Icons.lock, size: 15),
+                                label: Text(isAdmin ? 'Logout' : 'Admin Login', style: const TextStyle(fontSize: 12)),
+                                onPressed: onAdminToggle,
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
 
-                        const SizedBox(width: 16),
-
-                        // Action Tools (Sync, Print, Admin Controls)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
-                                foregroundColor: AppTheme.goldAccent,
-                                side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              icon: const Icon(Icons.cloud_sync, size: 16, color: AppTheme.goldAccent),
-                              label: const Text('Sync RFU', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                              onPressed: onSyncRfuData,
-                            ),
-                            const SizedBox(width: 6),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
-                                foregroundColor: AppTheme.goldAccent,
-                                side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              icon: const Icon(Icons.picture_as_pdf, size: 16, color: AppTheme.goldAccent),
-                              label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                              onPressed: onOpenBookletPrint,
-                            ),
-                            const SizedBox(width: 6),
-                            if (isAdmin) ...[
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0F172A),
-                                  foregroundColor: AppTheme.emeraldAccent,
-                                  side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.1),
-                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.analytics_outlined, size: 16, color: AppTheme.emeraldAccent),
-                                label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onOpenDatabaseMetrics,
-                              ),
-                              const SizedBox(width: 6),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.emeraldAccent,
-                                  foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.add, size: 16),
-                                label: const Text('Add Fixture', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onAddFixture,
-                              ),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.goldAccent,
-                                  foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.cloud_upload, size: 16, color: Colors.black),
-                                label: const Text('Upload Logo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: onUploadLogo,
-                              ),
-                              const SizedBox(width: 6),
-                            ],
-                            OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent,
-                                side: BorderSide(color: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              icon: Icon(isAdmin ? Icons.lock_open : Icons.lock, size: 15),
-                              label: Text(isAdmin ? 'Admin' : 'Login', style: const TextStyle(fontSize: 12)),
-                              onPressed: onAdminToggle,
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  // 2. Tablet & Mobile Adaptive 2-Row Layout (Zero Button Overlap)
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Row 1: Brand + Season + Quick Actions
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildBrandLogo(context, compact: true),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildSeasonSelector(),
-                                const SizedBox(width: 6),
-                                // Overflow Action Menu for Mobile / Compact Tablet
-                                PopupMenuButton<String>(
-                                  icon: const Icon(Icons.more_vert, color: AppTheme.goldAccent),
-                                  color: AppTheme.surfaceBg,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: const BorderSide(color: AppTheme.cardBorder),
-                                  ),
-                                  onSelected: (val) {
-                                    if (val == 'sync') onSyncRfuData();
-                                    if (val == 'print') onOpenBookletPrint();
-                                    if (val == 'metrics' && onOpenDatabaseMetrics != null) onOpenDatabaseMetrics!();
-                                    if (val == 'admin') onAdminToggle();
-                                    if (val == 'add') onAddFixture();
-                                    if (val == 'logo') onUploadLogo();
-                                  },
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      value: 'sync',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.cloud_sync, color: AppTheme.goldAccent, size: 18),
-                                          SizedBox(width: 10),
-                                          Text('Sync RFU Data', style: TextStyle(color: AppTheme.textPrimary, fontSize: 13)),
-                                        ],
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'print',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.menu_book, color: AppTheme.goldAccent, size: 18),
-                                          SizedBox(width: 10),
-                                          Text('A4 Booklet View', style: TextStyle(color: AppTheme.textPrimary, fontSize: 13)),
-                                        ],
-                                      ),
-                                    ),
-                                    if (isAdmin) ...[
-                                      const PopupMenuItem(
-                                        value: 'metrics',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.analytics_outlined, color: AppTheme.emeraldAccent, size: 18),
-                                            SizedBox(width: 10),
-                                            Text('Database Metrics', style: TextStyle(color: AppTheme.emeraldAccent, fontSize: 13, fontWeight: FontWeight.bold)),
-                                          ],
-                                        ),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'add',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.add_circle, color: AppTheme.emeraldAccent, size: 18),
-                                            SizedBox(width: 10),
-                                            Text('Add Friendly Fixture', style: TextStyle(color: AppTheme.emeraldAccent, fontSize: 13)),
-                                          ],
-                                        ),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'logo',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.image, color: AppTheme.goldAccent, size: 18),
-                                            SizedBox(width: 10),
-                                            Text('Upload Team Logo', style: TextStyle(color: AppTheme.textPrimary, fontSize: 13)),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    PopupMenuItem(
-                                      value: 'admin',
-                                      child: Row(
-                                        children: [
-                                          Icon(isAdmin ? Icons.lock_open : Icons.lock,
-                                              color: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent, size: 18),
-                                          SizedBox(width: 10),
-                                          Text(isAdmin ? 'Logout Admin' : 'Admin Login',
-                                              style: TextStyle(
-                                                color: isAdmin ? AppTheme.rubyAccent : AppTheme.goldAccent,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Row 2: Full Width Division & Team Search Action Buttons
-                        Row(
-                          children: [
-                            Expanded(child: _buildDivisionButton(hasSelectedDivision)),
-                            const SizedBox(width: 8),
-                            Expanded(child: _buildTeamButton(hasSearchedTeam)),
-                          ],
-                        ),
-                      ],
-                    ),
+                  // Row 2: Prominent Division, Season, and Team Search Controls
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: _buildDivisionButton(hasSelectedDivision),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSeasonSelector(),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 3,
+                        child: _buildTeamButton(hasSearchedTeam),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

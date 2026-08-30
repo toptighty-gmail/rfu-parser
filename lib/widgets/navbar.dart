@@ -108,9 +108,9 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.darkBg,
+        color: AppTheme.goldAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.4)),
+        border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -134,12 +134,12 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildDivisionButton(bool hasSelectedDivision) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.darkBg,
-        foregroundColor: hasSelectedDivision ? Colors.black : AppTheme.textPrimary,
+        backgroundColor: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.12),
+        foregroundColor: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.cardBorder,
-          width: 1.2,
+          color: hasSelectedDivision ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.5),
+          width: 1,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -154,7 +154,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSelectedDivision ? Colors.black : AppTheme.textPrimary,
+          color: hasSelectedDivision ? Colors.black : AppTheme.goldAccent,
         ),
       ),
       onPressed: onOpenDivisionsDirectory,
@@ -164,12 +164,12 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildTeamButton(bool hasSearchedTeam) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.darkBg,
-        foregroundColor: hasSearchedTeam ? Colors.black : AppTheme.textPrimary,
+        backgroundColor: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.12),
+        foregroundColor: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.cardBorder,
-          width: 1.2,
+          color: hasSearchedTeam ? AppTheme.goldAccent : AppTheme.goldAccent.withValues(alpha: 0.5),
+          width: 1,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -184,7 +184,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSearchedTeam ? Colors.black : AppTheme.textPrimary,
+          color: hasSearchedTeam ? Colors.black : AppTheme.goldAccent,
         ),
       ),
       onPressed: onOpenTeamsDirectory,

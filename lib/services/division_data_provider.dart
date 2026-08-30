@@ -474,6 +474,7 @@ class DivisionDataProvider {
         sourceUrl: 'https://www.englandrugby.com/fixtures-and-results',
         standings: standings,
         fixtures: fixtures,
+        isOfflineGenerated: true, // Do NOT persist to Supabase
       );
     }
 
@@ -586,6 +587,7 @@ class DivisionDataProvider {
       sourceUrl: 'https://www.englandrugby.com/fixtures-and-results',
       standings: standings,
       fixtures: fixtures,
+      isOfflineGenerated: true, // Do NOT persist to Supabase
     );
   }
 

@@ -223,8 +223,11 @@ class _HomeViewState extends State<HomeView> {
         : <Fixture>[];
 
     if (data != null) {
-      // Direct client-side upsert to Supabase relational tables (divisions, standings, fixtures)
-      SupabaseService.upsertDivisionData(data);
+      // Only persist to Supabase if data came from a real source (live crawl / Supabase).
+      // Offline-generated (mock) data must NEVER overwrite the database.
+      if (!data.isOfflineGenerated) {
+        SupabaseService.upsertDivisionData(data);
+      }
 
       // Merge custom fixtures into team fixtures list
       if (hasTeam && customFixtures.isNotEmpty) {

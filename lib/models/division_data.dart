@@ -11,6 +11,9 @@ class DivisionData {
   final List<StandingEntry> standings;
   final List<Fixture> fixtures;
   final String? sourceUrl;
+  /// True when data was generated offline (not from Supabase or live RFU crawl).
+  /// Offline-generated data must NEVER be persisted to Supabase.
+  final bool isOfflineGenerated;
 
   DivisionData({
     required this.divisionName,
@@ -22,6 +25,7 @@ class DivisionData {
     required this.standings,
     required this.fixtures,
     this.sourceUrl,
+    this.isOfflineGenerated = false,
   });
 
   factory DivisionData.fromJson(Map<String, dynamic> json) {
@@ -45,6 +49,7 @@ class DivisionData {
       standings: standingsList,
       fixtures: fixturesList,
       sourceUrl: json['source_url'],
+      isOfflineGenerated: false, // Data from DB is never offline-generated
     );
   }
 }

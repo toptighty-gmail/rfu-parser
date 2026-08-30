@@ -814,6 +814,14 @@ class SupabaseService {
           return (a.dateIso).compareTo(b.dateIso);
         });
 
+        // CRITICAL: If source_url is null or empty, this division row was created by the offline
+        // generator (not from a real RFU crawl). Discard it so we fall through to a live fetch.
+        final isValidSource = resolvedSourceUrl != null && resolvedSourceUrl.trim().isNotEmpty;
+        if (!isValidSource) {
+          debugPrint('Discarding Supabase division "$resolvedDivisionName" ($season): source_url is null/empty (offline-generated cache).');
+          return null;
+        }
+
         if (standings.isNotEmpty || fixtures.isNotEmpty) {
           return DivisionData(
             divisionName: resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),
@@ -822,7 +830,7 @@ class SupabaseService {
             rfuDivisionId: resolvedDivIdNum,
             tierLevel: resolvedTier,
             region: resolvedRegion,
-            sourceUrl: resolvedSourceUrl ?? '',
+            sourceUrl: resolvedSourceUrl,
             standings: standings,
             fixtures: fixtures,
           );

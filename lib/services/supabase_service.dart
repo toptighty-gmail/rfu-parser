@@ -187,32 +187,28 @@ class SupabaseService {
       allFixtures.addAll(_localCustomFixtures);
     }
 
-    final cleanTeam = team?.trim().toLowerCase();
+    final cleanTeam = team?.trim();
     if (cleanTeam == null || cleanTeam.isEmpty) {
       return [];
     }
 
-    final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanTeam);
-    final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
+    final cleanTeamLower = cleanTeam.toLowerCase();
+    final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanTeamLower);
 
     return allFixtures.where((f) {
-      if (targetTeamId != null && f.rfuTeamId != null && f.rfuTeamId == targetTeamId) {
-        return true;
+      // 1. Primary: If both have rfu_team_id, match strictly on rfu_team_id
+      if (targetTeamId != null && f.rfuTeamId != null) {
+        return f.rfuTeamId == targetTeamId;
       }
-      if (f.contextTeam != null && f.contextTeam!.isNotEmpty) {
-        final ctx = f.contextTeam!.toLowerCase();
-        if (ctx == cleanTeam || ctx.contains(cleanTeam) || cleanTeam.contains(ctx)) {
-          return true;
-        }
+
+      // 2. Secondary: If context_team is present, match strictly using isExactTeamMatch
+      if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
+        return FixtureList.isExactTeamMatch(f.contextTeam!, cleanTeam);
       }
-      final home = f.homeTeam.toLowerCase();
-      final away = f.awayTeam.toLowerCase();
-      if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
-      if (cleanTeam.contains(home) || cleanTeam.contains(away)) return true;
-      for (var w in searchWords) {
-        if (home.contains(w) || away.contains(w)) return true;
-      }
-      return false;
+
+      // 3. Fallback: Check home/away team with strict squad matching
+      return FixtureList.isExactTeamMatch(f.homeTeam, cleanTeam) ||
+             FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
     }).toList();
   }
 

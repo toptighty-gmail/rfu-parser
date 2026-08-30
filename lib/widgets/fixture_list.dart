@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
+import '../services/rfu_team_registry.dart';
 import 'fixture_card.dart';
 
 class FixtureList extends StatelessWidget {
@@ -61,14 +62,14 @@ class FixtureList extends StatelessWidget {
 
     final activeFixtures = isTeamFiltered
         ? fixtures.where((f) {
-            // For custom fixtures (e.g. Friendlies / Cup entries entered in admin mode)
+            // For custom fixtures (e.g. Friendlies / Cup entries):
             if (f.isCustom) {
-              if (f.contextTeam != null && isExactTeamMatch(f.contextTeam!, cleanFilter)) return true;
-              if (isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter)) return true;
-              final cleanLower = cleanFilter.toLowerCase();
-              final baseWords = cleanLower.split(' ').where((w) => w.length > 3 && !['club', 'rugby'].contains(w)).toList();
-              for (var w in baseWords) {
-                if (f.homeTeam.toLowerCase().contains(w) || f.awayTeam.toLowerCase().contains(w)) return true;
+              final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanFilter.toLowerCase());
+              if (targetTeamId != null && f.rfuTeamId != null) {
+                return f.rfuTeamId == targetTeamId;
+              }
+              if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
+                return isExactTeamMatch(f.contextTeam!, cleanFilter);
               }
             }
             return isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter);

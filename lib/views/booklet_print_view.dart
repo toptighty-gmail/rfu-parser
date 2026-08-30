@@ -18,6 +18,10 @@ class BookletPrintView extends StatelessWidget {
   final String? filterTeam;
   final Map<String, String> customLogosMap;
 
+  // Plymouth Oaks British Racing Green theme color
+  static const String plymstockGreenHex = '#005A36';
+  static const Color plymstockGreenColor = Color(0xFF005A36);
+
   const BookletPrintView({
     super.key,
     required this.divisionData,
@@ -44,10 +48,10 @@ class BookletPrintView extends StatelessWidget {
     return DateTime(2099);
   }
 
-  static String _formatShortDate(Fixture f) {
+  static String _formatFullDate(Fixture f) {
     final dt = _parseFixtureDate(f);
     if (dt.year < 2090) {
-      return DateFormat('EEE d MMM yy').format(dt); // e.g. "Sat 20 Mar 26"
+      return DateFormat('EEE d MMM yyyy').format(dt); // e.g. "Sat 20 Mar 2026"
     }
     return f.date
         .replaceAll('Monday,', 'Mon')
@@ -59,12 +63,16 @@ class BookletPrintView extends StatelessWidget {
         .replaceAll('Sunday,', 'Sun');
   }
 
-  static String _formatShortRound(String round) {
+  static String _formatFullRound(String round) {
     if (round.trim().isEmpty) return '';
-    return round.trim()
-        .replaceAll(RegExp(r'Round\s*', caseSensitive: false), 'R')
-        .replaceAll(RegExp(r'Cup Matches', caseSensitive: false), 'Cup')
-        .replaceAll(RegExp(r'Friendly Matches', caseSensitive: false), 'Friendly');
+    final clean = round.trim();
+    if (clean.toLowerCase().contains('cup')) return 'Cup';
+    if (clean.toLowerCase().contains('friendly')) return 'Friendly';
+    final match = RegExp(r'(\d+)').firstMatch(clean);
+    if (match != null) {
+      return 'Round ${match.group(1)}';
+    }
+    return clean;
   }
 
   String? _resolveLogo(String teamName, String? defaultLogoUrl) {
@@ -120,6 +128,8 @@ class BookletPrintView extends StatelessWidget {
       }
     }
 
+    final plymstockGreenPdf = PdfColor.fromHex(plymstockGreenHex);
+
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
@@ -129,9 +139,9 @@ class BookletPrintView extends StatelessWidget {
             margin: const pw.EdgeInsets.only(bottom: 12),
             padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: pw.BoxDecoration(
-              color: PdfColor.fromHex('#1E293B'), // Sleek Slate Navy
+              color: plymstockGreenPdf, // Plymouth Oaks British Racing Green
               borderRadius: pw.BorderRadius.circular(6),
-              border: pw.Border.all(color: PdfColor.fromHex('#334155'), width: 1),
+              border: pw.Border.all(color: PdfColor.fromHex('#004529'), width: 1),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -146,7 +156,7 @@ class BookletPrintView extends StatelessWidget {
                           height: 28,
                           margin: const pw.EdgeInsets.only(right: 8),
                           decoration: pw.BoxDecoration(
-                            color: PdfColor.fromHex('#0F172A'),
+                            color: PdfColor.fromHex('#003D24'),
                             shape: pw.BoxShape.circle,
                             border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1.2),
                           ),
@@ -168,7 +178,7 @@ class BookletPrintView extends StatelessWidget {
                           pw.Text(
                             divisionData.divisionName.toUpperCase(),
                             style: pw.TextStyle(
-                              color: PdfColor.fromHex('#F59E0B'),
+                              color: PdfColor.fromHex('#FDE68A'),
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 13.5,
                             ),
@@ -179,7 +189,7 @@ class BookletPrintView extends StatelessWidget {
                                 ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
                                 : 'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
                             style: pw.TextStyle(
-                              color: PdfColor.fromHex('#CBD5E1'),
+                              color: PdfColor.fromHex('#E2E8F0'),
                               fontSize: 9,
                               fontWeight: pw.FontWeight.normal,
                             ),
@@ -192,14 +202,14 @@ class BookletPrintView extends StatelessWidget {
                 pw.Container(
                   padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: pw.BoxDecoration(
-                    color: PdfColor.fromHex('#0F172A'),
+                    color: PdfColor.fromHex('#003D24'),
                     borderRadius: pw.BorderRadius.circular(4),
-                    border: pw.Border.all(color: PdfColor.fromHex('#475569')),
+                    border: pw.Border.all(color: PdfColor.fromHex('#007A48')),
                   ),
                   child: pw.Text(
                     'RFU OFFICIAL',
                     style: pw.TextStyle(
-                      color: PdfColor.fromHex('#F59E0B'),
+                      color: PdfColor.fromHex('#FDE68A'),
                       fontWeight: pw.FontWeight.bold,
                       fontSize: 8.5,
                     ),
@@ -246,7 +256,7 @@ class BookletPrintView extends StatelessWidget {
                         height: 18,
                         margin: const pw.EdgeInsets.only(right: 6),
                         decoration: pw.BoxDecoration(
-                          color: PdfColor.fromHex('#1E293B'),
+                          color: plymstockGreenPdf,
                           shape: pw.BoxShape.circle,
                           border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1),
                         ),
@@ -254,7 +264,7 @@ class BookletPrintView extends StatelessWidget {
                           child: pw.Text(
                             filterTeam!.trim().substring(0, 1).toUpperCase(),
                             style: pw.TextStyle(
-                              color: PdfColor.fromHex('#F59E0B'),
+                              color: PdfColors.white,
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 10,
                             ),
@@ -267,7 +277,7 @@ class BookletPrintView extends StatelessWidget {
                       style: pw.TextStyle(
                         fontSize: 13,
                         fontWeight: pw.FontWeight.bold,
-                        color: PdfColor.fromHex('#B45309'),
+                        color: plymstockGreenPdf,
                       ),
                     ),
                   ],
@@ -290,9 +300,9 @@ class BookletPrintView extends StatelessWidget {
                   11: pw.FixedColumnWidth(38), // PTS
                 },
                 children: [
-                  // Table Header
+                  // Table Header in Plymouth Oaks Green
                   pw.TableRow(
-                    decoration: pw.BoxDecoration(color: PdfColor.fromHex('#1E293B')),
+                    decoration: pw.BoxDecoration(color: plymstockGreenPdf),
                     children: [
                       _buildPdfHeaderCell('#'),
                       _buildPdfHeaderCell('CLUB', align: pw.TextAlign.left),
@@ -348,7 +358,7 @@ class BookletPrintView extends StatelessWidget {
                                 height: 16,
                                 margin: const pw.EdgeInsets.only(right: 6),
                                 decoration: pw.BoxDecoration(
-                                  color: isMatched ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#1E293B'),
+                                  color: isMatched ? PdfColor.fromHex('#DC2626') : plymstockGreenPdf,
                                   borderRadius: pw.BorderRadius.circular(3),
                                 ),
                                 child: pw.Center(
@@ -403,7 +413,7 @@ class BookletPrintView extends StatelessWidget {
               pw.NewPage(),
             ],
 
-            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH ALTERNATING WHITE/GREY ROWS + YELLOW/RED NEXT MATCH)
+            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH FULL DATES & FULL ROUND NAMES)
             pw.Container(
               margin: const pw.EdgeInsets.only(top: 4, bottom: 8),
               child: pw.Row(
@@ -415,7 +425,7 @@ class BookletPrintView extends StatelessWidget {
                       height: 20,
                       margin: const pw.EdgeInsets.only(right: 7),
                       decoration: pw.BoxDecoration(
-                        color: PdfColor.fromHex('#DC2626'),
+                        color: plymstockGreenPdf,
                         shape: pw.BoxShape.circle,
                       ),
                       child: pw.Center(
@@ -438,7 +448,7 @@ class BookletPrintView extends StatelessWidget {
                       style: pw.TextStyle(
                         fontSize: 12,
                         fontWeight: pw.FontWeight.bold,
-                        color: PdfColor.fromHex('#B45309'),
+                        color: plymstockGreenPdf,
                       ),
                     ),
                   ),
@@ -448,16 +458,16 @@ class BookletPrintView extends StatelessWidget {
             pw.Table(
               border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.6),
               columnWidths: const {
-                0: pw.FixedColumnWidth(170), // Date, Round, KO & Next Match Badge
-                1: pw.FlexColumnWidth(3.2),  // Home Team
-                2: pw.FixedColumnWidth(52),  // Score / VS Box
-                3: pw.FlexColumnWidth(3.2),  // Away Team
-                4: pw.FixedColumnWidth(58),  // Status
+                0: pw.FixedColumnWidth(190), // Full Date & Round Name & KO Badge
+                1: pw.FlexColumnWidth(3.0),  // Home Team
+                2: pw.FixedColumnWidth(48),  // Score / VS Box
+                3: pw.FlexColumnWidth(3.0),  // Away Team
+                4: pw.FixedColumnWidth(54),  // Status
               },
               children: [
-                // Header
+                // Header in Plymouth Oaks Green
                 pw.TableRow(
-                  decoration: pw.BoxDecoration(color: PdfColor.fromHex('#1E293B')),
+                  decoration: pw.BoxDecoration(color: plymstockGreenPdf),
                   children: [
                     _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left, fontSize: 9),
                     _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right, fontSize: 9),
@@ -466,7 +476,7 @@ class BookletPrintView extends StatelessWidget {
                     _buildPdfHeaderCell('STATUS', align: pw.TextAlign.center, fontSize: 9),
                   ],
                 ),
-                // Fixture Rows: Alternating White & Grey (Consistent with Standings), Next Match in Bright Yellow / Red Border
+                // Fixture Rows: Alternating White & Grey; Full Date + Full Round Name; Next Match in Bright Yellow / Red Border
                 ...sortedFixtures.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final f = entry.value;
@@ -488,8 +498,8 @@ class BookletPrintView extends StatelessWidget {
                       ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
                       : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
 
-                  final shortDate = _formatShortDate(f);
-                  final shortRound = _formatShortRound(f.roundNum);
+                  final fullDate = _formatFullDate(f);
+                  final fullRound = _formatFullRound(f.roundNum);
 
                   return pw.TableRow(
                     decoration: pw.BoxDecoration(
@@ -499,34 +509,34 @@ class BookletPrintView extends StatelessWidget {
                           : null,
                     ),
                     children: [
-                      // Date, Round, KO Time & Next Match Badge
+                      // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Clean Line
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
                         child: pw.Row(
                           children: [
                             pw.Expanded(
                               child: pw.Row(
                                 children: [
                                   pw.Text(
-                                    shortDate,
+                                    fullDate,
                                     style: pw.TextStyle(
-                                      fontSize: 8.5,
+                                      fontSize: 8,
                                       fontWeight: pw.FontWeight.bold,
                                       color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#1F2937'),
                                     ),
                                   ),
-                                  if (shortRound.isNotEmpty) ...[
+                                  if (fullRound.isNotEmpty) ...[
                                     pw.SizedBox(width: 3),
                                     pw.Container(
-                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
+                                      padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
                                       decoration: pw.BoxDecoration(
                                         color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#E2E8F0'),
                                         borderRadius: pw.BorderRadius.circular(2),
                                       ),
                                       child: pw.Text(
-                                        shortRound,
+                                        fullRound,
                                         style: pw.TextStyle(
-                                          fontSize: 7,
+                                          fontSize: 6.8,
                                           fontWeight: pw.FontWeight.bold,
                                           color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#475569'),
                                         ),
@@ -555,7 +565,7 @@ class BookletPrintView extends StatelessWidget {
                               ),
                             ),
                             pw.Container(
-                              padding: const pw.EdgeInsets.symmetric(horizontal: 3.5, vertical: 1.5),
+                              padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
                               decoration: pw.BoxDecoration(
                                 color: isNextUpcoming ? PdfColor.fromHex('#FDE047') : PdfColor.fromHex('#FEF3C7'),
                                 borderRadius: pw.BorderRadius.circular(2),
@@ -567,7 +577,7 @@ class BookletPrintView extends StatelessWidget {
                               child: pw.Text(
                                 'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
                                 style: pw.TextStyle(
-                                  fontSize: 7.5,
+                                  fontSize: 7.2,
                                   fontWeight: pw.FontWeight.bold,
                                   color: isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#B45309'),
                                 ),
@@ -579,12 +589,12 @@ class BookletPrintView extends StatelessWidget {
 
                       // Home Team
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
                         child: pw.Text(
                           f.homeTeam,
                           textAlign: pw.TextAlign.right,
                           style: pw.TextStyle(
-                            fontSize: 9.5,
+                            fontSize: 9,
                             fontWeight: (isHomeMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
                             color: isNextUpcoming
                                 ? PdfColor.fromHex('#991B1B')
@@ -597,15 +607,15 @@ class BookletPrintView extends StatelessWidget {
                       pw.Center(
                         child: pw.Container(
                           margin: const pw.EdgeInsets.symmetric(vertical: 3),
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                           decoration: pw.BoxDecoration(
                             color: isCompleted
-                                ? PdfColor.fromHex('#0F172A')
+                                ? PdfColor.fromHex('#005A36')
                                 : (isNextUpcoming ? PdfColor.fromHex('#DC2626') : PdfColor.fromHex('#FEF3C7')),
                             borderRadius: pw.BorderRadius.circular(3),
                             border: pw.Border.all(
                               color: isCompleted
-                                  ? PdfColor.fromHex('#334155')
+                                  ? PdfColor.fromHex('#004529')
                                   : (isNextUpcoming ? PdfColor.fromHex('#991B1B') : PdfColor.fromHex('#F59E0B')),
                               width: 0.6,
                             ),
@@ -625,12 +635,12 @@ class BookletPrintView extends StatelessWidget {
 
                       // Away Team
                       pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 6),
                         child: pw.Text(
                           f.awayTeam,
                           textAlign: pw.TextAlign.left,
                           style: pw.TextStyle(
-                            fontSize: 9.5,
+                            fontSize: 9,
                             fontWeight: (isAwayMatched || isNextUpcoming) ? pw.FontWeight.bold : pw.FontWeight.normal,
                             color: isNextUpcoming
                                 ? PdfColor.fromHex('#991B1B')
@@ -653,7 +663,7 @@ class BookletPrintView extends StatelessWidget {
                           child: pw.Text(
                             isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
                             style: pw.TextStyle(
-                              fontSize: 7.5,
+                              fontSize: 7.2,
                               fontWeight: pw.FontWeight.bold,
                               color: isCompleted
                                   ? PdfColor.fromHex('#15803D')
@@ -684,7 +694,7 @@ class BookletPrintView extends StatelessWidget {
         style: pw.TextStyle(
           fontSize: fontSize,
           fontWeight: pw.FontWeight.bold,
-          color: isHighlight ? PdfColor.fromHex('#F59E0B') : PdfColor.fromHex('#CBD5E1'),
+          color: isHighlight ? PdfColor.fromHex('#FDE68A') : PdfColors.white,
         ),
       ),
     );
@@ -797,7 +807,7 @@ class BookletPrintView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: plymstockGreenColor, // Plymouth Oaks British Racing Green
         elevation: 1,
         title: Text(
           isTeamFiltered
@@ -846,13 +856,13 @@ class BookletPrintView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Document Header Banner (Refined Slate Navy with Context Team Logo)
+                  // Document Header Banner (Plymouth Oaks British Racing Green)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
+                      color: plymstockGreenColor,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF334155)),
+                      border: Border.all(color: const Color(0xFF004529)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -869,7 +879,7 @@ class BookletPrintView extends StatelessWidget {
                               Text(
                                 divisionData.divisionName.toUpperCase(),
                                 style: const TextStyle(
-                                  color: Color(0xFFF59E0B),
+                                  color: Color(0xFFFDE68A),
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
                                   letterSpacing: 0.5,
@@ -881,7 +891,7 @@ class BookletPrintView extends StatelessWidget {
                                     ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
                                     : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
                                 style: const TextStyle(
-                                  color: Color(0xFFCBD5E1),
+                                  color: Color(0xFFE2E8F0),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -892,14 +902,14 @@ class BookletPrintView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0F172A),
+                            color: const Color(0xFF003D24),
                             borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: const Color(0xFF475569)),
+                            border: Border.all(color: const Color(0xFF007A48)),
                           ),
                           child: const Text(
                             'RFU OFFICIAL',
                             style: TextStyle(
-                              color: Color(0xFFF59E0B),
+                              color: Color(0xFFFDE68A),
                               fontWeight: FontWeight.w900,
                               fontSize: 10,
                               letterSpacing: 1,
@@ -999,14 +1009,14 @@ class BookletPrintView extends StatelessWidget {
           leadingWidget,
           const SizedBox(width: 10),
         ] else ...[
-          Icon(icon, color: const Color(0xFFB45309), size: 18),
+          Icon(icon, color: plymstockGreenColor, size: 18),
           const SizedBox(width: 8),
         ],
         Expanded(
           child: Text(
             title,
             style: const TextStyle(
-              color: Color(0xFF111827),
+              color: plymstockGreenColor,
               fontWeight: FontWeight.w900,
               fontSize: 14.5,
               letterSpacing: 0.5,
@@ -1060,28 +1070,28 @@ class BookletPrintView extends StatelessWidget {
         },
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
-          // Header Row
-          TableRow(
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E293B),
+          // Header Row in Plymouth Oaks Green
+          const TableRow(
+            decoration: BoxDecoration(
+              color: plymstockGreenColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5),
               ),
             ),
             children: [
-              _buildHeaderCell('#'),
-              _buildHeaderCell('CLUB', align: TextAlign.left),
-              _buildHeaderCell('P'),
-              _buildHeaderCell('W'),
-              _buildHeaderCell('D'),
-              _buildHeaderCell('L'),
-              _buildHeaderCell('PF'),
-              _buildHeaderCell('PA'),
-              _buildHeaderCell('+/-'),
-              _buildHeaderCell('TB'),
-              _buildHeaderCell('LB'),
-              _buildHeaderCell('PTS', isHighlight: true),
+              _HeaderCell('#'),
+              _HeaderCell('CLUB', align: TextAlign.left),
+              _HeaderCell('P'),
+              _HeaderCell('W'),
+              _HeaderCell('D'),
+              _HeaderCell('L'),
+              _HeaderCell('PF'),
+              _HeaderCell('PA'),
+              _HeaderCell('+/-'),
+              _HeaderCell('TB'),
+              _HeaderCell('LB'),
+              _HeaderCell('PTS', isHighlight: true),
             ],
           ),
 
@@ -1159,23 +1169,6 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderCell(String text,
-      {TextAlign align = TextAlign.center, bool isHighlight = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-      child: Text(
-        text,
-        textAlign: align,
-        style: TextStyle(
-          fontSize: 11.5,
-          fontWeight: FontWeight.w900,
-          color: isHighlight ? const Color(0xFFF59E0B) : const Color(0xFFCBD5E1),
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
   Widget _buildCell(String text,
       {TextAlign align = TextAlign.center, bool isBold = false, double fontSize = 12.5, Color? textColor}) {
     return Padding(
@@ -1218,242 +1211,329 @@ class BookletPrintView extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: const Color(0xFFCBD5E1)),
       ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: fixtures.length,
-        separatorBuilder: (_, _) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-        itemBuilder: (context, index) {
-          final f = fixtures[index];
-          final isHomeMatched = cleanHighlight != null &&
-              cleanHighlight.isNotEmpty &&
-              f.homeTeam.toLowerCase().contains(cleanHighlight);
-          final isAwayMatched = cleanHighlight != null &&
-              cleanHighlight.isNotEmpty &&
-              f.awayTeam.toLowerCase().contains(cleanHighlight);
-
-          final isCompleted = f.status.toLowerCase() == 'completed' ||
-              (f.homeScore != null && f.awayScore != null);
-
-          final isNextUpcoming = (nextUpcoming != null && (identical(f, nextUpcoming) || f.id == nextUpcoming.id));
-
-          final isEven = index % 2 == 0;
-          // Alternating White & Light Grey rows (identical to Standings table); Next match in Bright Yellow
-          final rowBg = isNextUpcoming
-              ? const Color(0xFFFEF08A) // Bright Yellow Highlight
-              : (isEven ? Colors.white : const Color(0xFFF9FAFB));
-
-          final shortDate = _formatShortDate(f);
-          final shortRound = _formatShortRound(f.roundNum);
-
-          return Container(
-            decoration: BoxDecoration(
-              color: rowBg,
-              border: isNextUpcoming
-                  ? Border.all(color: const Color(0xFFDC2626), width: 2) // Red Border
-                  : null,
+      child: Column(
+        children: [
+          // Table Header in Plymouth Oaks Green
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: const BoxDecoration(
+              color: plymstockGreenColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(5),
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10.5),
-            child: Row(
+            child: const Row(
               children: [
-                // Date, Round, KO Time & Next Match Badge on ONE Single Line
                 SizedBox(
-                  width: 275,
-                  child: Row(
-                    children: [
-                      Text(
-                        shortDate,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFF1F2937),
-                        ),
-                      ),
-                      if (shortRound.isNotEmpty) ...[
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFE2E8F0),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                          child: Text(
-                            shortRound,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFF475569),
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (isNextUpcoming) ...[
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFDC2626), // Bold Red Badge
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.star, size: 10, color: Colors.white),
-                              SizedBox(width: 3),
-                              Text(
-                                'NEXT MATCH',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: 0.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const SizedBox(width: 5),
-                      // KO Time Badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-                        decoration: BoxDecoration(
-                          color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFFEF3C7),
-                          borderRadius: BorderRadius.circular(3),
-                          border: Border.all(
-                            color: isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFF59E0B),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.access_time, size: 10, color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309)),
-                            const SizedBox(width: 2.5),
-                            Text(
-                              'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  width: 320,
+                  child: Text(
+                    'DATE & ROUND',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
                   ),
                 ),
-
-                const SizedBox(width: 8),
-
-                // Home Team
+                SizedBox(width: 8),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          f.homeTeam,
-                          textAlign: TextAlign.end,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: (isHomeMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
-                            color: isNextUpcoming
-                                ? const Color(0xFF991B1B)
-                                : (isHomeMatched ? const Color(0xFF92400E) : const Color(0xFF1F2937)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      _buildTeamLogo(f.homeTeam, f.homeLogoUrl, size: 20),
-                    ],
+                  child: Text(
+                    'HOME TEAM',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
                   ),
                 ),
-
-                // Score / VS Box
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                  constraints: const BoxConstraints(minWidth: 54),
-                  decoration: BoxDecoration(
-                    color: isCompleted
-                        ? const Color(0xFF0F172A)
-                        : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: isCompleted
-                          ? const Color(0xFF334155)
-                          : (isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFF59E0B)),
-                      width: 1,
-                    ),
-                  ),
+                SizedBox(
+                  width: 70,
                   child: Center(
                     child: Text(
-                      isCompleted
-                          ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
-                          : 'VS',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: isCompleted
-                            ? Colors.white
-                            : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
-                      ),
+                      'SCORE',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFFDE68A), letterSpacing: 0.5),
                     ),
                   ),
                 ),
-
-                // Away Team
                 Expanded(
-                  child: Row(
-                    children: [
-                      _buildTeamLogo(f.awayTeam, f.awayLogoUrl, size: 20),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          f.awayTeam,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: (isAwayMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
-                            color: isNextUpcoming
-                                ? const Color(0xFF991B1B)
-                                : (isAwayMatched ? const Color(0xFF92400E) : const Color(0xFF1F2937)),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'AWAY TEAM',
+                    textAlign: TextAlign.start,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
                   ),
                 ),
-
-                const SizedBox(width: 8),
-
-                // Status Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
-                  decoration: BoxDecoration(
-                    color: isCompleted
-                        ? const Color(0xFFDCFCE7)
-                        : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Text(
-                    isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: isCompleted
-                          ? const Color(0xFF15803D)
-                          : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
+                SizedBox(width: 8),
+                SizedBox(
+                  width: 76,
+                  child: Center(
+                    child: Text(
+                      'STATUS',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
                     ),
                   ),
                 ),
               ],
             ),
-          );
-        },
+          ),
+
+          // Fixture Rows
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: fixtures.length,
+            separatorBuilder: (_, _) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            itemBuilder: (context, index) {
+              final f = fixtures[index];
+              final isHomeMatched = cleanHighlight != null &&
+                  cleanHighlight.isNotEmpty &&
+                  f.homeTeam.toLowerCase().contains(cleanHighlight);
+              final isAwayMatched = cleanHighlight != null &&
+                  cleanHighlight.isNotEmpty &&
+                  f.awayTeam.toLowerCase().contains(cleanHighlight);
+
+              final isCompleted = f.status.toLowerCase() == 'completed' ||
+                  (f.homeScore != null && f.awayScore != null);
+
+              final isNextUpcoming = (nextUpcoming != null && (identical(f, nextUpcoming) || f.id == nextUpcoming.id));
+
+              final isEven = index % 2 == 0;
+              // Alternating White & Light Grey rows (identical to Standings table); Next match in Bright Yellow
+              final rowBg = isNextUpcoming
+                  ? const Color(0xFFFEF08A) // Bright Yellow Highlight
+                  : (isEven ? Colors.white : const Color(0xFFF9FAFB));
+
+              final fullDate = _formatFullDate(f);
+              final fullRound = _formatFullRound(f.roundNum);
+
+              return Container(
+                decoration: BoxDecoration(
+                  color: rowBg,
+                  border: isNextUpcoming
+                      ? Border.all(color: const Color(0xFFDC2626), width: 2) // Red Border
+                      : null,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10.5),
+                child: Row(
+                  children: [
+                    // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Single Line
+                    SizedBox(
+                      width: 320,
+                      child: Row(
+                        children: [
+                          Text(
+                            fullDate,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFF1F2937),
+                            ),
+                          ),
+                          if (fullRound.isNotEmpty) ...[
+                            const SizedBox(width: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFE2E8F0),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: Text(
+                                fullRound,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFF475569),
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (isNextUpcoming) ...[
+                            const SizedBox(width: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDC2626), // Bold Red Badge
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.star, size: 10, color: Colors.white),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'NEXT MATCH',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 6),
+                          // KO Time Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+                            decoration: BoxDecoration(
+                              color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(3),
+                              border: Border.all(
+                                color: isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFF59E0B),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.access_time, size: 10, color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309)),
+                                const SizedBox(width: 2.5),
+                                Text(
+                                  'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFB45309),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Home Team
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              f.homeTeam,
+                              textAlign: TextAlign.end,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: (isHomeMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
+                                color: isNextUpcoming
+                                    ? const Color(0xFF991B1B)
+                                    : (isHomeMatched ? const Color(0xFF92400E) : const Color(0xFF1F2937)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          _buildTeamLogo(f.homeTeam, f.homeLogoUrl, size: 20),
+                        ],
+                      ),
+                    ),
+
+                    // Score / VS Box
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      constraints: const BoxConstraints(minWidth: 54),
+                      decoration: BoxDecoration(
+                        color: isCompleted
+                            ? plymstockGreenColor
+                            : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: isCompleted
+                              ? const Color(0xFF004529)
+                              : (isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFFF59E0B)),
+                          width: 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          isCompleted
+                              ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
+                              : 'VS',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: isCompleted
+                                ? Colors.white
+                                : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Away Team
+                    Expanded(
+                      child: Row(
+                        children: [
+                          _buildTeamLogo(f.awayTeam, f.awayLogoUrl, size: 20),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              f.awayTeam,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: (isAwayMatched || isNextUpcoming) ? FontWeight.w900 : FontWeight.w600,
+                                color: isNextUpcoming
+                                    ? const Color(0xFF991B1B)
+                                    : (isAwayMatched ? const Color(0xFF92400E) : const Color(0xFF1F2937)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Status Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: isCompleted
+                            ? const Color(0xFFDCFCE7)
+                            : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: isCompleted
+                              ? const Color(0xFF15803D)
+                              : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderCell extends StatelessWidget {
+  final String text;
+  final TextAlign align;
+  final bool isHighlight;
+
+  const _HeaderCell(this.text, {this.align = TextAlign.center, this.isHighlight = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+      child: Text(
+        text,
+        textAlign: align,
+        style: TextStyle(
+          fontSize: 11.5,
+          fontWeight: FontWeight.w900,
+          color: isHighlight ? const Color(0xFFFDE68A) : Colors.white,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

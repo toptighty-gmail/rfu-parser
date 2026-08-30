@@ -156,7 +156,8 @@ class _HomeViewState extends State<HomeView> {
 
     setState(() => _isLoading = true);
 
-    final targetDivision = hasDivision ? _selectedDivision : null;
+    // If searching by team, do NOT constrain the query by the previously active division!
+    final targetDivision = hasTeam ? null : (hasDivision ? _selectedDivision : null);
     final targetTeam = hasTeam ? team : null;
 
     DivisionData? data;
@@ -511,7 +512,12 @@ class _HomeViewState extends State<HomeView> {
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.goldAccent.withValues(alpha: 0.20),
+                                AppTheme.emeraldAccent.withValues(alpha: 0.12),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppTheme.goldAccent, width: 1.5),
                           ),
@@ -521,51 +527,94 @@ class _HomeViewState extends State<HomeView> {
                               Expanded(
                                 child: Wrap(
                                   crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 12,
-                                  runSpacing: 6,
+                                  spacing: 10,
+                                  runSpacing: 8,
                                   children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.shield, color: AppTheme.goldAccent, size: 20),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'SELECTED TEAM CONTEXT: ${_searchController.text.trim().toUpperCase()}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w900,
-                                            color: AppTheme.goldAccent,
-                                            letterSpacing: 1.1,
-                                            fontSize: 13,
+                                    // Highlighted Club Name Badge
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.goldAccent,
+                                        borderRadius: BorderRadius.circular(6),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.25),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.shield, size: 15, color: Colors.black),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'TEAM: ${_searchController.text.trim().toUpperCase()}',
+                                            style: const TextStyle(
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.black,
+                                              letterSpacing: 0.6,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+
+                                    // Division Badge in Oaks Racing Green
                                     if (_divisionData?.divisionName != null &&
                                         _divisionData!.divisionName.isNotEmpty &&
                                         !_divisionData!.divisionName.startsWith('Team:'))
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.goldAccent,
+                                          color: const Color(0xFF005A36), // Oaks Racing Green
                                           borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFF007A48), width: 1),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.emoji_events, size: 14, color: Colors.black),
+                                            const Icon(Icons.emoji_events, size: 14, color: Color(0xFFFDE68A)),
                                             const SizedBox(width: 5),
                                             Text(
                                               'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w900,
-                                                color: Colors.black,
+                                                color: Color(0xFFFDE68A),
                                                 letterSpacing: 0.5,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
+
+                                    // Season Badge
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.darkBg,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: AppTheme.cardBorder),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.calendar_month, size: 13, color: AppTheme.goldAccent),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'SEASON: $_selectedSeason',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.textPrimary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

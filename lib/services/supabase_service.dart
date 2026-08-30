@@ -722,14 +722,26 @@ class SupabaseService {
             .ilike('team_name', '%$cleanTeam%');
 
         if (standingsMatches != null && (standingsMatches as List).isNotEmpty) {
-          dynamic bestMatch = standingsMatches.first;
+          dynamic bestMatch;
+          // 1st Priority: Strict exact string match (e.g. "Brixham" == "Brixham", NOT "Brixham II")
           for (var match in standingsMatches) {
-            final tName = match['team_name']?.toString() ?? '';
-            if (FixtureList.isExactTeamMatch(tName, cleanTeam)) {
+            final tName = match['team_name']?.toString().trim().toLowerCase() ?? '';
+            if (tName == cleanTeam.toLowerCase()) {
               bestMatch = match;
               break;
             }
           }
+          // 2nd Priority: Normalized squad match via isExactTeamMatch
+          if (bestMatch == null) {
+            for (var match in standingsMatches) {
+              final tName = match['team_name']?.toString() ?? '';
+              if (FixtureList.isExactTeamMatch(tName, cleanTeam)) {
+                bestMatch = match;
+                break;
+              }
+            }
+          }
+          bestMatch ??= standingsMatches.first;
 
           final divInfo = bestMatch['divisions'];
           if (divInfo != null) {

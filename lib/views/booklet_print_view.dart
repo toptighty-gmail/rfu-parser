@@ -13,6 +13,8 @@ import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../models/standing_entry.dart';
 import '../widgets/team_logo_image.dart';
+import '../widgets/fixture_list.dart';
+import '../services/rfu_team_registry.dart';
 import '../theme/app_theme.dart';
 
 class PdfLogoItem {
@@ -92,21 +94,51 @@ class BookletPrintView extends StatelessWidget {
     return PdfColor(c.r, c.g, c.b, c.a);
   }
 
+  static bool isMatchForTeam(Fixture f, String? filter) {
+    if (filter == null || filter.trim().isEmpty) return true;
+    final cleanFilter = filter.trim();
+
+    // Check custom match context (e.g. Friendlies / Cup entries added in admin)
+    if (f.isCustom) {
+      final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanFilter.toLowerCase());
+      if (targetTeamId != null && f.rfuTeamId != null) {
+        if (f.rfuTeamId == targetTeamId) return true;
+      }
+      if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
+        if (FixtureList.isExactTeamMatch(f.contextTeam!, cleanFilter)) return true;
+      }
+    }
+
+    return FixtureList.isExactTeamMatch(f.homeTeam, cleanFilter) ||
+        FixtureList.isExactTeamMatch(f.awayTeam, cleanFilter);
+  }
+
   static DateTime _parseFixtureDate(Fixture f) {
     if (f.dateIso.isNotEmpty) {
       final dt = DateTime.tryParse(f.dateIso);
       if (dt != null) return dt;
     }
+    var clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+    // Remove ordinal suffixes like 20th -> 20, 1st -> 1, 2nd -> 2, 3rd -> 3
+    clean = clean.replaceAll(RegExp(r'(\d+)(st|nd|rd|th)', caseSensitive: false), r'$1');
+
     try {
-      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
       return DateFormat('d MMM yyyy').parse(clean);
     } catch (_) {}
     try {
-      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+      return DateFormat('d MMMM yyyy').parse(clean);
+    } catch (_) {}
+    try {
       return DateFormat('MMMM d, yyyy').parse(clean);
     } catch (_) {}
     try {
-      return DateFormat('dd/MM/yyyy').parse(f.date);
+      return DateFormat('dd/MM/yyyy').parse(clean);
+    } catch (_) {}
+    try {
+      return DateFormat('d/M/yyyy').parse(clean);
+    } catch (_) {}
+    try {
+      return DateFormat('d MMM').parse(clean);
     } catch (_) {}
     return DateTime(2099);
   }
@@ -248,7 +280,6 @@ class BookletPrintView extends StatelessWidget {
     Map<String, PdfLogoItem> logoCache,
   ) async {
     final doc = pw.Document();
-    final cleanHighlight = filterTeam?.trim().toLowerCase();
 
     // Identify the next upcoming fixture (first uncompleted fixture chronologically)
     Fixture? nextUpcomingFixture;
@@ -440,9 +471,7 @@ class BookletPrintView extends StatelessWidget {
                   ...divisionData.standings.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final s = entry.value;
-                    final isMatched = cleanHighlight != null &&
-                        cleanHighlight.isNotEmpty &&
-                        s.teamName.toLowerCase().contains(cleanHighlight);
+                    final isMatched = isTeamFiltered && FixtureList.isExactTeamMatch(s.teamName, filterTeam);
 
                     final rowBg = isMatched
                         ? PdfColor.fromHex('#FEF08A') // Bright Yellow Highlight
@@ -576,12 +605,12 @@ class BookletPrintView extends StatelessWidget {
                   return sortedFixtures.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final f = entry.value;
-                    final isHomeMatched = cleanHighlight != null &&
-                        cleanHighlight.isNotEmpty &&
-                        f.homeTeam.toLowerCase().contains(cleanHighlight);
-                    final isAwayMatched = cleanHighlight != null &&
-                        cleanHighlight.isNotEmpty &&
-                        f.awayTeam.toLowerCase().contains(cleanHighlight);
+                    final isHomeMatched = isTeamFiltered &&
+                        (FixtureList.isExactTeamMatch(f.homeTeam, filterTeam) ||
+                         (f.isCustom && f.contextTeam != null && FixtureList.isExactTeamMatch(f.contextTeam!, filterTeam)));
+                    final isAwayMatched = isTeamFiltered &&
+                        (FixtureList.isExactTeamMatch(f.awayTeam, filterTeam) ||
+                         (f.isCustom && f.contextTeam != null && FixtureList.isExactTeamMatch(f.contextTeam!, filterTeam)));
 
                     final isCompleted = f.status.toLowerCase() == 'completed' ||
                         (f.homeScore != null && f.awayScore != null);
@@ -931,15 +960,11 @@ class BookletPrintView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cleanFilter = filterTeam?.trim().toLowerCase();
-    final isTeamFiltered = cleanFilter != null && cleanFilter.isNotEmpty;
+    final isTeamFiltered = filterTeam != null && filterTeam!.trim().isNotEmpty;
 
     final rawFixtures = isTeamFiltered
-        ? divisionData.fixtures.where((f) {
-            return f.homeTeam.toLowerCase().contains(cleanFilter) ||
-                f.awayTeam.toLowerCase().contains(cleanFilter);
-          }).toList()
-        : divisionData.fixtures;
+        ? divisionData.fixtures.where((f) => isMatchForTeam(f, filterTeam)).toList()
+        : List<Fixture>.from(divisionData.fixtures);
 
     // Strict chronological sort by calendar date and KO time
     final activeFixtures = List<Fixture>.from(rawFixtures)
@@ -1210,8 +1235,6 @@ class BookletPrintView extends StatelessWidget {
       );
     }
 
-    final cleanHighlight = highlightTeam?.trim().toLowerCase();
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1264,9 +1287,7 @@ class BookletPrintView extends StatelessWidget {
           ...standings.asMap().entries.map((entry) {
             final idx = entry.key;
             final s = entry.value;
-            final isMatched = cleanHighlight != null &&
-                cleanHighlight.isNotEmpty &&
-                s.teamName.toLowerCase().contains(cleanHighlight);
+            final isMatched = highlightTeam != null && FixtureList.isExactTeamMatch(s.teamName, highlightTeam);
 
             final isEven = idx % 2 == 0;
             final rowColor = isMatched
@@ -1369,8 +1390,6 @@ class BookletPrintView extends StatelessWidget {
       );
     }
 
-    final cleanHighlight = highlightTeam?.trim().toLowerCase();
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1444,12 +1463,12 @@ class BookletPrintView extends StatelessWidget {
             separatorBuilder: (_, _) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
             itemBuilder: (context, index) {
               final f = fixtures[index];
-              final isHomeMatched = cleanHighlight != null &&
-                  cleanHighlight.isNotEmpty &&
-                  f.homeTeam.toLowerCase().contains(cleanHighlight);
-              final isAwayMatched = cleanHighlight != null &&
-                  cleanHighlight.isNotEmpty &&
-                  f.awayTeam.toLowerCase().contains(cleanHighlight);
+              final isHomeMatched = highlightTeam != null &&
+                  (FixtureList.isExactTeamMatch(f.homeTeam, highlightTeam) ||
+                   (f.isCustom && f.contextTeam != null && FixtureList.isExactTeamMatch(f.contextTeam!, highlightTeam)));
+              final isAwayMatched = highlightTeam != null &&
+                  (FixtureList.isExactTeamMatch(f.awayTeam, highlightTeam) ||
+                   (f.isCustom && f.contextTeam != null && FixtureList.isExactTeamMatch(f.contextTeam!, highlightTeam)));
 
               final isCompleted = f.status.toLowerCase() == 'completed' ||
                   (f.homeScore != null && f.awayScore != null);
@@ -1498,7 +1517,11 @@ class BookletPrintView extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
-                                color: isNextUpcoming ? const Color(0xFFFDE047) : const Color(0xFFE2E8F0),
+                                color: isNextUpcoming
+                                    ? const Color(0xFFFDE047)
+                                    : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
+                                        ? theme.tertiaryAccent.withValues(alpha: 0.2)
+                                        : const Color(0xFFE2E8F0)),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -1506,7 +1529,11 @@ class BookletPrintView extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: isNextUpcoming ? const Color(0xFF991B1B) : const Color(0xFF475569),
+                                  color: isNextUpcoming
+                                      ? const Color(0xFF991B1B)
+                                      : (f.isCustom || fullRound.toLowerCase().contains('cup') || fullRound.toLowerCase().contains('friendly')
+                                          ? theme.tertiaryAccent
+                                          : const Color(0xFF475569)),
                                 ),
                               ),
                             ),

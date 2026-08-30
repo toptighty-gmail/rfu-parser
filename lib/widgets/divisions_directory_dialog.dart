@@ -112,8 +112,8 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
         ],
       ),
       content: SizedBox(
-        width: 500,
-        height: 520,
+        width: MediaQuery.of(context).size.width > 600 ? 540 : MediaQuery.of(context).size.width * 0.92,
+        height: (MediaQuery.of(context).size.height * 0.75).clamp(400.0, 600.0),
         child: Column(
           children: [
             // Search Input

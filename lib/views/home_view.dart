@@ -8,6 +8,7 @@ import '../services/supabase_service.dart';
 import '../services/team_logo_provider.dart';
 import '../services/rfu_team_registry.dart';
 import '../theme/app_theme.dart';
+import '../theme/responsive_layout.dart';
 import '../widgets/navbar.dart';
 import '../widgets/standings_table.dart';
 import '../widgets/fixture_list.dart';
@@ -333,17 +334,14 @@ class _HomeViewState extends State<HomeView> {
             )
           : _divisionData == null
               ? SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 40 : 16, vertical: 24),
+                  padding: ResponsiveLayout.horizontalPadding(context),
                   child: _buildBlankInitialState(),
                 )
               : Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: double.infinity),
+                    constraints: ResponsiveLayout.contentConstraints(context),
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 40 : 16,
-                        vertical: 24,
-                      ),
+                      padding: ResponsiveLayout.horizontalPadding(context),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

@@ -188,7 +188,7 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       ),
       content: SingleChildScrollView(
         child: SizedBox(
-          width: 480,
+          width: MediaQuery.of(context).size.width > 600 ? 520 : MediaQuery.of(context).size.width * 0.92,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

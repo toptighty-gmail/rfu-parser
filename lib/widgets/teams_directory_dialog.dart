@@ -135,8 +135,8 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
         ],
       ),
       content: SizedBox(
-        width: 450,
-        height: 480,
+        width: MediaQuery.of(context).size.width > 600 ? 480 : MediaQuery.of(context).size.width * 0.92,
+        height: (MediaQuery.of(context).size.height * 0.72).clamp(380.0, 560.0),
         child: Column(
           children: [
             TextField(

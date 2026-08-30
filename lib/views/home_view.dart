@@ -837,7 +837,7 @@ class _HomeViewState extends State<HomeView> {
         rfuTeamId: activeRfuId,
         onSave: (fixture) async {
           if (existing != null && existing.id != null) {
-            await SupabaseService.updateCustomFixture(existing.id!, fixture.toJson());
+            await SupabaseService.updateCustomFixture(existing.id!, fixture);
           } else {
             await SupabaseService.addCustomFixture(fixture, _selectedDivision);
           }

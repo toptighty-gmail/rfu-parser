@@ -298,9 +298,11 @@ class SupabaseService {
     String? fixtureId;
     Map<String, dynamic> updatePayload = {};
 
+    Fixture? updatedFixture;
+
     if (arg1 is Fixture) {
       fixtureId = arg1.id;
-      updatePayload = arg1.toJson();
+      updatedFixture = arg1;
       final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
       if (idx != -1) {
         _localCustomFixtures[idx] = arg1;
@@ -308,26 +310,57 @@ class SupabaseService {
       }
     } else if (arg1 is String && arg2 is Map<String, dynamic>) {
       fixtureId = arg1;
-      updatePayload = arg2;
       final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
       if (idx != -1) {
-        final updatedFix = Fixture.fromJson({..._localCustomFixtures[idx].toJson(), ...updatePayload});
-        _localCustomFixtures[idx] = updatedFix;
+        final merged = Fixture.fromJson({..._localCustomFixtures[idx].toJson(), ...arg2});
+        _localCustomFixtures[idx] = merged;
+        updatedFixture = merged;
+        await _saveLocalFixturesCache();
+      } else {
+        updatedFixture = Fixture.fromJson(arg2);
+      }
+    } else if (arg1 is String && arg2 is Fixture) {
+      fixtureId = arg1;
+      updatedFixture = arg2;
+      final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
+      if (idx != -1) {
+        _localCustomFixtures[idx] = arg2;
         await _saveLocalFixturesCache();
       }
     }
 
-    if (fixtureId != null) {
+    if (fixtureId != null && updatedFixture != null) {
+      final hScore = updatedFixture.homeScore;
+      final aScore = updatedFixture.awayScore;
+      final scoreStr = (hScore != null && aScore != null) ? '$hScore - $aScore' : 'v';
+      final hId = updatedFixture.homeTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.homeTeam);
+      final aId = updatedFixture.awayTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.awayTeam);
+      final ctxId = updatedFixture.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.contextTeam ?? updatedFixture.homeTeam);
+
+      final dbPayload = <String, dynamic>{
+        'date': updatedFixture.date,
+        'time': updatedFixture.time,
+        'home_team': updatedFixture.homeTeam,
+        'away_team': updatedFixture.awayTeam,
+        'score': scoreStr,
+        'status': updatedFixture.status,
+        'notes': updatedFixture.venue,
+        if (updatedFixture.contextTeam != null) 'context_team': updatedFixture.contextTeam,
+        if (ctxId != null) 'rfu_team_id': ctxId,
+        if (hId != null) 'home_team_id': hId,
+        if (aId != null) 'away_team_id': aId,
+      };
+
       try {
         if (!fixtureId.startsWith('cust_')) {
-          await ApiService.updateBackendCustomFixture(fixtureId, updatePayload);
+          await ApiService.updateBackendCustomFixture(fixtureId, dbPayload);
         }
       } catch (_) {}
 
       final client = _client;
       if (client != null) {
         try {
-          await client.from('custom_fixtures').update(updatePayload).eq('id', fixtureId);
+          await client.from('custom_fixtures').update(dbPayload).eq('id', fixtureId);
           return true;
         } catch (e) {
           debugPrint('Supabase update custom fixture error: $e');

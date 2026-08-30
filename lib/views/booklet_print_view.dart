@@ -1,5 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -478,6 +481,62 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
+  Future<void> _exportPdf(
+    BuildContext context,
+    List<Fixture> activeFixtures,
+    bool isTeamFiltered,
+  ) async {
+    try {
+      final safeName = (filterTeam ?? divisionData.divisionName)
+          .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+      final fileName = 'RFU_Schedule_$safeName.pdf';
+
+      final bytes = await _generatePdfDoc(
+        PdfPageFormat.a4,
+        activeFixtures,
+        isTeamFiltered,
+      );
+
+      if (kIsWeb) {
+        final blob = html.Blob([bytes], 'application/pdf');
+        final url = html.Url.createObjectUrlFromBlob(blob);
+
+        // 1. Open PDF in a new tab for immediate viewing & printing
+        html.window.open(url, '_blank');
+
+        // 2. Download the file
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute('download', fileName)
+          ..style.display = 'none';
+        html.document.body?.append(anchor);
+        anchor.click();
+        anchor.remove();
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('PDF generated! Opened in new tab & download started.'),
+              backgroundColor: AppTheme.emeraldAccent,
+            ),
+          );
+        }
+        return;
+      }
+
+      await Printing.sharePdf(bytes: bytes, filename: fileName);
+    } catch (e) {
+      debugPrint('PDF Export Error: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating PDF: $e'),
+            backgroundColor: AppTheme.rubyAccent,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cleanFilter = filterTeam?.trim().toLowerCase();
@@ -523,27 +582,10 @@ class BookletPrintView extends StatelessWidget {
               ),
               icon: const Icon(Icons.picture_as_pdf, size: 18),
               label: const Text(
-                'Print / Save to PDF',
+                'Print / Save as PDF',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
-              onPressed: () async {
-                try {
-                  await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) => _generatePdfDoc(format, activeFixtures, isTeamFiltered),
-                    name: 'RFU_Schedule_${(filterTeam ?? divisionData.divisionName).replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_')}.pdf',
-                  );
-                } catch (e) {
-                  debugPrint('PDF print error: $e');
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error launching PDF viewer: $e'),
-                        backgroundColor: AppTheme.rubyAccent,
-                      ),
-                    );
-                  }
-                }
-              },
+              onPressed: () => _exportPdf(context, activeFixtures, isTeamFiltered),
             ),
           ),
         ],

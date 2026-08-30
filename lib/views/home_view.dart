@@ -256,15 +256,16 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Widget _buildTabButton(String tabId, String label, IconData icon) {
+  Widget _buildTabButton(String tabId, String label, IconData icon, AppThemeMode theme) {
     final isActive = _activeTab == tabId;
+    final activeTextColor = Colors.black;
     return InkWell(
       onTap: () => setState(() => _activeTab = tabId),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.goldAccent : Colors.transparent,
+          color: isActive ? theme.goldAccent : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -273,7 +274,7 @@ class _HomeViewState extends State<HomeView> {
             Icon(
               icon,
               size: 16,
-              color: isActive ? Colors.black : AppTheme.textMuted,
+              color: isActive ? activeTextColor : theme.textMuted,
             ),
             const SizedBox(width: 8),
             Text(
@@ -281,7 +282,7 @@ class _HomeViewState extends State<HomeView> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
-                color: isActive ? Colors.black : AppTheme.textMuted,
+                color: isActive ? activeTextColor : theme.textMuted,
               ),
             ),
           ],
@@ -592,34 +593,34 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     ),
 
-                                    // Division Badge in Oaks Racing Green
-                                    if (_divisionData?.divisionName != null &&
-                                        _divisionData!.divisionName.isNotEmpty &&
-                                        !_divisionData!.divisionName.startsWith('Team:'))
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF005A36), // Oaks Racing Green
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFF007A48), width: 1),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(Icons.emoji_events, size: 14, color: Color(0xFFFDE68A)),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w900,
-                                                color: Color(0xFFFDE68A),
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                     // Division Badge matching selected theme
+                                     if (_divisionData?.divisionName != null &&
+                                         _divisionData!.divisionName.isNotEmpty &&
+                                         !_divisionData!.divisionName.startsWith('Team:'))
+                                       Container(
+                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                                         decoration: BoxDecoration(
+                                           color: currentTheme.surfaceBg,
+                                           borderRadius: BorderRadius.circular(6),
+                                           border: Border.all(color: currentTheme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                         ),
+                                         child: Row(
+                                           mainAxisSize: MainAxisSize.min,
+                                           children: [
+                                             Icon(Icons.emoji_events, size: 14, color: currentTheme.goldAccent),
+                                             const SizedBox(width: 5),
+                                             Text(
+                                               'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
+                                               style: TextStyle(
+                                                 fontSize: 11,
+                                                 fontWeight: FontWeight.w900,
+                                                 color: currentTheme.goldAccent,
+                                                 letterSpacing: 0.5,
+                                               ),
+                                             ),
+                                           ],
+                                         ),
+                                       ),
 
                                     // Season Badge
                                     Container(
@@ -787,9 +788,9 @@ class _HomeViewState extends State<HomeView> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildTabButton('Standings', 'League Standings', Icons.table_chart),
+                            _buildTabButton('Standings', 'League Standings', Icons.table_chart, currentTheme),
                             const SizedBox(width: 4),
-                            _buildTabButton('Fixtures', 'Fixtures & Results', Icons.event),
+                            _buildTabButton('Fixtures', 'Fixtures & Results', Icons.event, currentTheme),
                           ],
                         ),
                       ),

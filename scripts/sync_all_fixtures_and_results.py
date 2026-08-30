@@ -79,9 +79,15 @@ def sync_all_fixtures():
 
         if fixtures_list:
             fixtures_payload = []
+            seen_pairings = set()
             for f in fixtures_list:
                 home = f.home_team
                 away = f.away_team
+                pair_key = (home.lower().strip(), away.lower().strip())
+                if pair_key in seen_pairings:
+                    continue
+                seen_pairings.add(pair_key)
+
                 hid = team_lookup.get(home.lower().strip())
                 aid = team_lookup.get(away.lower().strip())
 
@@ -102,7 +108,10 @@ def sync_all_fixtures():
                     'updated_at': 'now()'
                 })
 
-            # Chunk upsert
+            # Delete old division fixtures before re-syncing to prevent duplicate rounds
+            requests.delete(f'{SUPABASE_URL}/rest/v1/fixtures?division_id=eq.{did}', headers=headers)
+
+            # Chunk insert
             for i in range(0, len(fixtures_payload), 50):
                 chunk = fixtures_payload[i:i+50]
                 requests.post(f'{SUPABASE_URL}/rest/v1/fixtures', headers=headers, json=chunk)

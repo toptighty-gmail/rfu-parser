@@ -1041,6 +1041,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildBlankInitialState() {
+    final theme = AppTheme.currentMode;
     return Center(
       child: Container(
         width: double.infinity,
@@ -1054,26 +1055,26 @@ class _HomeViewState extends State<HomeView> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                color: theme.goldAccent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.sports_rugby, color: AppTheme.goldAccent, size: 44),
+              child: Icon(Icons.sports_rugby, color: theme.goldAccent, size: 44),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'RFU FIXTURES & LEAGUE TABLES HUB',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.2,
-                color: AppTheme.goldAccent,
+                color: theme.goldAccent,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Select an RFU Division or search for a Team above to view live standings, fixtures, and results.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 14, height: 1.5),
+              style: TextStyle(color: theme.textMuted, fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -1083,7 +1084,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.goldAccent,
+                    backgroundColor: theme.goldAccent,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1094,7 +1095,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.goldAccent,
+                    backgroundColor: theme.goldAccent,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

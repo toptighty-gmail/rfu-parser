@@ -19,13 +19,13 @@ class DivisionsDirectoryDialog extends StatefulWidget {
 
 class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
   final TextEditingController _filterController = TextEditingController();
+  String _selectedCategory = 'All';
   List<String> _filteredDivisions = [];
-  String _selectedCategory = 'ALL';
 
   final List<String> _categories = [
-    'ALL',
-    'South West',
+    'All',
     'National',
+    'South West',
     'London & SE',
     'Midlands',
     'Northern',
@@ -34,7 +34,13 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
   @override
   void initState() {
     super.initState();
-    _applyFilters();
+    _filteredDivisions = List.from(widget.divisions);
+  }
+
+  @override
+  void dispose() {
+    _filterController.dispose();
+    super.dispose();
   }
 
   void _applyFilters() {
@@ -42,21 +48,19 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
     setState(() {
       _filteredDivisions = widget.divisions.where((div) {
         final d = div.toLowerCase();
-        
-        // 1. Text search filter
-        final matchesText = q.isEmpty || d.contains(q);
-        if (!matchesText) return false;
+        // Query match
+        if (q.isNotEmpty && !d.contains(q)) return false;
 
-        // 2. Category filter
-        if (_selectedCategory == 'ALL') return true;
-        if (_selectedCategory == 'South West') {
-          return d.contains('south west') || d.contains('devon') || d.contains('cornwall') || d.contains('somerset') || d.contains('western') || d.contains('severn');
-        }
+        // Category match
+        if (_selectedCategory == 'All') return true;
         if (_selectedCategory == 'National') {
-          return d.contains('national') || d.contains('premiership') || d.contains('championship');
+          return d.contains('premiership') || d.contains('championship') || d.contains('national');
+        }
+        if (_selectedCategory == 'South West') {
+          return d.contains('south west') || d.contains('tribute') || d.contains('western') || d.contains('devon') || d.contains('cornwall');
         }
         if (_selectedCategory == 'London & SE') {
-          return d.contains('london') || d.contains('se') || d.contains('kent') || d.contains('surrey') || d.contains('sussex') || d.contains('essex') || d.contains('herts');
+          return d.contains('london') || d.contains('south east') || d.contains('surrey') || d.contains('kent') || d.contains('essex') || d.contains('sussex');
         }
         if (_selectedCategory == 'Midlands') {
           return d.contains('midlands') || d.contains('warwick') || d.contains('leicester') || d.contains('nottingham');
@@ -86,27 +90,36 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.currentMode;
+
     return AlertDialog(
-      backgroundColor: AppTheme.surfaceBg,
+      backgroundColor: theme.surfaceBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.cardBorder),
+        side: BorderSide(color: theme.cardBorder, width: 1.2),
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.emoji_events, color: AppTheme.goldAccent),
-              SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: theme.goldAccent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.emoji_events, color: theme.goldAccent, size: 20),
+              ),
+              const SizedBox(width: 10),
               Text(
                 'RFU Divisions Directory',
-                style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(color: theme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: AppTheme.textMuted),
+            icon: Icon(Icons.close, color: theme.textMuted),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -119,17 +132,21 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
             // Search Input
             TextField(
               controller: _filterController,
-              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+              style: TextStyle(color: theme.textPrimary, fontSize: 14),
               onChanged: (_) => _applyFilters(),
               decoration: InputDecoration(
                 hintText: 'Search RFU Division (e.g. Regional 1, Tribute, Counties)...',
-                hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                prefixIcon: const Icon(Icons.search, color: AppTheme.goldAccent, size: 20),
+                hintStyle: TextStyle(color: theme.textMuted, fontSize: 13),
+                prefixIcon: Icon(Icons.search, color: theme.goldAccent, size: 20),
                 filled: true,
-                fillColor: AppTheme.darkBg,
+                fillColor: theme.darkBg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: AppTheme.cardBorder),
+                  borderSide: BorderSide(color: theme.cardBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: theme.goldAccent, width: 1.5),
                 ),
               ),
             ),
@@ -149,16 +166,16 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? Colors.black : AppTheme.textMuted,
+                          color: isSelected ? Colors.black : theme.textMuted,
                         ),
                       ),
                       selected: isSelected,
-                      selectedColor: AppTheme.goldAccent,
-                      backgroundColor: AppTheme.surfaceBg,
+                      selectedColor: theme.goldAccent,
+                      backgroundColor: theme.surfaceBg,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                         side: BorderSide(
-                          color: isSelected ? AppTheme.goldAccent : AppTheme.cardBorder,
+                          color: isSelected ? theme.goldAccent : theme.cardBorder,
                         ),
                       ),
                       onSelected: (selected) {
@@ -179,12 +196,12 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
             // Divisions List
             Expanded(
               child: _filteredDivisions.isEmpty
-                  ? const Center(
-                      child: Text('No matching RFU divisions found', style: TextStyle(color: AppTheme.textMuted)),
+                  ? Center(
+                      child: Text('No matching RFU divisions found', style: TextStyle(color: theme.textMuted)),
                     )
                   : ListView.separated(
                       itemCount: _filteredDivisions.length,
-                      separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
+                      separatorBuilder: (_, _) => Divider(height: 1, color: theme.cardBorder),
                       itemBuilder: (context, index) {
                         final divName = _filteredDivisions[index];
                         final isSelected = divName.toLowerCase().trim() == widget.selectedDivision.toLowerCase().trim();
@@ -192,16 +209,16 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
 
                         return Container(
                           decoration: BoxDecoration(
-                            color: isSelected ? AppTheme.goldAccent.withValues(alpha: 0.15) : Colors.transparent,
+                            color: isSelected ? theme.goldAccent.withValues(alpha: 0.15) : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
-                            border: isSelected ? Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.6)) : null,
+                            border: isSelected ? Border.all(color: theme.goldAccent.withValues(alpha: 0.6)) : null,
                           ),
                           child: ListTile(
                             dense: true,
                             leading: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppTheme.goldAccent : AppTheme.cardBorder,
+                                color: isSelected ? theme.goldAccent : theme.cardBorder,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -209,14 +226,14 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w900,
-                                  color: isSelected ? Colors.black : AppTheme.textPrimary,
+                                  color: isSelected ? Colors.black : theme.textPrimary,
                                 ),
                               ),
                             ),
                             title: Text(
                               divName,
                               style: TextStyle(
-                                color: isSelected ? AppTheme.goldAccent : AppTheme.textPrimary,
+                                color: isSelected ? theme.goldAccent : theme.textPrimary,
                                 fontSize: 13,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                               ),
@@ -225,7 +242,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                                 ? Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.goldAccent,
+                                      color: theme.goldAccent,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text(
@@ -238,7 +255,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                                       ),
                                     ),
                                   )
-                                : const Icon(Icons.chevron_right, color: AppTheme.textMuted, size: 16),
+                                : Icon(Icons.chevron_right, color: theme.textMuted, size: 16),
                             onTap: () {
                               Navigator.of(context).pop();
                               widget.onSelectDivision(divName);

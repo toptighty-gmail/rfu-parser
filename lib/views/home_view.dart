@@ -173,20 +173,40 @@ class _HomeViewState extends State<HomeView> {
 
     // 2. Secondary: Crawl live RFU web data if not cached in Supabase
     if (data == null || data.standings.isEmpty) {
-      data = await ApiService.crawlAndSyncLiveRFUData(
+      final crawledData = await ApiService.crawlAndSyncLiveRFUData(
         division: targetTeam == null ? targetDivision : null,
         team: targetTeam,
         season: _selectedSeason,
       );
+      if (crawledData != null) {
+        final isValid = crawledData.sourceUrl != null && 
+                        crawledData.sourceUrl!.trim().isNotEmpty && 
+                        crawledData.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+        if (isValid) {
+          data = crawledData;
+        } else {
+          debugPrint('Discarding backend crawl data: missing valid source_url (backend fallback)');
+        }
+      }
     }
 
     // 3. Fallback to parse endpoint if live crawl is still completing
     if (data == null || data.standings.isEmpty) {
-      data = await ApiService.fetchDivisionData(
+      final parsedData = await ApiService.fetchDivisionData(
         division: targetTeam == null ? targetDivision : null,
         team: targetTeam,
         season: _selectedSeason,
       );
+      if (parsedData != null) {
+        final isValid = parsedData.sourceUrl != null && 
+                        parsedData.sourceUrl!.trim().isNotEmpty && 
+                        parsedData.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+        if (isValid) {
+          data = parsedData;
+        } else {
+          debugPrint('Discarding backend parse data: missing valid source_url (backend fallback)');
+        }
+      }
     }
 
     // 4. Final Fallback: Offline Mock Data Provider

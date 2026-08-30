@@ -42,7 +42,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     'Falmouth', 'Penzance & Newlyn', 'Redruth', 'Hayle', 'Saltash',
     
     // Plymouth & District / Local Clubs
-    'Plymouth Oaks', 'Plymouth Argaum', 'Plymstock Albion Oaks', 'OPMs', 'Tamar Saracens',
+    'Plymstock Oaks', 'Plymouth Argaum', 'Plymstock Albion Oaks', 'OPMs', 'Tamar Saracens',
     'Old Techs', 'Salcombe', 'Totnes', 'Dartmouth', 'Buckfastleigh Ramblers',
     'South Molton', 'North Tawton', 'Ilfracombe', 'Torrington',
     'Honiton', 'Ottery St Mary', 'Exeter Athletic', 'Exeter Saracens',

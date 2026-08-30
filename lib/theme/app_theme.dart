@@ -6,7 +6,7 @@ enum AppThemeMode {
   plymouthOaks(
     id: 'plymouth_oaks',
     title: 'Green & Gold',
-    subtitle: 'British Racing Green & Gold (Plymouth Oaks RFC)',
+    subtitle: 'British Racing Green & Gold (Plymstock Oaks RFC)',
     darkBg: Color(0xFF041A11),
     surfaceBg: Color(0xFF0A291C),
     cardBorder: Color(0x3334D399),

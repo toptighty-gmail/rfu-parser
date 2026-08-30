@@ -47,7 +47,7 @@ class BookletPrintView extends StatelessWidget {
   static String _formatShortDate(Fixture f) {
     final dt = _parseFixtureDate(f);
     if (dt.year < 2090) {
-      return DateFormat('EEE d MMM yyyy').format(dt); // e.g. "Sat 26 Sep 2026"
+      return DateFormat('EEE d MMM yy').format(dt); // e.g. "Sat 20 Mar 26"
     }
     return f.date
         .replaceAll('Monday,', 'Mon')
@@ -129,42 +129,72 @@ class BookletPrintView extends StatelessWidget {
             margin: const pw.EdgeInsets.only(bottom: 12),
             padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: pw.BoxDecoration(
-              color: PdfColor.fromHex('#0F172A'),
+              color: PdfColor.fromHex('#1E293B'), // Sleek Slate Navy (lighter than pitch black)
               borderRadius: pw.BorderRadius.circular(6),
+              border: pw.Border.all(color: PdfColor.fromHex('#334155'), width: 1),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      divisionData.divisionName.toUpperCase(),
-                      style: pw.TextStyle(
-                        color: PdfColor.fromHex('#F59E0B'),
-                        fontWeight: pw.FontWeight.bold,
-                        fontSize: 14,
+                pw.Expanded(
+                  child: pw.Row(
+                    children: [
+                      if (isTeamFiltered) ...[
+                        pw.Container(
+                          width: 28,
+                          height: 28,
+                          margin: const pw.EdgeInsets.only(right: 8),
+                          decoration: pw.BoxDecoration(
+                            color: PdfColor.fromHex('#0F172A'),
+                            shape: pw.BoxShape.circle,
+                            border: pw.Border.all(color: PdfColor.fromHex('#F59E0B'), width: 1),
+                          ),
+                          child: pw.Center(
+                            child: pw.Text(
+                              filterTeam!.trim().substring(0, 1).toUpperCase(),
+                              style: pw.TextStyle(
+                                color: PdfColor.fromHex('#F59E0B'),
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            divisionData.divisionName.toUpperCase(),
+                            style: pw.TextStyle(
+                              color: PdfColor.fromHex('#F59E0B'),
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 13.5,
+                            ),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            isTeamFiltered
+                                ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
+                                : 'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
+                            style: pw.TextStyle(
+                              color: PdfColor.fromHex('#CBD5E1'),
+                              fontSize: 9,
+                              fontWeight: pw.FontWeight.normal,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    pw.SizedBox(height: 2),
-                    pw.Text(
-                      isTeamFiltered
-                          ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  •  SEASON: ${divisionData.season}'
-                          : 'OFFICIAL FIXTURE & LEAGUE SCHEDULE  •  SEASON: ${divisionData.season}',
-                      style: pw.TextStyle(
-                        color: PdfColor.fromHex('#CBD5E1'),
-                        fontSize: 9,
-                        fontWeight: pw.FontWeight.normal,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 pw.Container(
                   padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: pw.BoxDecoration(
-                    color: PdfColor.fromHex('#1E293B'),
+                    color: PdfColor.fromHex('#0F172A'),
                     borderRadius: pw.BorderRadius.circular(4),
-                    border: pw.Border.all(color: PdfColor.fromHex('#334155')),
+                    border: pw.Border.all(color: PdfColor.fromHex('#475569')),
                   ),
                   child: pw.Text(
                     'RFU OFFICIAL',
@@ -190,7 +220,7 @@ class BookletPrintView extends StatelessWidget {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Generated by RFU Hub • Official England Rugby League Data',
+                  'Generated by RFU Hub | Official England Rugby League Data',
                   style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
                 ),
                 pw.Text(
@@ -217,10 +247,10 @@ class BookletPrintView extends StatelessWidget {
                 ),
               ),
               pw.Table(
-                border: pw.TableBorder.all(color: PdfColor.fromHex('#E5E7EB'), width: 0.8),
+                border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.8),
                 columnWidths: const {
                   0: pw.FixedColumnWidth(28),  // Pos
-                  1: pw.FlexColumnWidth(5.0),  // Club Name
+                  1: pw.FlexColumnWidth(5.0),  // Club Name + Shield
                   2: pw.FixedColumnWidth(26),  // P
                   3: pw.FixedColumnWidth(26),  // W
                   4: pw.FixedColumnWidth(26),  // D
@@ -235,7 +265,7 @@ class BookletPrintView extends StatelessWidget {
                 children: [
                   // Table Header
                   pw.TableRow(
-                    decoration: pw.BoxDecoration(color: PdfColor.fromHex('#0F172A')),
+                    decoration: pw.BoxDecoration(color: PdfColor.fromHex('#1E293B')),
                     children: [
                       _buildPdfHeaderCell('#'),
                       _buildPdfHeaderCell('CLUB', align: pw.TextAlign.left),
@@ -251,7 +281,7 @@ class BookletPrintView extends StatelessWidget {
                       _buildPdfHeaderCell('PTS', isHighlight: true),
                     ],
                   ),
-                  // Table Rows with large clear typography & generous vertical padding
+                  // Table Rows with large clear typography, team shield badge & generous padding
                   ...divisionData.standings.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final s = entry.value;
@@ -263,19 +293,49 @@ class BookletPrintView extends StatelessWidget {
                         ? PdfColor.fromHex('#FEF3C7')
                         : (idx % 2 == 0 ? PdfColors.white : PdfColor.fromHex('#F9FAFB'));
 
+                    final teamInitial = s.teamName.trim().isNotEmpty
+                        ? s.teamName.trim().substring(0, 1).toUpperCase()
+                        : '';
+
                     return pw.TableRow(
                       decoration: pw.BoxDecoration(color: rowBg),
                       children: [
                         _buildPdfCell('${s.pos}', isBold: true, fontSize: 11),
                         pw.Padding(
                           padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8.5),
-                          child: pw.Text(
-                            s.teamName,
-                            style: pw.TextStyle(
-                              fontSize: 12,
-                              fontWeight: isMatched ? pw.FontWeight.bold : pw.FontWeight.normal,
-                              color: isMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#111827'),
-                            ),
+                          child: pw.Row(
+                            children: [
+                              // Vector Shield Badge for Club
+                              pw.Container(
+                                width: 16,
+                                height: 16,
+                                margin: const pw.EdgeInsets.only(right: 6),
+                                decoration: pw.BoxDecoration(
+                                  color: isMatched ? PdfColor.fromHex('#B45309') : PdfColor.fromHex('#1E293B'),
+                                  borderRadius: pw.BorderRadius.circular(3),
+                                ),
+                                child: pw.Center(
+                                  child: pw.Text(
+                                    teamInitial,
+                                    style: pw.TextStyle(
+                                      color: PdfColors.white,
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              pw.Expanded(
+                                child: pw.Text(
+                                  s.teamName,
+                                  style: pw.TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isMatched ? pw.FontWeight.bold : pw.FontWeight.normal,
+                                    color: isMatched ? PdfColor.fromHex('#92400E') : PdfColor.fromHex('#111827'),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         _buildPdfCell('${s.played}', fontSize: 10.5),
@@ -316,9 +376,9 @@ class BookletPrintView extends StatelessWidget {
               ),
             ),
             pw.Table(
-              border: pw.TableBorder.all(color: PdfColor.fromHex('#E5E7EB'), width: 0.6),
+              border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.6),
               columnWidths: const {
-                0: pw.FixedColumnWidth(180), // Date, Round, KO & Next Match Badge
+                0: pw.FixedColumnWidth(170), // Date, Round, KO & Next Match Badge
                 1: pw.FlexColumnWidth(3.2),  // Home Team
                 2: pw.FixedColumnWidth(52),  // Score / VS Box
                 3: pw.FlexColumnWidth(3.2),  // Away Team
@@ -327,7 +387,7 @@ class BookletPrintView extends StatelessWidget {
               children: [
                 // Header
                 pw.TableRow(
-                  decoration: pw.BoxDecoration(color: PdfColor.fromHex('#0F172A')),
+                  decoration: pw.BoxDecoration(color: PdfColor.fromHex('#1E293B')),
                   children: [
                     _buildPdfHeaderCell('DATE & ROUND', align: pw.TextAlign.left, fontSize: 9),
                     _buildPdfHeaderCell('HOME TEAM', align: pw.TextAlign.right, fontSize: 9),
@@ -662,7 +722,7 @@ class BookletPrintView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF111827),
+        backgroundColor: const Color(0xFF1E293B),
         elevation: 1,
         title: Text(
           isTeamFiltered
@@ -711,17 +771,22 @@ class BookletPrintView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Document Header Banner
+                  // Document Header Banner (Refined Slate Navy with Context Team Logo)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(6),
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF334155)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        if (isTeamFiltered) ...[
+                          _buildTeamLogo(filterTeam!, null, size: 36),
+                          const SizedBox(width: 14),
+                        ],
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,8 +803,8 @@ class BookletPrintView extends StatelessWidget {
                               const SizedBox(height: 3),
                               Text(
                                 isTeamFiltered
-                                    ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  •  SEASON: ${divisionData.season}'
-                                    : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  •  SEASON: ${divisionData.season}',
+                                    ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
+                                    : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
                                 style: const TextStyle(
                                   color: Color(0xFFCBD5E1),
                                   fontSize: 11,
@@ -750,11 +815,11 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E293B),
+                            color: const Color(0xFF0F172A),
                             borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: const Color(0xFF334155)),
+                            border: Border.all(color: const Color(0xFF475569)),
                           ),
                           child: const Text(
                             'RFU OFFICIAL',
@@ -800,7 +865,7 @@ class BookletPrintView extends StatelessWidget {
                                 Icon(Icons.arrow_downward, size: 14, color: Color(0xFF475569)),
                                 SizedBox(width: 6),
                                 Text(
-                                  'PAGE BREAK  •  FIXTURES & RESULTS START ON PAGE 2',
+                                  'PAGE BREAK  |  FIXTURES & RESULTS START ON PAGE 2',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -834,7 +899,7 @@ class BookletPrintView extends StatelessWidget {
                   // Footer
                   const Center(
                     child: Text(
-                      'Generated by RFU Hub • Official England Rugby League Data',
+                      'Generated by RFU Hub | Official England Rugby League Data',
                       style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontStyle: FontStyle.italic),
                     ),
                   ),
@@ -911,7 +976,7 @@ class BookletPrintView extends StatelessWidget {
           // Header Row
           TableRow(
             decoration: const BoxDecoration(
-              color: Color(0xFF0F172A),
+              color: Color(0xFF1E293B),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5),
@@ -933,7 +998,7 @@ class BookletPrintView extends StatelessWidget {
             ],
           ),
 
-          // Data Rows with large typography and generous vertical padding to fill Page 1
+          // Data Rows with large typography, clear logos and comfortable padding to fill Page 1
           ...standings.asMap().entries.map((entry) {
             final idx = entry.key;
             final s = entry.value;
@@ -1052,7 +1117,7 @@ class BookletPrintView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -1097,7 +1162,7 @@ class BookletPrintView extends StatelessWidget {
               children: [
                 // Date, Round, KO Time & Next Match Badge on ONE Single Line
                 SizedBox(
-                  width: 285,
+                  width: 275,
                   child: Row(
                     children: [
                       Text(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/supabase_service.dart';
+import '../services/rfu_team_registry.dart';
 import '../theme/app_theme.dart';
 
 class TeamsDirectoryDialog extends StatefulWidget {
@@ -13,11 +15,53 @@ class TeamsDirectoryDialog extends StatefulWidget {
 
 class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
   final TextEditingController _filterController = TextEditingController();
-  
+  final FocusNode _searchFocusNode = FocusNode();
+
   final List<String> _indexedTeams = [
+    'Plymstock Oaks',
+    'Plymstock Oaks II',
+    'Plymstock Oaks Colts',
+    'OPMs',
+    'OPMs II',
+    'Withycombe',
+    'Honiton',
+    'South Molton',
+    'Brixham',
+    'Brixham II',
+    'Tavistock',
+    'Tavistock II',
+    'Exeter Saracens',
+    'Bideford',
+    'Bideford II',
+    'Topsham',
+    'Topsham II',
+    'Crediton',
+    'Crediton II',
+    'Exmouth',
+    'Exmouth II',
+    'Barnstaple',
+    'Barnstaple II',
+    'Cullompton',
+    'Cullompton II',
+    'Devonport Services',
+    'Devonport Services II',
+    'Ivybridge',
+    'Paignton',
+    'Paignton II',
+    'Torquay Athletic',
+    'Torquay Athletic II',
+    'Newton Abbot',
+    'Newton Abbot II',
+    'Okehampton',
+    'Sidmouth',
+    'Teignmouth',
+    'Camborne',
+    'Redruth',
+    'Cornish Pirates',
+    'Plymouth Albion',
+    'Saltash',
+    'Saltash II',
     'Coventry',
-    'Coventry Welsh',
-    'Coventry Welsh Ladies',
     'Exeter Chiefs',
     'Bath Rugby',
     'Gloucester Rugby',
@@ -28,50 +72,9 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     'Harlequins',
     'Sale Sharks',
     'Newcastle Falcons',
-    'Cornish Pirates',
     'Ealing Trailfinders',
     'Bedford Blues',
     'Doncaster Knights',
-    'Richmond',
-    'Plymouth Albion',
-    'Plymstock Oaks',
-    'Plymstock Oaks II',
-    'Plymstock Oaks Colts',
-    'Devonport Services',
-    'Devonport Services II',
-    'Devonport Services Colts',
-    'Topsham',
-    'Topsham II',
-    'Topsham Colts',
-    'Camborne',
-    'Redruth',
-    'Exmouth',
-    'Barnstaple',
-    'Bideford',
-    'Brixham',
-    'Ivybridge',
-    'Launceston',
-    'Newton Abbot',
-    'Newton Abbot II',
-    'Crediton',
-    'Cullompton',
-    'Okehampton',
-    'Sidmouth',
-    'Teignmouth',
-    'Paignton',
-    'Paignton II',
-    'Torquay Athletic',
-    'Torquay Athletic II',
-    'Tavistock',
-    'Tavistock II',
-    'Tavistock Colts',
-    'Honiton',
-    'Withycombe',
-    'Tiverton',
-    'South Molton',
-    'Ilfracombe',
-    'Totnes',
-    'Salcombe',
   ];
 
   List<String> _filteredTeams = [];
@@ -81,32 +84,67 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
   void initState() {
     super.initState();
     _filteredTeams = List.from(_indexedTeams);
+    _loadDatabaseTeams();
+    
+    // Automatically focus the search box on dialog open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _searchFocusNode.requestFocus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _filterController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDatabaseTeams() async {
+    try {
+      final dbTeams = await SupabaseService.fetchAllDistinctTeams();
+      if (mounted && dbTeams.isNotEmpty) {
+        final combined = {..._indexedTeams, ...dbTeams}.toList()
+          ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+        setState(() {
+          _filteredTeams = combined;
+        });
+      }
+    } catch (_) {}
   }
 
   void _filter(String query) async {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) {
-      setState(() => _filteredTeams = List.from(_indexedTeams));
+      _loadDatabaseTeams();
       return;
     }
 
-    // 1. Local filter
-    final matches = _indexedTeams.where((t) => t.toLowerCase().contains(q)).toList();
+    final allTeams = {..._indexedTeams, ...RfuTeamRegistry.allKnownTeamNames}.toList();
+    final matches = allTeams.where((t) => t.toLowerCase().contains(q)).toList();
 
     setState(() {
       _filteredTeams = matches;
       _isLoading = true;
     });
 
-    // 2. Query England Rugby API
-    final apiResults = await ApiService.suggestTeams(query.trim());
-    if (mounted) {
-      final apiNames = apiResults.map((e) => (e['name'] ?? '').toString()).where((name) => name.isNotEmpty).toList();
-      final combined = {...matches, ...apiNames}.toList()..sort();
-      setState(() {
-        _filteredTeams = combined;
-        _isLoading = false;
-      });
+    // Query England Rugby API
+    try {
+      final apiResults = await ApiService.suggestTeams(query.trim());
+      if (mounted) {
+        final apiNames = apiResults
+            .map((e) => RfuTeamRegistry.normalizeTeamName((e['name'] ?? '').toString()))
+            .where((name) => name.isNotEmpty)
+            .toList();
+        final combined = {...matches, ...apiNames}.toList()..sort();
+        setState(() {
+          _filteredTeams = combined;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -125,7 +163,10 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
             children: [
               Icon(Icons.sports_rugby, color: AppTheme.goldAccent),
               SizedBox(width: 10),
-              Text('RFU Teams Directory', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Search RFU Teams',
+                style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           IconButton(
@@ -141,10 +182,12 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
           children: [
             TextField(
               controller: _filterController,
+              focusNode: _searchFocusNode,
+              autofocus: true,
               style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
               onChanged: _filter,
               decoration: InputDecoration(
-                hintText: 'Search RFU Teams (e.g. Coventry, Plymstock)...',
+                hintText: 'Search RFU Teams (e.g. Plymstock, OPMs, Coventry)...',
                 hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
                 prefixIcon: const Icon(Icons.search, color: AppTheme.goldAccent, size: 20),
                 suffixIcon: _isLoading
@@ -158,6 +201,10 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: AppTheme.cardBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppTheme.goldAccent, width: 1.5),
                 ),
               ),
             ),

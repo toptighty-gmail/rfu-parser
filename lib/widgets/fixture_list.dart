@@ -155,12 +155,12 @@ class FixtureList extends StatelessWidget {
           return a.time.compareTo(b.time);
         });
 
-      // Calculate next fixture for this team
-      String? nextFixtureId;
+      // Calculate next fixture for this team using strict object reference
+      Fixture? nextTeamFixture;
       for (var f in sortedTeamFixtures) {
         final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
         if (!isComp) {
-          nextFixtureId = f.id;
+          nextTeamFixture = f;
           break;
         }
       }
@@ -220,7 +220,7 @@ class FixtureList extends StatelessWidget {
             ...sortedTeamFixtures.map((f) => FixtureCard(
                   fixture: f,
                   isAdmin: isAdmin,
-                  isNextFixture: f.id != null && f.id == nextFixtureId,
+                  isNextFixture: identical(f, nextTeamFixture),
                   filterTeam: filterTeam,
                   logoProvider: logoProvider,
                   onTeamSelected: onTeamSelected,
@@ -242,11 +242,11 @@ class FixtureList extends StatelessWidget {
         return a.time.compareTo(b.time);
       });
 
-    String? divisionNextFixtureId;
+    Fixture? divisionNextFixture;
     for (var f in sortedAllFixtures) {
       final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
       if (!isComp) {
-        divisionNextFixtureId = f.id;
+        divisionNextFixture = f;
         break;
       }
     }
@@ -322,7 +322,7 @@ class FixtureList extends StatelessWidget {
                 ...sortedMatchesInRound.map((f) => FixtureCard(
                       fixture: f,
                       isAdmin: isAdmin,
-                      isNextFixture: f.id != null && f.id == divisionNextFixtureId,
+                      isNextFixture: identical(f, divisionNextFixture),
                       filterTeam: filterTeam,
                       logoProvider: logoProvider,
                       onTeamSelected: onTeamSelected,

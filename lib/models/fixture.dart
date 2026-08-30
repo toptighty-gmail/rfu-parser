@@ -92,8 +92,11 @@ class Fixture {
     hTeamId ??= RfuTeamRegistry.lookupTeamId(normHome);
     aTeamId ??= RfuTeamRegistry.lookupTeamId(normAway);
 
+    final rawId = json['id']?.toString().trim();
+    final effectiveId = (rawId != null && rawId.isNotEmpty) ? rawId : null;
+
     return Fixture(
-      id: json['id']?.toString(),
+      id: effectiveId,
       date: json['date'] ?? '',
       dateIso: json['date_iso'] ?? json['date'] ?? '',
       time: json['time'] ?? '15:00',

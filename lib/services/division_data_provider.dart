@@ -389,9 +389,11 @@ class DivisionDataProvider {
 
   static DivisionData generateDivisionData(String divisionName, String season) {
     final seasonYears = _parseSeasonYears(season);
+    // Season is current/future if the start year is >= current year
     final isCurrentFuture = seasonYears.$1 >= 2026;
-
-    // Check if official RFU fixtures exist for this division (2026-27 season)
+    // Season is considered "not yet started" if Round 1 (Sep 26 of the season start year) is still in the future
+    final seasonKickOff = DateTime(seasonYears.$1, 9, 26);
+    final seasonNotStarted = DateTime.now().isBefore(seasonKickOff);
     final officialFixtures = seasonYears.$1 == 2026
         ? OfficialRfuFixturesData.getFixturesForDivision(divisionName)
         : null;
@@ -446,7 +448,8 @@ class DivisionDataProvider {
       for (final f in officialFixtures) {
         final dateIso = f['dateIso'] ?? '2026-09-26';
         final fixDate = DateTime.tryParse(dateIso) ?? DateTime(2026, 9, 26);
-        final isCompleted = fixDate.isBefore(DateTime.now());
+        // Only mark completed if season has actually started AND the match date is in the past
+        final isCompleted = !seasonNotStarted && fixDate.isBefore(DateTime.now());
         fixtures.add(Fixture(
           id: 'fix_rfu_${dateIso}_$matchId',
           date: f['date'] ?? dateIso,
@@ -526,7 +529,7 @@ class DivisionDataProvider {
       final roundDate = startDate.add(Duration(days: (round - 1) * 7));
       final dateStr = rfuDateFormat.format(roundDate);
       final dateIso = DateFormat('yyyy-MM-dd').format(roundDate);
-      final isCompleted = roundDate.isBefore(DateTime.now());
+      final isCompleted = !seasonNotStarted && roundDate.isBefore(DateTime.now());
 
       for (int match = 0; match < half; match++) {
         final t1 = rotation[match];
@@ -546,7 +549,8 @@ class DivisionDataProvider {
             ? '14:30'
             : '15:00';
 
-        if (isCompleted) {
+        // Only mark completed if season has actually started AND the match date is past
+        if (!seasonNotStarted && isCompleted) {
           homeScore = 24 + ((match * 3 + round) % 20);
           awayScore = 17 + ((match * 2 + round) % 15);
           status = 'Completed';

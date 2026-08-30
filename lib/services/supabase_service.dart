@@ -759,12 +759,15 @@ class SupabaseService {
 
       // 2. If no team specified or not found in standings, resolve by division name
       if (divId == null && division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
-        final divResp = await client
+        // Use limit(1) instead of maybeSingle() to handle cases where multiple rows match
+        final divRespList = await client
             .from('divisions')
             .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
             .ilike('division_name', '%${division.trim()}%')
             .eq('season', season)
-            .maybeSingle();
+            .limit(1);
+
+        final divResp = (divRespList as List).isNotEmpty ? divRespList.first : null;
 
         if (divResp != null) {
           divId = divResp['id'] as String?;
@@ -774,6 +777,13 @@ class SupabaseService {
           resolvedDivIdNum = divResp['rfu_division_id'] as int?;
           resolvedTier = divResp['tier_level'] as int?;
           resolvedRegion = divResp['region'] as String?;
+
+          // STRICT SEASON GUARD: if the resolved division is from a different season, discard it
+          final resolvedSeason = divResp['season'] as String?;
+          if (resolvedSeason != null && resolvedSeason.trim() != season.trim()) {
+            debugPrint('Season mismatch: found "$resolvedSeason" but want "$season" – discarding');
+            divId = null;
+          }
         }
       }
 

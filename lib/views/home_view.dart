@@ -178,9 +178,6 @@ class _HomeViewState extends State<HomeView> {
         team: targetTeam,
         season: _selectedSeason,
       );
-      if (data != null && data.standings.isNotEmpty) {
-        await SupabaseService.upsertDivisionData(data);
-      }
     }
 
     // 3. Fallback to parse endpoint if live crawl is still completing

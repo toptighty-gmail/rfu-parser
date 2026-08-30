@@ -467,7 +467,7 @@ class BookletPrintView extends StatelessWidget {
             pw.Table(
               border: pw.TableBorder.all(color: PdfColor.fromHex('#CBD5E1'), width: 0.6),
               columnWidths: const {
-                0: pw.FixedColumnWidth(190), // Full Date & Round Name & KO Badge
+                0: pw.FixedColumnWidth(215), // Full Date & Round Name & KO Badge
                 1: pw.FlexColumnWidth(3.0),  // Home Team
                 2: pw.FixedColumnWidth(48),  // Score / VS Box
                 3: pw.FlexColumnWidth(3.0),  // Away Team
@@ -1334,7 +1334,7 @@ class BookletPrintView extends StatelessWidget {
                   children: [
                     // Full Date, Full Round Name, KO Time & Next Match Badge on ONE Single Line
                     SizedBox(
-                      width: 320,
+                      width: 355,
                       child: Row(
                         children: [
                           Text(

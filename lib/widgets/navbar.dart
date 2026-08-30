@@ -294,10 +294,15 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                 label: const Text('Add Fixture', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                 onPressed: onAddFixture,
                               ),
-                              const SizedBox(width: 6),
-                              IconButton(
-                                tooltip: 'Upload Team Logo',
-                                icon: const Icon(Icons.image, color: AppTheme.goldAccent, size: 20),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.goldAccent,
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.cloud_upload, size: 16, color: Colors.black),
+                                label: const Text('Upload Logo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                 onPressed: onUploadLogo,
                               ),
                               const SizedBox(width: 6),

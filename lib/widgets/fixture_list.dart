@@ -155,6 +155,16 @@ class FixtureList extends StatelessWidget {
           return a.time.compareTo(b.time);
         });
 
+      // Calculate next fixture for this team
+      String? nextFixtureId;
+      for (var f in sortedTeamFixtures) {
+        final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
+        if (!isComp) {
+          nextFixtureId = f.id;
+          break;
+        }
+      }
+
       return Container(
         decoration: AppTheme.glassBoxDecoration(),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -210,6 +220,7 @@ class FixtureList extends StatelessWidget {
             ...sortedTeamFixtures.map((f) => FixtureCard(
                   fixture: f,
                   isAdmin: isAdmin,
+                  isNextFixture: f.id != null && f.id == nextFixtureId,
                   filterTeam: filterTeam,
                   logoProvider: logoProvider,
                   onTeamSelected: onTeamSelected,
@@ -219,6 +230,25 @@ class FixtureList extends StatelessWidget {
           ],
         ),
       );
+    }
+
+    // Identify next fixture overall in division view
+    final sortedAllFixtures = List<Fixture>.from(activeFixtures)
+      ..sort((a, b) {
+        final dtA = parseFixtureDate(a);
+        final dtB = parseFixtureDate(b);
+        final dateComp = dtA.compareTo(dtB);
+        if (dateComp != 0) return dateComp;
+        return a.time.compareTo(b.time);
+      });
+
+    String? divisionNextFixtureId;
+    for (var f in sortedAllFixtures) {
+      final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
+      if (!isComp) {
+        divisionNextFixtureId = f.id;
+        break;
+      }
     }
 
     // Group fixtures by round or match category for full division view
@@ -292,6 +322,7 @@ class FixtureList extends StatelessWidget {
                 ...sortedMatchesInRound.map((f) => FixtureCard(
                       fixture: f,
                       isAdmin: isAdmin,
+                      isNextFixture: f.id != null && f.id == divisionNextFixtureId,
                       filterTeam: filterTeam,
                       logoProvider: logoProvider,
                       onTeamSelected: onTeamSelected,

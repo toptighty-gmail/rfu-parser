@@ -7,6 +7,7 @@ import 'fixture_list.dart';
 class FixtureCard extends StatelessWidget {
   final Fixture fixture;
   final bool isAdmin;
+  final bool isNextFixture;
   final String? filterTeam;
   final String? Function(String teamName)? logoProvider;
   final ValueChanged<String>? onTeamSelected;
@@ -17,6 +18,7 @@ class FixtureCard extends StatelessWidget {
     super.key,
     required this.fixture,
     this.isAdmin = false,
+    this.isNextFixture = false,
     this.filterTeam,
     this.logoProvider,
     this.onTeamSelected,
@@ -62,24 +64,61 @@ class FixtureCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceBg,
+          color: isNextFixture
+              ? AppTheme.emeraldAccent.withValues(alpha: 0.05)
+              : AppTheme.surfaceBg,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: fixture.isCustom
-                ? AppTheme.goldAccent.withValues(alpha: 0.5)
-                : (isHomeMatched || isAwayMatched)
-                    ? AppTheme.goldAccent.withValues(alpha: 0.3)
-                    : AppTheme.cardBorder,
-            width: fixture.isCustom ? 1.5 : 1,
+            color: isNextFixture
+                ? AppTheme.emeraldAccent.withValues(alpha: 0.75)
+                : fixture.isCustom
+                    ? AppTheme.goldAccent.withValues(alpha: 0.5)
+                    : (isHomeMatched || isAwayMatched)
+                        ? AppTheme.goldAccent.withValues(alpha: 0.3)
+                        : AppTheme.cardBorder,
+            width: isNextFixture ? 1.5 : (fixture.isCustom ? 1.5 : 1),
           ),
         ),
         child: Row(
           children: [
-            // Date & Time & Round
+            // Date & Time & Round & Next-Up Badge
             SizedBox(
-              width: 270,
+              width: 290,
               child: Row(
                 children: [
+                  if (isNextFixture)
+                    Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.emeraldAccent.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.8)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.emeraldAccent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'NEXT UP',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                              color: AppTheme.emeraldAccent,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (fixture.isCustom)
                     Builder(
                       builder: (context) {
@@ -142,7 +181,7 @@ class FixtureCard extends StatelessWidget {
                       style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -150,70 +189,51 @@ class FixtureCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: AppTheme.cardBorder),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.access_time, size: 11, color: AppTheme.goldAccent),
-                        const SizedBox(width: 3),
-                        Text(
-                          fixture.time.isNotEmpty ? fixture.time : '15:00',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.goldAccent,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'KO ${fixture.time.isNotEmpty ? fixture.time : "15:00"}',
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.goldAccent),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 14),
 
-            // Home Team (Right-aligned name + Logo) - CLICKABLE
+            // Home Team
             Expanded(
               child: MouseRegion(
                 cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
                 child: InkWell(
                   onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.homeTeam) : null,
                   borderRadius: BorderRadius.circular(6),
-                  hoverColor: AppTheme.goldAccent.withValues(alpha: 0.08),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            fixture.homeTeam,
-                            textAlign: TextAlign.end,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
-                              color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
-                              decoration: onTeamSelected != null ? TextDecoration.underline : TextDecoration.none,
-                              decorationColor: AppTheme.goldAccent.withValues(alpha: 0.3),
-                              decorationStyle: TextDecorationStyle.dotted,
-                            ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          fixture.homeTeam,
+                          textAlign: TextAlign.end,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: isHomeMatched ? FontWeight.w900 : FontWeight.w600,
+                            color: isHomeMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildTeamLogo(fixture.homeTeam, fixture.homeLogoUrl),
+                    ],
                   ),
                 ),
               ),
             ),
 
-            // Score Box / KO Time
+            // Score / VS Box
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              constraints: const BoxConstraints(minWidth: 70),
+              margin: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
                 color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
@@ -221,50 +241,41 @@ class FixtureCard extends StatelessWidget {
                   color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.4),
                 ),
               ),
-              child: Center(
-                child: Text(
-                  isCompleted
-                      ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
-                      : (fixture.time.isNotEmpty ? fixture.time : '15:00'),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: isCompleted ? AppTheme.goldAccent : AppTheme.textPrimary,
-                  ),
+              child: Text(
+                isCompleted
+                    ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
+                    : 'VS',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: isCompleted ? AppTheme.textPrimary : AppTheme.goldAccent,
                 ),
               ),
             ),
 
-            // Away Team (Logo + Left-aligned name) - CLICKABLE
+            // Away Team
             Expanded(
               child: MouseRegion(
                 cursor: onTeamSelected != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
                 child: InkWell(
                   onTap: onTeamSelected != null ? () => onTeamSelected!(fixture.awayTeam) : null,
                   borderRadius: BorderRadius.circular(6),
-                  hoverColor: AppTheme.goldAccent.withValues(alpha: 0.08),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Row(
-                      children: [
-                        _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            fixture.awayTeam,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
-                              color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
-                              decoration: onTeamSelected != null ? TextDecoration.underline : TextDecoration.none,
-                              decorationColor: AppTheme.goldAccent.withValues(alpha: 0.3),
-                              decorationStyle: TextDecorationStyle.dotted,
-                            ),
+                  child: Row(
+                    children: [
+                      _buildTeamLogo(fixture.awayTeam, fixture.awayLogoUrl),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          fixture.awayTeam,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: isAwayMatched ? FontWeight.w900 : FontWeight.w600,
+                            color: isAwayMatched ? AppTheme.goldAccent : AppTheme.textPrimary,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -281,7 +292,9 @@ class FixtureCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isCompleted
                         ? AppTheme.emeraldAccent.withValues(alpha: 0.15)
-                        : AppTheme.goldAccent.withValues(alpha: 0.15),
+                        : (isNextFixture
+                            ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
+                            : AppTheme.goldAccent.withValues(alpha: 0.15)),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -289,7 +302,7 @@ class FixtureCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: isCompleted ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                      color: (isCompleted || isNextFixture) ? AppTheme.emeraldAccent : AppTheme.goldAccent,
                     ),
                   ),
                 ),
@@ -317,10 +330,13 @@ class FixtureCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceBg,
+        color: isNextFixture ? AppTheme.emeraldAccent.withValues(alpha: 0.05) : AppTheme.surfaceBg,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: fixture.isCustom ? AppTheme.goldAccent.withValues(alpha: 0.4) : AppTheme.cardBorder,
+          color: isNextFixture
+              ? AppTheme.emeraldAccent.withValues(alpha: 0.75)
+              : (fixture.isCustom ? AppTheme.goldAccent.withValues(alpha: 0.4) : AppTheme.cardBorder),
+          width: isNextFixture ? 1.5 : 1,
         ),
       ),
       child: Column(
@@ -332,6 +348,25 @@ class FixtureCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (isNextFixture)
+                      Container(
+                        margin: const EdgeInsets.only(right: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: AppTheme.emeraldAccent.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.8)),
+                        ),
+                        child: const Text(
+                          'NEXT UP',
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.4,
+                            color: AppTheme.emeraldAccent,
+                          ),
+                        ),
+                      ),
                     if (fixture.isCustom) ...[
                       Builder(
                         builder: (_) {
@@ -449,11 +484,11 @@ class FixtureCard extends StatelessWidget {
                 child: Text(
                   isCompleted
                       ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
-                      : (fixture.time.isNotEmpty ? fixture.time : '15:00'),
+                      : 'VS',
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: isCompleted ? AppTheme.goldAccent : AppTheme.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isCompleted ? AppTheme.textPrimary : AppTheme.goldAccent,
                   ),
                 ),
               ),
@@ -485,6 +520,23 @@ class FixtureCard extends StatelessWidget {
               ),
             ],
           ),
+          if (fixture.venue.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.location_on, size: 11, color: AppTheme.textMuted),
+                const SizedBox(width: 3),
+                Flexible(
+                  child: Text(
+                    fixture.venue.replaceAll(RegExp(r'\[.*?\]'), '').trim(),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

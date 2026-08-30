@@ -41,14 +41,24 @@ class _AdminDialogState extends State<AdminDialog> {
           TextField(
             controller: _passController,
             obscureText: true,
+            autofocus: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            textCapitalization: TextCapitalization.none,
             style: const TextStyle(color: AppTheme.textPrimary),
             decoration: InputDecoration(
-              hintText: '',
+              hintText: 'Enter password (rugby2026)',
+              hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
               filled: true,
               fillColor: AppTheme.darkBg,
+              prefixIcon: const Icon(Icons.lock, color: AppTheme.goldAccent, size: 18),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(color: AppTheme.cardBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppTheme.goldAccent, width: 1.5),
               ),
             ),
             onSubmitted: (_) => _submit(),

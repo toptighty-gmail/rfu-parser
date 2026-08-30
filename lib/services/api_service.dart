@@ -61,25 +61,30 @@ class ApiService {
   }
 
   static Future<bool> verifyAdminPassword(String password) async {
-    // 1. Try serverless backend verification
+    final clean = password.trim();
+    // 1. Instant local verification (handles rugby2026 and Rugby2026)
+    if (clean.toLowerCase() == 'rugby2026') {
+      return true;
+    }
+
+    // 2. Try serverless backend verification for custom passwords
     try {
       final uri = _buildUri('/admin/login');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'password': password}),
-      ).timeout(const Duration(seconds: 5));
+        body: json.encode({'password': clean}),
+      ).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         final resData = json.decode(response.body);
-        if (resData['success'] == true) return true;
+        if (resData is Map && resData['success'] == true) return true;
       }
     } catch (e) {
       debugPrint('Admin backend verification fallback: $e');
     }
 
-    // 2. Fallback local verification
-    return password.trim() == 'rugby2026';
+    return false;
   }
 
   static Future<List<Map<String, dynamic>>> suggestTeams(String query) async {

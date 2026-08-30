@@ -10,6 +10,7 @@ import '../models/standing_entry.dart';
 import 'api_service.dart';
 import 'team_logo_provider.dart';
 import 'rfu_team_registry.dart';
+import '../widgets/fixture_list.dart';
 
 class SupabaseService {
   static SupabaseClient? _client;
@@ -590,7 +591,40 @@ class SupabaseService {
       int? resolvedTier;
       String? resolvedRegion;
 
-      if (division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
+      // 1. If a specific team was searched or selected, resolve that team's actual division first!
+      if (team != null && team.trim().isNotEmpty) {
+        final cleanTeam = team.trim();
+        final standingsMatches = await client
+            .from('standings')
+            .select('division_id, team_name, divisions!inner(id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region)')
+            .eq('divisions.season', season)
+            .ilike('team_name', '%$cleanTeam%');
+
+        if (standingsMatches != null && (standingsMatches as List).isNotEmpty) {
+          dynamic bestMatch = standingsMatches.first;
+          for (var match in standingsMatches) {
+            final tName = match['team_name']?.toString() ?? '';
+            if (FixtureList.isExactTeamMatch(tName, cleanTeam)) {
+              bestMatch = match;
+              break;
+            }
+          }
+
+          final divInfo = bestMatch['divisions'];
+          if (divInfo != null) {
+            divId = divInfo['id'] as String?;
+            resolvedDivisionName = divInfo['division_name'] as String?;
+            resolvedSourceUrl = divInfo['source_url'] as String?;
+            resolvedCompId = divInfo['rfu_competition_id'] as int?;
+            resolvedDivIdNum = divInfo['rfu_division_id'] as int?;
+            resolvedTier = divInfo['tier_level'] as int?;
+            resolvedRegion = divInfo['region'] as String?;
+          }
+        }
+      }
+
+      // 2. If no team specified or not found in standings, resolve by division name
+      if (divId == null && division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
         final divResp = await client
             .from('divisions')
             .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
@@ -606,35 +640,6 @@ class SupabaseService {
           resolvedDivIdNum = divResp['rfu_division_id'] as int?;
           resolvedTier = divResp['tier_level'] as int?;
           resolvedRegion = divResp['region'] as String?;
-        }
-      }
-
-      if (divId == null && team != null && team.trim().isNotEmpty) {
-        final cleanTeam = team.trim();
-        final standingsMatch = await client
-            .from('standings')
-            .select('division_id, team_name')
-            .ilike('team_name', '%$cleanTeam%')
-            .limit(1)
-            .maybeSingle();
-
-        if (standingsMatch != null) {
-          divId = standingsMatch['division_id'] as String?;
-          if (divId != null) {
-            final divResp = await client
-                .from('divisions')
-                .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
-                .eq('id', divId)
-                .maybeSingle();
-            if (divResp != null) {
-              resolvedDivisionName = divResp['division_name'] as String?;
-              resolvedSourceUrl = divResp['source_url'] as String?;
-              resolvedCompId = divResp['rfu_competition_id'] as int?;
-              resolvedDivIdNum = divResp['rfu_division_id'] as int?;
-              resolvedTier = divResp['tier_level'] as int?;
-              resolvedRegion = divResp['region'] as String?;
-            }
-          }
         }
       }
 

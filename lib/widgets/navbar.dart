@@ -254,9 +254,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                               onPressed: onSyncRfuData,
                             ),
                             const SizedBox(width: 6),
-                            IconButton(
-                              tooltip: 'A4 Booklet Print View',
-                              icon: const Icon(Icons.menu_book, color: AppTheme.goldAccent, size: 20),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.goldAccent.withValues(alpha: 0.12),
+                                foregroundColor: AppTheme.goldAccent,
+                                side: BorderSide(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.picture_as_pdf, size: 16, color: AppTheme.goldAccent),
+                              label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                               onPressed: onOpenBookletPrint,
                             ),
                             const SizedBox(width: 6),

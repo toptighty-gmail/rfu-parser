@@ -216,7 +216,7 @@ class BookletPrintView extends StatelessWidget {
                     border: pw.Border.all(color: PdfColor.fromHex('#007A48')),
                   ),
                   child: pw.Text(
-                    'RFU OFFICIAL',
+                    'Copyrighted Sean Cook 2026',
                     style: pw.TextStyle(
                       color: PdfColor.fromHex('#FDE68A'),
                       fontWeight: pw.FontWeight.bold,
@@ -917,19 +917,19 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: const Color(0xFF003D24),
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(color: const Color(0xFF007A48)),
                           ),
                           child: const Text(
-                            'RFU OFFICIAL',
+                            'Copyrighted Sean Cook 2026',
                             style: TextStyle(
                               color: Color(0xFFFDE68A),
                               fontWeight: FontWeight.w900,
                               fontSize: 10,
-                              letterSpacing: 1,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),

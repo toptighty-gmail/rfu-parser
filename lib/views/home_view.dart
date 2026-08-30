@@ -1046,14 +1046,14 @@ class _HomeViewState extends State<HomeView> {
                   label: const Text('Search RFU Team', style: TextStyle(fontWeight: FontWeight.bold)),
                   onPressed: _openTeamsDirectory,
                 ),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.textPrimary,
-                    side: const BorderSide(color: AppTheme.cardBorder, width: 1.5),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.goldAccent,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  icon: const Icon(Icons.emoji_events, size: 18, color: AppTheme.goldAccent),
+                  icon: const Icon(Icons.emoji_events, size: 18, color: Colors.black),
                   label: const Text('Browse Divisions', style: TextStyle(fontWeight: FontWeight.bold)),
                   onPressed: _openDivisionsDirectory,
                 ),

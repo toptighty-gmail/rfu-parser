@@ -280,7 +280,29 @@ class SupabaseService {
           'created_at': DateTime.now().toIso8601String(),
         };
 
-        final response = await client.from('custom_fixtures').insert(payload).select().single();
+        dynamic response;
+        try {
+          response = await client.from('custom_fixtures').insert(payload).select().single();
+        } catch (insertErr) {
+          debugPrint('Primary insert failed, retrying with safe fields: $insertErr');
+          final safePayload = {
+            'division': division,
+            'date': fixture.date,
+            'time': fixture.time,
+            'home_team': fixture.homeTeam,
+            'away_team': fixture.awayTeam,
+            'score': (fixture.homeScore != null && fixture.awayScore != null)
+                ? '${fixture.homeScore} - ${fixture.awayScore}'
+                : 'v',
+            'status': fixture.status,
+            'notes': fixture.venue,
+            'is_custom': true,
+            'context_team': fixture.contextTeam ?? fixture.homeTeam,
+            'created_at': DateTime.now().toIso8601String(),
+          };
+          response = await client.from('custom_fixtures').insert(safePayload).select().single();
+        }
+
         final remoteFixture = Fixture.fromJson(response);
         _localCustomFixtures.removeWhere((f) => f.id == generatedId);
         _localCustomFixtures.add(remoteFixture);
@@ -296,8 +318,6 @@ class SupabaseService {
 
   static Future<bool> updateCustomFixture(dynamic arg1, [dynamic arg2]) async {
     String? fixtureId;
-    Map<String, dynamic> updatePayload = {};
-
     Fixture? updatedFixture;
 
     if (arg1 is Fixture) {
@@ -362,8 +382,24 @@ class SupabaseService {
         try {
           await client.from('custom_fixtures').update(dbPayload).eq('id', fixtureId);
           return true;
-        } catch (e) {
-          debugPrint('Supabase update custom fixture error: $e');
+        } catch (updateErr) {
+          debugPrint('Primary update failed, retrying with safe fields: $updateErr');
+          final safePayload = {
+            'date': updatedFixture.date,
+            'time': updatedFixture.time,
+            'home_team': updatedFixture.homeTeam,
+            'away_team': updatedFixture.awayTeam,
+            'score': scoreStr,
+            'status': updatedFixture.status,
+            'notes': updatedFixture.venue,
+            if (updatedFixture.contextTeam != null) 'context_team': updatedFixture.contextTeam,
+          };
+          try {
+            await client.from('custom_fixtures').update(safePayload).eq('id', fixtureId);
+            return true;
+          } catch (e) {
+            debugPrint('Supabase safe update custom fixture error: $e');
+          }
         }
       }
     }

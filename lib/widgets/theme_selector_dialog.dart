@@ -128,7 +128,7 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                                         border: Border.all(color: const Color(0xFF10B981)),
                                       ),
                                       child: const Text(
-                                        'CLUBHOUSE',
+                                        'PLYMOUTH OAKS',
                                         style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold),
                                       ),
                                     ),

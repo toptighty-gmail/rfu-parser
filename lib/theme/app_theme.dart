@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum AppThemeMode {
   plymouthOaks(
     id: 'plymouth_oaks',
-    title: 'Plymouth Oaks Elite',
-    subtitle: 'British Racing Green & Champagne Gold (Bespoke Club Identity)',
+    title: 'Green & Gold',
+    subtitle: 'British Racing Green & Gold (Plymouth Oaks RFC)',
     darkBg: Color(0xFF041A11),
     surfaceBg: Color(0xFF0A291C),
     cardBorder: Color(0x3334D399),
@@ -18,7 +18,7 @@ enum AppThemeMode {
   ),
   rfuChampionship(
     id: 'rfu_championship',
-    title: 'RFU Championship (Original)',
+    title: 'Midnight & Gold (Original)',
     subtitle: 'Midnight Slate & Championship Gold (Classic Theme)',
     darkBg: Color(0xFF0B0F19),
     surfaceBg: Color(0xFF131A29),
@@ -31,8 +31,8 @@ enum AppThemeMode {
   ),
   coastalNavy(
     id: 'coastal_navy',
-    title: 'Coastal Royal Navy',
-    subtitle: 'Deep Maritime Ocean & Amber Gold (South West Coastal Clubs)',
+    title: 'Navy & Gold',
+    subtitle: 'Deep Royal Navy & Amber Gold (Maritime & Coastal Clubs)',
     darkBg: Color(0xFF060F1E),
     surfaceBg: Color(0xFF0C1D38),
     cardBorder: Color(0x3338BDF8),
@@ -44,8 +44,8 @@ enum AppThemeMode {
   ),
   clubhouseCrimson(
     id: 'clubhouse_crimson',
-    title: 'Clubhouse Crimson',
-    subtitle: 'Rich Velvet Burgundy & Warm Gold (Traditional Rugby Heritage)',
+    title: 'Crimson & Gold',
+    subtitle: 'Velvet Burgundy & Warm Gold (Traditional Rugby Heritage)',
     darkBg: Color(0xFF14080D),
     surfaceBg: Color(0xFF220D16),
     cardBorder: Color(0x33FB7185),

@@ -421,13 +421,24 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.goldAccent,
+                                      backgroundColor: currentTheme.goldAccent,
                                       foregroundColor: Colors.black,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                     icon: const Icon(Icons.cloud_upload, size: 18),
                                     label: const Text('Upload Team Logo', style: TextStyle(fontWeight: FontWeight.bold)),
                                     onPressed: _openUploadLogoDialog,
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: currentTheme.surfaceBg,
+                                      foregroundColor: currentTheme.goldAccent,
+                                      side: BorderSide(color: currentTheme.goldAccent, width: 1.2),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: Icon(Icons.palette_outlined, size: 18, color: currentTheme.goldAccent),
+                                    label: Text('Theme: ${currentTheme.title}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    onPressed: _openThemeSelectorDialog,
                                   ),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(

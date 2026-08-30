@@ -54,6 +54,7 @@ class RfuTeamRegistry {
     'sale sharks': 1009,
     'newcastle falcons': 1010,
     'coventry': 5722,
+    'cambridge': 4023,
     'ealing trailfinders': 7084,
     'bedford blues': 1827,
     'doncaster knights': 6559,

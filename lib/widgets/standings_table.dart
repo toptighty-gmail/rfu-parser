@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/standing_entry.dart';
 import '../theme/app_theme.dart';
 import 'team_logo_image.dart';
+import 'fixture_list.dart';
 
 class StandingsTable extends StatelessWidget {
   final List<StandingEntry> standings;
@@ -87,9 +88,7 @@ class StandingsTable extends StatelessWidget {
                       DataColumn(label: Text('PTS', style: TextStyle(fontWeight: FontWeight.w900, color: AppTheme.goldAccent, fontSize: 15))),
                     ],
                     rows: standings.map((entry) {
-                      final isSelected = highlightedTeam != null &&
-                          highlightedTeam!.isNotEmpty &&
-                          entry.teamName.toLowerCase().contains(highlightedTeam!.toLowerCase());
+                      final isSelected = FixtureList.isExactTeamMatch(entry.teamName, highlightedTeam);
 
                       final isLeader = entry.pos == 1;
 

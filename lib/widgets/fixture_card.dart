@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 import 'team_logo_image.dart';
+import 'fixture_list.dart';
 
 class FixtureCard extends StatelessWidget {
   final Fixture fixture;
@@ -49,9 +50,9 @@ class FixtureCard extends StatelessWidget {
     final isCompleted = fixture.status.toLowerCase() == 'completed' ||
         (fixture.homeScore != null && fixture.awayScore != null);
 
-    final cleanFilter = filterTeam?.trim().toLowerCase();
-    final isHomeMatched = cleanFilter != null && cleanFilter.isNotEmpty && fixture.homeTeam.toLowerCase().contains(cleanFilter);
-    final isAwayMatched = cleanFilter != null && cleanFilter.isNotEmpty && fixture.awayTeam.toLowerCase().contains(cleanFilter);
+    final cleanFilter = filterTeam?.trim();
+    final isHomeMatched = FixtureList.isExactTeamMatch(fixture.homeTeam, cleanFilter);
+    final isAwayMatched = FixtureList.isExactTeamMatch(fixture.awayTeam, cleanFilter);
 
     if (isDesktop) {
       // Desktop / Tablet Single-Row Sleek Layout

@@ -25,22 +25,43 @@ class FixtureList extends StatelessWidget {
     this.onDeleteFixture,
   });
 
+  static bool isExactTeamMatch(String fixtureTeam, String? filter) {
+    if (filter == null || filter.trim().isEmpty) return false;
+    final ft = fixtureTeam.trim().toLowerCase();
+    final qt = filter.trim().toLowerCase();
+    if (ft == qt) return true;
+
+    // Strict suffix check (II, III, IV, 2nd, 3rd, 4th)
+    final ftHasII = RegExp(r'\b(ii|2nd|extra)\b').hasMatch(ft);
+    final qtHasII = RegExp(r'\b(ii|2nd|extra)\b').hasMatch(qt);
+    if (ftHasII != qtHasII) return false;
+
+    final ftHasIII = RegExp(r'\b(iii|3rd)\b').hasMatch(ft);
+    final qtHasIII = RegExp(r'\b(iii|3rd)\b').hasMatch(qt);
+    if (ftHasIII != qtHasIII) return false;
+
+    final ftHasIV = RegExp(r'\b(iv|4th)\b').hasMatch(ft);
+    final qtHasIV = RegExp(r'\b(iv|4th)\b').hasMatch(qt);
+    if (ftHasIV != qtHasIV) return false;
+
+    // Base name normalization (strip RFC, Club, XV)
+    String normalizeBase(String s) {
+      return s.replaceAll(RegExp(r'\b(rfc|rugby club|club|xv)\b', caseSensitive: false), '').trim();
+    }
+
+    final baseFt = normalizeBase(ft);
+    final baseQt = normalizeBase(qt);
+    return baseFt == baseQt || baseFt.contains(baseQt) || baseQt.contains(baseFt);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final cleanFilter = filterTeam?.trim().toLowerCase();
+    final cleanFilter = filterTeam?.trim();
     final isTeamFiltered = cleanFilter != null && cleanFilter.isNotEmpty;
 
     final activeFixtures = isTeamFiltered
         ? fixtures.where((f) {
-            final home = f.homeTeam.toLowerCase();
-            final away = f.awayTeam.toLowerCase();
-            if (home.contains(cleanFilter) || away.contains(cleanFilter)) return true;
-            if (cleanFilter.contains(home) || cleanFilter.contains(away)) return true;
-            final searchWords = cleanFilter.split(' ').where((w) => w.length > 3).toList();
-            for (var w in searchWords) {
-              if (home.contains(w) || away.contains(w)) return true;
-            }
-            return false;
+            return isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter);
           }).toList()
         : fixtures;
 

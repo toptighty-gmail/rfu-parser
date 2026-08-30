@@ -1714,9 +1714,19 @@ class BookletPrintView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                       decoration: BoxDecoration(
                         color: isCompleted
-                            ? const Color(0xFFDCFCE7)
-                            : (isNextUpcoming ? const Color(0xFFDC2626) : const Color(0xFFFEF3C7)),
+                            ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green – always
+                            : (isNextUpcoming
+                                ? const Color(0xFFFF1E27).withValues(alpha: 0.15)
+                                : const Color(0xFF38BDF8).withValues(alpha: 0.15)), // Vivid Sky Blue – always
                         borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: isCompleted
+                              ? const Color(0xFF22C55E).withValues(alpha: 0.5)
+                              : (isNextUpcoming
+                                  ? const Color(0xFFFF1E27).withValues(alpha: 0.6)
+                                  : const Color(0xFF38BDF8).withValues(alpha: 0.4)),
+                          width: 0.8,
+                        ),
                       ),
                       child: Text(
                         isNextUpcoming ? 'UPCOMING' : f.status.toUpperCase(),
@@ -1724,8 +1734,10 @@ class BookletPrintView extends StatelessWidget {
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                           color: isCompleted
-                              ? const Color(0xFF15803D)
-                              : (isNextUpcoming ? Colors.white : const Color(0xFFB45309)),
+                              ? const Color(0xFF22C55E) // Vivid Green
+                              : (isNextUpcoming
+                                  ? const Color(0xFFFF1E27) // Vivid Red
+                                  : const Color(0xFF38BDF8)), // Vivid Sky Blue
                         ),
                       ),
                     ),

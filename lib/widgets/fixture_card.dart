@@ -316,18 +316,24 @@ class FixtureCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isCompleted
-                        ? AppTheme.emeraldAccent.withValues(alpha: 0.15)
-                        : (isNextFixture
-                            ? AppTheme.emeraldAccent.withValues(alpha: 0.2)
-                            : AppTheme.goldAccent.withValues(alpha: 0.15)),
+                        ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green – always
+                        : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue – always
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isCompleted
+                          ? const Color(0xFF22C55E).withValues(alpha: 0.5)
+                          : const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                      width: 0.8,
+                    ),
                   ),
                   child: Text(
                     fixture.status.toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: (isCompleted || isNextFixture) ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                      color: isCompleted
+                          ? const Color(0xFF22C55E) // Vivid Green
+                          : const Color(0xFF38BDF8), // Vivid Sky Blue
                     ),
                   ),
                 ),
@@ -475,12 +481,26 @@ class FixtureCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: isCompleted ? AppTheme.emeraldAccent.withValues(alpha: 0.15) : AppTheme.goldAccent.withValues(alpha: 0.15),
+                      color: isCompleted
+                          ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green
+                          : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue
                       borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: isCompleted
+                            ? const Color(0xFF22C55E).withValues(alpha: 0.5)
+                            : const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                        width: 0.8,
+                      ),
                     ),
                     child: Text(
                       fixture.status.toUpperCase(),
-                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isCompleted ? AppTheme.emeraldAccent : AppTheme.goldAccent),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: isCompleted
+                            ? const Color(0xFF22C55E) // Vivid Green
+                            : const Color(0xFF38BDF8), // Vivid Sky Blue
+                      ),
                     ),
                   ),
                 ],

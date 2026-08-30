@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
@@ -822,4 +823,78 @@ class SupabaseService {
     }
     return null;
   }
+
+  /// Fetches real-time database table statistics (record counts and last updated timestamps)
+  static Future<List<TableMetric>> fetchDatabaseMetrics() async {
+    final client = _client;
+    if (client == null) return [];
+
+    final tables = [
+      {'name': 'divisions', 'display': 'Divisions & Leagues', 'timeCol': 'updated_at', 'icon': Icons.emoji_events},
+      {'name': 'standings', 'display': 'League Table Standings', 'timeCol': 'updated_at', 'icon': Icons.format_list_numbered},
+      {'name': 'fixtures', 'display': 'League Fixtures & Results', 'timeCol': 'updated_at', 'icon': Icons.sports_rugby},
+      {'name': 'custom_fixtures', 'display': 'Custom & Friendly Matches', 'timeCol': 'created_at', 'icon': Icons.edit_calendar},
+      {'name': 'team_logos', 'display': 'Club Badges & Logos', 'timeCol': 'updated_at', 'icon': Icons.shield},
+    ];
+
+    List<TableMetric> metrics = [];
+
+    for (var t in tables) {
+      try {
+        final tName = t['name'] as String;
+        final tDisplay = t['display'] as String;
+        final timeCol = t['timeCol'] as String;
+        final icon = t['icon'] as IconData;
+
+        // 1. Exact record count
+        final int count = await client
+            .from(tName)
+            .count(CountOption.exact);
+
+        // 2. Latest updated_at or created_at timestamp
+        final latestResp = await client
+            .from(tName)
+            .select(timeCol)
+            .order(timeCol, ascending: false)
+            .limit(1);
+
+        DateTime? lastUpdated;
+        if (latestResp != null && (latestResp as List).isNotEmpty) {
+          final rawTime = (latestResp as List).first[timeCol]?.toString();
+          if (rawTime != null && rawTime.isNotEmpty) {
+            lastUpdated = DateTime.tryParse(rawTime)?.toLocal();
+          }
+        }
+
+        metrics.add(TableMetric(
+          tableName: tName,
+          displayName: tDisplay,
+          recordCount: count,
+          lastUpdated: lastUpdated,
+          icon: icon,
+        ));
+      } catch (e) {
+        debugPrint('Error fetching metric for ${t['name']}: $e');
+      }
+    }
+
+    return metrics;
+  }
 }
+
+class TableMetric {
+  final String tableName;
+  final String displayName;
+  final int recordCount;
+  final DateTime? lastUpdated;
+  final IconData icon;
+
+  const TableMetric({
+    required this.tableName,
+    required this.displayName,
+    required this.recordCount,
+    this.lastUpdated,
+    required this.icon,
+  });
+}
+

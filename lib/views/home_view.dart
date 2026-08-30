@@ -18,6 +18,7 @@ import '../widgets/logo_upload_dialog.dart';
 import '../widgets/teams_directory_dialog.dart';
 import '../widgets/divisions_directory_dialog.dart';
 import '../widgets/sync_rfu_dialog.dart';
+import '../widgets/admin_database_metrics_dialog.dart';
 import 'booklet_print_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -330,6 +331,7 @@ class _HomeViewState extends State<HomeView> {
         onUploadLogo: _openUploadLogoDialog,
         onOpenBookletPrint: _openBookletPrint,
         onSyncRfuData: _openSyncRfuDialog,
+        onOpenDatabaseMetrics: _openDatabaseMetricsDialog,
       ),
       body: _isLoading
           ? const Center(
@@ -390,6 +392,17 @@ class _HomeViewState extends State<HomeView> {
                                 spacing: 12,
                                 runSpacing: 8,
                                 children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0F172A),
+                                      foregroundColor: AppTheme.emeraldAccent,
+                                      side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.2),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    icon: const Icon(Icons.analytics_outlined, size: 18, color: AppTheme.emeraldAccent),
+                                    label: const Text('Database Metrics', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    onPressed: _openDatabaseMetricsDialog,
+                                  ),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppTheme.emeraldAccent,
@@ -879,6 +892,13 @@ class _HomeViewState extends State<HomeView> {
         ),
       );
     }
+  }
+
+  void _openDatabaseMetricsDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => const AdminDatabaseMetricsDialog(),
+    );
   }
 
   void _openAddFixtureDialog({Fixture? existing}) {

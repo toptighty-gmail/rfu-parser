@@ -20,6 +20,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
   final VoidCallback onSyncRfuData;
+  final VoidCallback? onOpenDatabaseMetrics;
 
   const Navbar({
     super.key,
@@ -39,6 +40,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
     required this.onSyncRfuData,
+    this.onOpenDatabaseMetrics,
   });
 
   @override
@@ -270,6 +272,19 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                             if (isAdmin) ...[
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0F172A),
+                                  foregroundColor: AppTheme.emeraldAccent,
+                                  side: const BorderSide(color: AppTheme.emeraldAccent, width: 1.1),
+                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.analytics_outlined, size: 16, color: AppTheme.emeraldAccent),
+                                label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                onPressed: onOpenDatabaseMetrics,
+                              ),
+                              const SizedBox(width: 6),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.emeraldAccent,
                                   foregroundColor: Colors.black,
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -327,6 +342,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                   onSelected: (val) {
                                     if (val == 'sync') onSyncRfuData();
                                     if (val == 'print') onOpenBookletPrint();
+                                    if (val == 'metrics' && onOpenDatabaseMetrics != null) onOpenDatabaseMetrics!();
                                     if (val == 'admin') onAdminToggle();
                                     if (val == 'add') onAddFixture();
                                     if (val == 'logo') onUploadLogo();
@@ -353,6 +369,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                       ),
                                     ),
                                     if (isAdmin) ...[
+                                      const PopupMenuItem(
+                                        value: 'metrics',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.analytics_outlined, color: AppTheme.emeraldAccent, size: 18),
+                                            SizedBox(width: 10),
+                                            Text('Database Metrics', style: TextStyle(color: AppTheme.emeraldAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                                          ],
+                                        ),
+                                      ),
                                       const PopupMenuItem(
                                         value: 'add',
                                         child: Row(

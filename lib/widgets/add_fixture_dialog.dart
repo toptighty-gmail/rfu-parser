@@ -460,6 +460,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ? '$baseVenue [Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}'
         : '[Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}';
 
+    final homeTeamId = widget.existingFixture?.homeTeamId ?? RfuTeamRegistry.lookupTeamId(home);
+    final awayTeamId = widget.existingFixture?.awayTeamId ?? RfuTeamRegistry.lookupTeamId(away);
+
     final fixture = Fixture(
       id: widget.existingFixture?.id,
       date: rfuFormattedDate,
@@ -467,6 +470,8 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       time: _timeController.text.trim(),
       homeTeam: home,
       awayTeam: away,
+      homeTeamId: homeTeamId,
+      awayTeamId: awayTeamId,
       homeScore: hScore,
       awayScore: aScore,
       status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',

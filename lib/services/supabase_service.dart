@@ -257,12 +257,18 @@ class SupabaseService {
     final client = _client;
     if (client != null) {
       try {
+        final hId = fixture.homeTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.homeTeam);
+        final aId = fixture.awayTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.awayTeam);
+        final ctxId = fixture.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.contextTeam ?? fixture.homeTeam);
+
         final payload = {
           'division': division,
           'date': fixture.date,
           'time': fixture.time,
           'home_team': fixture.homeTeam,
           'away_team': fixture.awayTeam,
+          if (hId != null) 'home_team_id': hId,
+          if (aId != null) 'away_team_id': aId,
           'score': (fixture.homeScore != null && fixture.awayScore != null)
               ? '${fixture.homeScore} - ${fixture.awayScore}'
               : 'v',
@@ -270,7 +276,7 @@ class SupabaseService {
           'notes': fixture.venue,
           'is_custom': true,
           'context_team': fixture.contextTeam ?? fixture.homeTeam,
-          'rfu_team_id': fixture.rfuTeamId,
+          if (ctxId != null) 'rfu_team_id': ctxId,
           'created_at': DateTime.now().toIso8601String(),
         };
 

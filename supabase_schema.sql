@@ -126,10 +126,15 @@ CREATE POLICY "Allow public read access to fixtures" ON public.fixtures FOR SELE
 CREATE POLICY "Allow public write access to fixtures" ON public.fixtures FOR ALL USING (true) WITH CHECK (true);
 
 
--- 6. Custom Fixtures Table (User Created Friendlies & Cups)
+-- 6. Custom Fixtures Table (Relational with Teams for Context, Home & Away)
 CREATE TABLE IF NOT EXISTS public.custom_fixtures (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     division TEXT NOT NULL,
+    division_id UUID REFERENCES public.divisions(id) ON DELETE CASCADE,
+    home_team_id INT REFERENCES public.teams(rfu_team_id) ON DELETE SET NULL,
+    away_team_id INT REFERENCES public.teams(rfu_team_id) ON DELETE SET NULL,
+    rfu_team_id INT REFERENCES public.teams(rfu_team_id) ON DELETE SET NULL,
+    context_team TEXT,
     date TEXT NOT NULL,
     time TEXT DEFAULT '15:00',
     home_team TEXT NOT NULL,
@@ -138,14 +143,14 @@ CREATE TABLE IF NOT EXISTS public.custom_fixtures (
     status TEXT DEFAULT 'Scheduled',
     notes TEXT DEFAULT '',
     is_custom BOOLEAN DEFAULT TRUE,
-    context_team TEXT,
-    rfu_team_id INT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_custom_fixtures_division ON public.custom_fixtures(division);
 CREATE INDEX IF NOT EXISTS idx_custom_fixtures_team ON public.custom_fixtures(context_team);
 CREATE INDEX IF NOT EXISTS idx_custom_fixtures_rfu_id ON public.custom_fixtures(rfu_team_id);
+CREATE INDEX IF NOT EXISTS idx_custom_fixtures_home_team ON public.custom_fixtures(home_team_id);
+CREATE INDEX IF NOT EXISTS idx_custom_fixtures_away_team ON public.custom_fixtures(away_team_id);
 ALTER TABLE public.custom_fixtures ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access to custom_fixtures" ON public.custom_fixtures FOR SELECT USING (true);
 CREATE POLICY "Allow public write access to custom_fixtures" ON public.custom_fixtures FOR ALL USING (true) WITH CHECK (true);

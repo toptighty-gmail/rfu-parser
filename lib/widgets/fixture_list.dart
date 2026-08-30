@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 import '../services/rfu_team_registry.dart';
@@ -25,6 +26,32 @@ class FixtureList extends StatelessWidget {
     this.onEditFixture,
     this.onDeleteFixture,
   });
+
+  static DateTime parseFixtureDate(Fixture f) {
+    if (f.dateIso.isNotEmpty) {
+      final dt = DateTime.tryParse(f.dateIso);
+      if (dt != null) return dt;
+    }
+    // Try parsing 'Thursday, 20 Aug 2026' or '20 Aug 2026'
+    try {
+      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+      final parsed = DateFormat('d MMM yyyy').parse(clean);
+      return parsed;
+    } catch (_) {}
+
+    try {
+      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+      final parsed = DateFormat('MMMM d, yyyy').parse(clean);
+      return parsed;
+    } catch (_) {}
+
+    try {
+      final parsed = DateFormat('dd/MM/yyyy').parse(f.date);
+      return parsed;
+    } catch (_) {}
+
+    return DateTime(2099);
+  }
 
   static bool isExactTeamMatch(String fixtureTeam, String? filter) {
     if (filter == null || filter.trim().isEmpty) return false;
@@ -117,14 +144,15 @@ class FixtureList extends StatelessWidget {
       return m != null ? (int.tryParse(m.group(1)!) ?? 999) : 999;
     }
 
-    // When viewing single team fixtures, render a unified sleek schedule list
+    // When viewing single team fixtures, render a unified sleek schedule list strictly in CHRONOLOGICAL order
     if (isTeamFiltered) {
       final sortedTeamFixtures = List<Fixture>.from(activeFixtures)
         ..sort((a, b) {
-          final rA = extractRoundNumber(a.roundNum);
-          final rB = extractRoundNumber(b.roundNum);
-          if (rA != rB) return rA.compareTo(rB);
-          return a.dateIso.compareTo(b.dateIso);
+          final dtA = parseFixtureDate(a);
+          final dtB = parseFixtureDate(b);
+          final dateComp = dtA.compareTo(dtB);
+          if (dateComp != 0) return dateComp;
+          return a.time.compareTo(b.time);
         });
 
       return Container(
@@ -150,7 +178,7 @@ class FixtureList extends StatelessWidget {
                       const Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'FIXTURE SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
+                        'CHRONOLOGICAL SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 12,
@@ -203,13 +231,14 @@ class FixtureList extends StatelessWidget {
       grouped.putIfAbsent(key, () => []).add(f);
     }
 
-    // Sort round entries in strict chronological order (Cup, Friendly, Round 1, Round 2, ... Round 22)
+    // Sort round entries chronologically by the earliest match date in each round
     final sortedEntries = grouped.entries.toList()
       ..sort((a, b) {
-        final rA = extractRoundNumber(a.key);
-        final rB = extractRoundNumber(b.key);
-        if (rA != rB) return rA.compareTo(rB);
-        return a.key.compareTo(b.key);
+        final earliestA = a.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
+        final earliestB = b.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
+        final comp = earliestA.compareTo(earliestB);
+        if (comp != 0) return comp;
+        return extractRoundNumber(a.key).compareTo(extractRoundNumber(b.key));
       });
 
     return Column(
@@ -218,6 +247,16 @@ class FixtureList extends StatelessWidget {
         ...sortedEntries.map((entry) {
           final isCupSection = entry.key.toLowerCase().contains('cup');
           final headerColor = isCupSection ? AppTheme.emeraldAccent : AppTheme.goldAccent;
+
+          // Sort matches inside each round by date & kickoff time
+          final sortedMatchesInRound = List<Fixture>.from(entry.value)
+            ..sort((a, b) {
+              final dtA = parseFixtureDate(a);
+              final dtB = parseFixtureDate(b);
+              final dateComp = dtA.compareTo(dtB);
+              if (dateComp != 0) return dateComp;
+              return a.time.compareTo(b.time);
+            });
 
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
@@ -250,7 +289,7 @@ class FixtureList extends StatelessWidget {
                   ),
                 ),
 
-                ...entry.value.map((f) => FixtureCard(
+                ...sortedMatchesInRound.map((f) => FixtureCard(
                       fixture: f,
                       isAdmin: isAdmin,
                       filterTeam: filterTeam,

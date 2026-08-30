@@ -47,8 +47,7 @@ class _AdminDialogState extends State<AdminDialog> {
             textCapitalization: TextCapitalization.none,
             style: const TextStyle(color: AppTheme.textPrimary),
             decoration: InputDecoration(
-              hintText: 'Enter password (rugby2026)',
-              hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+              hintText: '',
               filled: true,
               fillColor: AppTheme.darkBg,
               prefixIcon: const Icon(Icons.lock, color: AppTheme.goldAccent, size: 18),

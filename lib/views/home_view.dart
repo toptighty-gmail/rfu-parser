@@ -882,7 +882,7 @@ class _HomeViewState extends State<HomeView> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Invalid Admin Password. Please enter "rugby2026" or your custom password.'),
+                    content: Text('Invalid Admin Password. Please try again.'),
                     backgroundColor: AppTheme.rubyAccent,
                   ),
                 );

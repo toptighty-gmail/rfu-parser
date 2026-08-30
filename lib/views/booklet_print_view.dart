@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../models/standing_entry.dart';
@@ -16,6 +17,25 @@ class BookletPrintView extends StatelessWidget {
     this.filterTeam,
     this.customLogosMap = const {},
   });
+
+  static DateTime _parseFixtureDate(Fixture f) {
+    if (f.dateIso.isNotEmpty) {
+      final dt = DateTime.tryParse(f.dateIso);
+      if (dt != null) return dt;
+    }
+    try {
+      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+      return DateFormat('d MMM yyyy').parse(clean);
+    } catch (_) {}
+    try {
+      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
+      return DateFormat('MMMM d, yyyy').parse(clean);
+    } catch (_) {}
+    try {
+      return DateFormat('dd/MM/yyyy').parse(f.date);
+    } catch (_) {}
+    return DateTime(2099);
+  }
 
   String? _resolveLogo(String teamName, String? defaultLogoUrl) {
     if (defaultLogoUrl != null && defaultLogoUrl.trim().isNotEmpty) {
@@ -56,12 +76,22 @@ class BookletPrintView extends StatelessWidget {
     final cleanFilter = filterTeam?.trim().toLowerCase();
     final isTeamFiltered = cleanFilter != null && cleanFilter.isNotEmpty;
 
-    final activeFixtures = isTeamFiltered
+    final rawFixtures = isTeamFiltered
         ? divisionData.fixtures.where((f) {
             return f.homeTeam.toLowerCase().contains(cleanFilter) ||
                 f.awayTeam.toLowerCase().contains(cleanFilter);
           }).toList()
         : divisionData.fixtures;
+
+    // Strict chronological sort by calendar date and KO time
+    final activeFixtures = List<Fixture>.from(rawFixtures)
+      ..sort((a, b) {
+        final dtA = _parseFixtureDate(a);
+        final dtB = _parseFixtureDate(b);
+        final dateComp = dtA.compareTo(dtB);
+        if (dateComp != 0) return dateComp;
+        return a.time.compareTo(b.time);
+      });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
@@ -258,6 +288,23 @@ class BookletPrintView extends StatelessWidget {
   }
 
   Widget _buildPrintStandingsTable(List<StandingEntry> standings, String? highlightTeam) {
+    if (standings.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+        ),
+        child: const Center(
+          child: Text(
+            'No league table data available.',
+            style: TextStyle(color: Color(0xFF6B7280), fontSize: 13),
+          ),
+        ),
+      );
+    }
+
     final cleanHighlight = highlightTeam?.trim().toLowerCase();
 
     return Container(
@@ -269,66 +316,70 @@ class BookletPrintView extends StatelessWidget {
       child: Table(
         columnWidths: const {
           0: FixedColumnWidth(36), // Pos
-          1: FlexColumnWidth(4),   // Team + Logo
-          2: FixedColumnWidth(34), // P
-          3: FixedColumnWidth(34), // W
-          4: FixedColumnWidth(34), // D
-          5: FixedColumnWidth(34), // L
-          6: FixedColumnWidth(40), // F
-          7: FixedColumnWidth(40), // A
-          8: FixedColumnWidth(42), // Diff
-          9: FixedColumnWidth(34), // TB
-          10: FixedColumnWidth(34),// LB
-          11: FixedColumnWidth(44),// Pts
+          1: FlexColumnWidth(4),   // Club Name
+          2: FixedColumnWidth(38), // P
+          3: FixedColumnWidth(38), // W
+          4: FixedColumnWidth(38), // D
+          5: FixedColumnWidth(38), // L
+          6: FixedColumnWidth(44), // PF
+          7: FixedColumnWidth(44), // PA
+          8: FixedColumnWidth(44), // +/-
+          9: FixedColumnWidth(38), // TB
+          10: FixedColumnWidth(38), // LB
+          11: FixedColumnWidth(48), // Pts
         },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
-          // Table Header
+          // Header Row
           TableRow(
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
-              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1.5)),
+              color: Color(0xFF0F172A),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(5),
+              ),
             ),
             children: [
-              _buildHeaderCell('#', align: TextAlign.center),
-              _buildHeaderCell('TEAM'),
+              _buildHeaderCell('#'),
+              _buildHeaderCell('CLUB', align: TextAlign.left),
               _buildHeaderCell('P'),
               _buildHeaderCell('W'),
               _buildHeaderCell('D'),
               _buildHeaderCell('L'),
-              _buildHeaderCell('F'),
-              _buildHeaderCell('A'),
-              _buildHeaderCell('DIFF'),
+              _buildHeaderCell('PF'),
+              _buildHeaderCell('PA'),
+              _buildHeaderCell('+/-'),
               _buildHeaderCell('TB'),
               _buildHeaderCell('LB'),
-              _buildHeaderCell('PTS', align: TextAlign.center, isHighlight: true),
+              _buildHeaderCell('PTS', isHighlight: true),
             ],
           ),
 
           // Data Rows
           ...standings.asMap().entries.map((entry) {
-            final index = entry.key;
+            final idx = entry.key;
             final s = entry.value;
             final isMatched = cleanHighlight != null &&
                 cleanHighlight.isNotEmpty &&
                 s.teamName.toLowerCase().contains(cleanHighlight);
 
-            final isEven = index % 2 == 0;
-            final rowBg = isMatched
-                ? const Color(0xFFFEF3C7) // Light yellow highlight for matched team
+            final isEven = idx % 2 == 0;
+            final rowColor = isMatched
+                ? const Color(0xFFFEF3C7) // Light Amber highlight
                 : (isEven ? Colors.white : const Color(0xFFF9FAFB));
 
             return TableRow(
               decoration: BoxDecoration(
-                color: rowBg,
-                border: const Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
+                color: rowColor,
+                border: const Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 0.5)),
               ),
               children: [
-                _buildCell('${s.pos}', align: TextAlign.center, isBold: isMatched),
+                _buildCell('${s.pos}', isBold: true),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Row(
                     children: [
-                      _buildTeamLogo(s.teamName, s.logoUrl, size: 20),
+                      _buildTeamLogo(s.teamName, s.logoUrl, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -337,7 +388,7 @@ class BookletPrintView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: isMatched ? FontWeight.w900 : FontWeight.w600,
-                            color: isMatched ? const Color(0xFF92400E) : const Color(0xFF1F2937),
+                            color: isMatched ? const Color(0xFF92400E) : const Color(0xFF111827),
                           ),
                         ),
                       ),
@@ -350,16 +401,13 @@ class BookletPrintView extends StatelessWidget {
                 _buildCell('${s.lost}'),
                 _buildCell('${s.pointsFor}'),
                 _buildCell('${s.pointsAgainst}'),
-                _buildCell('${s.pointsDiff > 0 ? "+" : ""}${s.pointsDiff}',
-                    textColor: s.pointsDiff > 0
-                        ? const Color(0xFF047857)
-                        : (s.pointsDiff < 0 ? const Color(0xFFB91C1C) : const Color(0xFF4B5563))),
+                _buildCell(
+                  s.pointsDiff >= 0 ? '+${s.pointsDiff}' : '${s.pointsDiff}',
+                  textColor: s.pointsDiff >= 0 ? const Color(0xFF15803D) : const Color(0xFFDC2626),
+                ),
                 _buildCell('${s.tryBonus}'),
                 _buildCell('${s.lossBonus}'),
-                _buildCell('${s.points}',
-                    align: TextAlign.center,
-                    isBold: true,
-                    textColor: isMatched ? const Color(0xFF92400E) : const Color(0xFF111827)),
+                _buildCell('${s.points}', isBold: true, textColor: const Color(0xFFB45309)),
               ],
             );
           }),
@@ -368,16 +416,17 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderCell(String text, {TextAlign align = TextAlign.center, bool isHighlight = false}) {
+  Widget _buildHeaderCell(String text,
+      {TextAlign align = TextAlign.center, bool isHighlight = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 9),
       child: Text(
         text,
         textAlign: align,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w900,
-          color: isHighlight ? const Color(0xFFB45309) : const Color(0xFF475569),
+          color: isHighlight ? const Color(0xFFF59E0B) : const Color(0xFFCBD5E1),
           letterSpacing: 0.5,
         ),
       ),
@@ -453,31 +502,65 @@ class BookletPrintView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               children: [
-                // Date & Round Column
+                // Date & KO Time Column (Left Side)
                 SizedBox(
-                  width: 150,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                  width: 220,
+                  child: Row(
                     children: [
-                      Text(
-                        f.date,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
+                      // Date & Round
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              f.date,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                            if (f.roundNum.isNotEmpty)
+                              Text(
+                                f.roundNum,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 9.5, color: Color(0xFF6B7280), fontWeight: FontWeight.w600),
+                              ),
+                          ],
                         ),
                       ),
-                      if (f.roundNum.isNotEmpty)
-                        Text(
-                          f.roundNum,
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280), fontWeight: FontWeight.w500),
+                      const SizedBox(width: 6),
+                      // KO Time Badge (Left side next to date)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFFF59E0B), width: 0.8),
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.access_time, size: 10, color: Color(0xFFB45309)),
+                            const SizedBox(width: 3),
+                            Text(
+                              'KO ${f.time.isNotEmpty ? f.time : "15:00"}',
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
 
                 // Home Team
                 Expanded(
@@ -502,25 +585,28 @@ class BookletPrintView extends StatelessWidget {
                   ),
                 ),
 
-                // Score / VS Box
+                // Score / VS Box (Always 'VS' for upcoming matches, Final score for completed)
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   constraints: const BoxConstraints(minWidth: 58),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: isCompleted ? const Color(0xFF0F172A) : const Color(0xFFFEF3C7),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                    border: Border.all(
+                      color: isCompleted ? const Color(0xFF334155) : const Color(0xFFF59E0B),
+                      width: 1,
+                    ),
                   ),
                   child: Center(
                     child: Text(
                       isCompleted
                           ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
-                          : (f.time.isNotEmpty ? f.time : 'VS'),
+                          : 'VS',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
-                        color: isCompleted ? const Color(0xFF92400E) : const Color(0xFF64748B),
+                        color: isCompleted ? Colors.white : const Color(0xFFB45309),
                       ),
                     ),
                   ),

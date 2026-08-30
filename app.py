@@ -327,7 +327,7 @@ def api_crawl():
     supabase_url = os.environ.get("SUPABASE_URL", "")
     supabase_key = os.environ.get("SUPABASE_ANON_KEY", os.environ.get("SUPABASE_KEY", ""))
 
-    if crawled_data and supabase_url and supabase_key:
+    if crawled_data and crawled_data.source_url and supabase_url and supabase_key:
         try:
             rfu_parser.sync_result_to_supabase(crawled_data, supabase_url, supabase_key)
         except Exception as e:

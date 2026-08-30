@@ -1,3 +1,5 @@
+import '../services/rfu_team_registry.dart';
+
 class StandingEntry {
   final int pos;
   final String teamName;
@@ -34,9 +36,10 @@ class StandingEntry {
   });
 
   factory StandingEntry.fromJson(Map<String, dynamic> json) {
+    final rawName = json['team_name'] ?? json['team'] ?? '';
     return StandingEntry(
       pos: json['position'] ?? json['pos'] ?? 0,
-      teamName: json['team_name'] ?? json['team'] ?? '',
+      teamName: RfuTeamRegistry.normalizeTeamName(rawName.toString()),
       rfuTeamId: json['rfu_team_id'] != null ? int.tryParse(json['rfu_team_id'].toString()) : null,
       played: json['played'] ?? 0,
       won: json['won'] ?? 0,

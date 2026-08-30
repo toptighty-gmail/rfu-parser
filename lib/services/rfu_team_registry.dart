@@ -6,9 +6,14 @@ class RfuTeamRegistry {
     'plymstock': 16976,
     'plymstock albion oaks': 16976,
     
-    'old plymothian & mannamedian': 15907,
-    'old plymothian': 15907,
+    'opms': 15907,
+    'opms ii': 15907,
     'opm': 15907,
+    'opm ii': 15907,
+    'old plymothian & mannamedian': 15907,
+    'old plymothian & mannamedians': 15907,
+    'old plymothian & mannamedian ii': 15907,
+    'old plymothian': 15907,
     
     'withycombe': 25785,
     'honiton': 10355,
@@ -66,8 +71,28 @@ class RfuTeamRegistry {
     'chinnor': 4817,
   };
 
+  /// Normalizes any team name variation to its canonical user-facing display name.
+  /// Converts "Old Plymothian & Mannamedian" -> "OPMs", and 2nd team -> "OPMs II".
+  static String normalizeTeamName(String teamName) {
+    final clean = teamName.trim();
+    if (clean.isEmpty) return clean;
+    final lower = clean.toLowerCase();
+    
+    if (lower.contains('old plymothian') || lower.contains('old plymothians')) {
+      if (lower.contains('ii') || lower.contains('2nd') || lower.contains('seconds')) {
+        return 'OPMs II';
+      }
+      return 'OPMs';
+    }
+    if (lower == 'opm') return 'OPMs';
+    if (lower == 'opm ii' || lower == 'opm 2nd' || lower == 'opms 2nd') return 'OPMs II';
+    return clean;
+  }
+
   static List<String> get allKnownTeamNames {
     return _teamToId.keys.map((k) {
+      final normalized = normalizeTeamName(k);
+      if (normalized == 'OPMs' || normalized == 'OPMs II') return normalized;
       // Title Case formatting
       return k.split(' ').map((word) {
         if (word == 'ii') return 'II';
@@ -77,7 +102,7 @@ class RfuTeamRegistry {
         if (word.isEmpty) return '';
         return word[0].toUpperCase() + word.substring(1);
       }).join(' ');
-    }).toList();
+    }).toSet().toList();
   }
 
   /// Returns the canonical RFU Team ID for a club name
@@ -98,15 +123,14 @@ class RfuTeamRegistry {
     }
     
     // 3. Significant word token match
-    final cleanWords = clean.split(' ').where((w) => w.length > 3 && w != 'club' && w != 'rfc' && w != 'colts');
-    for (var w in cleanWords) {
+    final words = clean.split(RegExp(r'\s+')).where((w) => w.length > 3).toList();
+    for (var word in words) {
       for (var entry in _teamToId.entries) {
-        if (entry.key.contains(w)) {
+        if (entry.key.contains(word)) {
           return entry.value;
         }
       }
     }
-    
     return null;
   }
 }

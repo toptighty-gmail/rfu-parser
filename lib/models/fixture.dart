@@ -81,18 +81,24 @@ class Fixture {
       if (m != null) teamId = int.tryParse(m.group(1)!);
     }
 
+    final rawHome = json['home_team']?.toString() ?? '';
+    final rawAway = json['away_team']?.toString() ?? '';
+    final normHome = RfuTeamRegistry.normalizeTeamName(rawHome);
+    final normAway = RfuTeamRegistry.normalizeTeamName(rawAway);
+    final normCtx = ctxTeam != null ? RfuTeamRegistry.normalizeTeamName(ctxTeam) : null;
+
     // Auto-resolve RFU Team ID if not explicitly present
-    teamId ??= RfuTeamRegistry.lookupTeamId(ctxTeam ?? json['home_team'] ?? json['away_team'] ?? '');
-    hTeamId ??= RfuTeamRegistry.lookupTeamId(json['home_team'] ?? '');
-    aTeamId ??= RfuTeamRegistry.lookupTeamId(json['away_team'] ?? '');
+    teamId ??= RfuTeamRegistry.lookupTeamId(normCtx ?? (normHome.isNotEmpty ? normHome : normAway));
+    hTeamId ??= RfuTeamRegistry.lookupTeamId(normHome);
+    aTeamId ??= RfuTeamRegistry.lookupTeamId(normAway);
 
     return Fixture(
       id: json['id']?.toString(),
       date: json['date'] ?? '',
       dateIso: json['date_iso'] ?? json['date'] ?? '',
       time: json['time'] ?? '15:00',
-      homeTeam: json['home_team'] ?? '',
-      awayTeam: json['away_team'] ?? '',
+      homeTeam: normHome,
+      awayTeam: normAway,
       homeTeamId: hTeamId,
       awayTeamId: aTeamId,
       homeScore: hScore,
@@ -102,7 +108,7 @@ class Fixture {
       competition: comp,
       roundNum: json['round_num'] ?? (isCustom ? (isCup ? 'Cup Matches' : 'Friendly Matches') : 'Scheduled'),
       isCustom: isCustom,
-      contextTeam: ctxTeam,
+      contextTeam: normCtx,
       rfuTeamId: teamId,
       homeLogoUrl: json['home_logo_url'],
       awayLogoUrl: json['away_logo_url'],

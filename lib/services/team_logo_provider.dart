@@ -72,10 +72,22 @@ class TeamLogoProvider {
       text: 'ARGAUM',
       iconSvg: '<path d="M6 6H18V16H6Z" stroke="#FFFFFF" stroke-width="2" fill="none"/>',
     ),
+    'opms': _svgBadge(
+      primaryColor: '#001F3F', // Navy
+      secondaryColor: '#C8102E', // Red
+      text: 'OPMs',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
+    ),
     'opm': _svgBadge(
       primaryColor: '#001F3F', // Navy
       secondaryColor: '#C8102E', // Red
-      text: 'OPM',
+      text: 'OPMs',
+      iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
+    ),
+    'old plymothian': _svgBadge(
+      primaryColor: '#001F3F', // Navy
+      secondaryColor: '#C8102E', // Red
+      text: 'OPMs',
       iconSvg: '<circle cx="12" cy="11" r="6" stroke="#C8102E" stroke-width="2" fill="none"/>',
     ),
     'bideford': _svgBadge(

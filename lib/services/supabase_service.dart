@@ -541,7 +541,9 @@ class SupabaseService {
         final standingsRes = await client.from('standings').select('team_name');
         for (var row in (standingsRes as List)) {
           final name = row['team_name']?.toString().trim();
-          if (name != null && name.isNotEmpty) teamsSet.add(name);
+          if (name != null && name.isNotEmpty) {
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(name));
+          }
         }
       } catch (_) {}
 
@@ -550,8 +552,8 @@ class SupabaseService {
         for (var row in (fixRes as List)) {
           final h = row['home_team']?.toString().trim();
           final a = row['away_team']?.toString().trim();
-          if (h != null && h.isNotEmpty) teamsSet.add(h);
-          if (a != null && a.isNotEmpty) teamsSet.add(a);
+          if (h != null && h.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
+          if (a != null && a.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
         }
       } catch (_) {}
 
@@ -560,8 +562,8 @@ class SupabaseService {
         for (var row in (custRes as List)) {
           final h = row['home_team']?.toString().trim();
           final a = row['away_team']?.toString().trim();
-          if (h != null && h.isNotEmpty) teamsSet.add(h);
-          if (a != null && a.isNotEmpty) teamsSet.add(a);
+          if (h != null && h.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
+          if (a != null && a.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
         }
       } catch (_) {}
     }

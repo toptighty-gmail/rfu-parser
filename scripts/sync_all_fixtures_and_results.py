@@ -18,6 +18,21 @@ headers = {
     'Prefer': 'resolution=merge-duplicates'
 }
 
+def normalize_team_name(name):
+    if not name:
+        return name
+    clean = name.strip()
+    lower = clean.lower()
+    if 'old plymothian' in lower:
+        if 'ii' in lower or '2nd' in lower or 'seconds' in lower:
+            return 'OPMs II'
+        return 'OPMs'
+    if lower == 'opm':
+        return 'OPMs'
+    if lower == 'opm ii':
+        return 'OPMs II'
+    return clean
+
 def sync_all_fixtures():
     print("===================================================================", flush=True)
     print("SYNCING FULL FIXTURES & RESULTS SCHEDULE ACROSS DIVISIONS", flush=True)
@@ -81,8 +96,8 @@ def sync_all_fixtures():
             fixtures_payload = []
             seen_pairings = set()
             for f in fixtures_list:
-                home = f.home_team
-                away = f.away_team
+                home = normalize_team_name(f.home_team)
+                away = normalize_team_name(f.away_team)
                 pair_key = (home.lower().strip(), away.lower().strip())
                 if pair_key in seen_pairings:
                     continue

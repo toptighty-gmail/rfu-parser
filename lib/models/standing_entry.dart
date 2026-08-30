@@ -1,6 +1,7 @@
 class StandingEntry {
   final int pos;
   final String teamName;
+  final int? rfuTeamId;
   final int played;
   final int won;
   final int drawn;
@@ -17,6 +18,7 @@ class StandingEntry {
   StandingEntry({
     required this.pos,
     required this.teamName,
+    this.rfuTeamId,
     required this.played,
     required this.won,
     required this.drawn,
@@ -35,6 +37,7 @@ class StandingEntry {
     return StandingEntry(
       pos: json['position'] ?? json['pos'] ?? 0,
       teamName: json['team_name'] ?? json['team'] ?? '',
+      rfuTeamId: json['rfu_team_id'] != null ? int.tryParse(json['rfu_team_id'].toString()) : null,
       played: json['played'] ?? 0,
       won: json['won'] ?? 0,
       drawn: json['drawn'] ?? 0,

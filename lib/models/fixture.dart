@@ -7,6 +7,8 @@ class Fixture {
   final String time;
   final String homeTeam;
   final String awayTeam;
+  final int? homeTeamId;
+  final int? awayTeamId;
   final int? homeScore;
   final int? awayScore;
   final String status;
@@ -26,6 +28,8 @@ class Fixture {
     required this.time,
     required this.homeTeam,
     required this.awayTeam,
+    this.homeTeamId,
+    this.awayTeamId,
     this.homeScore,
     this.awayScore,
     required this.status,
@@ -64,6 +68,8 @@ class Fixture {
     // Resolve context team and RFU Team ID
     String? ctxTeam = json['context_team']?.toString();
     int? teamId = json['rfu_team_id'] != null ? int.tryParse(json['rfu_team_id'].toString()) : null;
+    int? hTeamId = json['home_team_id'] != null ? int.tryParse(json['home_team_id'].toString()) : null;
+    int? aTeamId = json['away_team_id'] != null ? int.tryParse(json['away_team_id'].toString()) : null;
 
     final notesStr = (json['notes'] ?? json['venue'] ?? '').toString();
     if (ctxTeam == null && notesStr.contains('[Context:')) {
@@ -77,6 +83,8 @@ class Fixture {
 
     // Auto-resolve RFU Team ID if not explicitly present
     teamId ??= RfuTeamRegistry.lookupTeamId(ctxTeam ?? json['home_team'] ?? json['away_team'] ?? '');
+    hTeamId ??= RfuTeamRegistry.lookupTeamId(json['home_team'] ?? '');
+    aTeamId ??= RfuTeamRegistry.lookupTeamId(json['away_team'] ?? '');
 
     return Fixture(
       id: json['id']?.toString(),
@@ -85,6 +93,8 @@ class Fixture {
       time: json['time'] ?? '15:00',
       homeTeam: json['home_team'] ?? '',
       awayTeam: json['away_team'] ?? '',
+      homeTeamId: hTeamId,
+      awayTeamId: aTeamId,
       homeScore: hScore,
       awayScore: aScore,
       status: json['status'] ?? (hScore != null && aScore != null ? 'Completed' : 'Scheduled'),
@@ -107,6 +117,8 @@ class Fixture {
       'time': time,
       'home_team': homeTeam,
       'away_team': awayTeam,
+      if (homeTeamId != null) 'home_team_id': homeTeamId,
+      if (awayTeamId != null) 'away_team_id': awayTeamId,
       'home_score': homeScore,
       'away_score': awayScore,
       'status': status,

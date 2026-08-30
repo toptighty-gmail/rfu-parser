@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+import '../models/competition.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../models/standing_entry.dart';
@@ -20,10 +21,8 @@ class SupabaseService {
   static Future<void> init({String? url, String? anonKey}) async {
     if (_initialized) return;
 
-    // 1. Restore cached fixtures and logos from persistent storage
     await _loadFromLocalCache();
 
-    // 2. Initialize Supabase if credentials are provided
     const envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
     const envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
@@ -52,7 +51,7 @@ class SupabaseService {
     }
   }
 
-  // --- Local Cache Helpers (Browser LocalStorage / SharedPreferences) ---
+  // --- Local Cache Helpers ---
 
   static final List<Fixture> _localCustomFixtures = [];
   static final Map<String, String> _localLogosMap = {};
@@ -61,7 +60,6 @@ class SupabaseService {
     try {
       final prefs = await SharedPreferences.getInstance();
       
-      // Load cached fixtures
       final fixturesJson = prefs.getString(_kLocalFixturesKey);
       if (fixturesJson != null && fixturesJson.isNotEmpty) {
         final List decoded = json.decode(fixturesJson);
@@ -71,7 +69,6 @@ class SupabaseService {
         }
       }
 
-      // Load cached logos
       final logosJson = prefs.getString(_kLocalLogosKey);
       if (logosJson != null && logosJson.isNotEmpty) {
         final Map<String, dynamic> decoded = json.decode(logosJson);
@@ -104,17 +101,70 @@ class SupabaseService {
     }
   }
 
-  // --- Custom Fixtures CRUD with Multi-Layer Persistence ---
+  // --- Relational Competitions & Divisions Queries ---
+
+  static Future<List<Competition>> fetchCompetitions() async {
+    final client = _client;
+    if (client == null) return [];
+    try {
+      final response = await client
+          .from('competitions')
+          .select()
+          .order('rfu_competition_id', ascending: true);
+      return (response as List).map((row) => Competition.fromJson(row)).toList();
+    } catch (e) {
+      debugPrint('Error fetching competitions from Supabase: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchDivisionsCatalog({
+    int? competitionId,
+    int? tierLevel,
+    String season = '2025-2026',
+  }) async {
+    final client = _client;
+    if (client == null) return [];
+    try {
+      dynamic filter = client.from('divisions').select('id, division_name, rfu_competition_id, rfu_division_id, tier_level, region, season');
+      if (competitionId != null) {
+        filter = filter.eq('rfu_competition_id', competitionId);
+      }
+      if (tierLevel != null) {
+        filter = filter.eq('tier_level', tierLevel);
+      }
+      final response = await filter.eq('season', season).order('division_name', ascending: true);
+      return (response as List).map((r) => Map<String, dynamic>.from(r)).toList();
+    } catch (e) {
+      debugPrint('Error fetching divisions catalog from Supabase: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchTeams({String? county}) async {
+    final client = _client;
+    if (client == null) return [];
+    try {
+      dynamic filter = client.from('teams').select();
+      if (county != null && county.isNotEmpty) {
+        filter = filter.eq('county', county);
+      }
+      final response = await filter.order('team_name', ascending: true);
+      return (response as List).map((r) => Map<String, dynamic>.from(r)).toList();
+    } catch (e) {
+      debugPrint('Error fetching teams from Supabase: $e');
+      return [];
+    }
+  }
+
+  // --- Custom Fixtures CRUD ---
 
   static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team}) async {
-    // Ensure cache is loaded
     if (_localCustomFixtures.isEmpty) {
       await _loadFromLocalCache();
     }
 
     final List<Fixture> allFixtures = [];
-
-    // 1. Fetch from Supabase if connected (Source of Truth)
     final client = _client;
     if (client != null) {
       try {
@@ -136,7 +186,6 @@ class SupabaseService {
       allFixtures.addAll(_localCustomFixtures);
     }
 
-    // Filter by team (custom fixtures only belong in the schedule of the participating clubs)
     final cleanTeam = team?.trim().toLowerCase();
     if (cleanTeam == null || cleanTeam.isEmpty) {
       return [];
@@ -146,18 +195,15 @@ class SupabaseService {
     final searchWords = cleanTeam.split(' ').where((w) => w.length > 3).toList();
 
     return allFixtures.where((f) {
-      // 1. Direct RFU Team ID correlation match
       if (targetTeamId != null && f.rfuTeamId != null && f.rfuTeamId == targetTeamId) {
         return true;
       }
-      // 2. Direct Context Team string match
       if (f.contextTeam != null && f.contextTeam!.isNotEmpty) {
         final ctx = f.contextTeam!.toLowerCase();
         if (ctx == cleanTeam || ctx.contains(cleanTeam) || cleanTeam.contains(ctx)) {
           return true;
         }
       }
-      // 3. Participating Home / Away team matching
       final home = f.homeTeam.toLowerCase();
       final away = f.awayTeam.toLowerCase();
       if (home.contains(cleanTeam) || away.contains(cleanTeam)) return true;
@@ -178,6 +224,8 @@ class SupabaseService {
       time: fixture.time,
       homeTeam: fixture.homeTeam,
       awayTeam: fixture.awayTeam,
+      homeTeamId: fixture.homeTeamId,
+      awayTeamId: fixture.awayTeamId,
       homeScore: fixture.homeScore,
       awayScore: fixture.awayScore,
       status: fixture.status,
@@ -191,203 +239,176 @@ class SupabaseService {
       awayLogoUrl: fixture.awayLogoUrl,
     );
 
-    // 1. Save to local memory and browser persistent storage immediately
     _localCustomFixtures.removeWhere((f) => f.id == generatedId);
     _localCustomFixtures.add(customFix);
     await _saveLocalFixturesCache();
 
-    // 2. Sync to Python backend API
     try {
-      final payload = customFix.toJson();
-      payload['division'] = division;
-      await ApiService.addBackendCustomFixture(payload);
+      await ApiService.addBackendCustomFixture({
+        'date': fixture.date,
+        'home_team': fixture.homeTeam,
+        'away_team': fixture.awayTeam,
+        'time': fixture.time,
+        'score': (fixture.homeScore != null && fixture.awayScore != null)
+            ? '${fixture.homeScore} - ${fixture.awayScore}'
+            : 'v',
+        'status': fixture.status,
+        'notes': fixture.venue,
+      });
     } catch (_) {}
 
-    // 3. Save to Supabase if client is initialized
     final client = _client;
     if (client != null) {
       try {
         final payload = {
-          'division': (customFix.competition.isNotEmpty && customFix.competition != 'Friendly')
-              ? customFix.competition
-              : (division.isNotEmpty && division != 'ALL / Select Division'
-                  ? division
-                  : 'Counties 2 Tribute Devon'),
-          'date': customFix.date,
-          'time': customFix.time.isNotEmpty ? customFix.time : '15:00',
-          'home_team': customFix.homeTeam,
-          'away_team': customFix.awayTeam,
-          'score': (customFix.homeScore != null && customFix.awayScore != null)
-              ? '${customFix.homeScore} - ${customFix.awayScore}'
+          'division': division,
+          'date': fixture.date,
+          'time': fixture.time,
+          'home_team': fixture.homeTeam,
+          'away_team': fixture.awayTeam,
+          'score': (fixture.homeScore != null && fixture.awayScore != null)
+              ? '${fixture.homeScore} - ${fixture.awayScore}'
               : 'v',
-          'status': customFix.status,
-          'notes': customFix.venue,
-          if (customFix.contextTeam != null) 'context_team': customFix.contextTeam,
-          if (customFix.rfuTeamId != null) 'rfu_team_id': customFix.rfuTeamId,
+          'status': fixture.status,
+          'notes': fixture.venue,
           'is_custom': true,
+          'context_team': fixture.contextTeam ?? fixture.homeTeam,
+          'rfu_team_id': fixture.rfuTeamId,
+          'created_at': DateTime.now().toIso8601String(),
         };
-        
-        final response = await client
-            .from('custom_fixtures')
-            .insert(payload)
-            .select()
-            .single();
 
-        final created = Fixture.fromJson(response);
+        final response = await client.from('custom_fixtures').insert(payload).select().single();
+        final remoteFixture = Fixture.fromJson(response);
         _localCustomFixtures.removeWhere((f) => f.id == generatedId);
-        _localCustomFixtures.add(created);
+        _localCustomFixtures.add(remoteFixture);
         await _saveLocalFixturesCache();
-        return created;
+        return remoteFixture;
       } catch (e) {
-        debugPrint('Error adding fixture to Supabase: $e');
+        debugPrint('Supabase insert custom fixture error: $e');
       }
     }
 
     return customFix;
   }
 
-  static Future<bool> updateCustomFixture(String id, Map<String, dynamic> updates) async {
-    final idx = _localCustomFixtures.indexWhere((f) => f.id == id);
-    if (idx != -1) {
-      final old = _localCustomFixtures[idx];
-      _localCustomFixtures[idx] = Fixture(
-        id: id,
-        date: updates['date'] ?? old.date,
-        dateIso: updates['date_iso'] ?? old.dateIso,
-        time: updates['time'] ?? old.time,
-        homeTeam: updates['home_team'] ?? old.homeTeam,
-        awayTeam: updates['away_team'] ?? old.awayTeam,
-        homeScore: updates.containsKey('home_score') ? updates['home_score'] : old.homeScore,
-        awayScore: updates.containsKey('away_score') ? updates['away_score'] : old.awayScore,
-        status: updates['status'] ?? old.status,
-        venue: updates['venue'] ?? old.venue,
-        competition: updates['competition'] ?? old.competition,
-        roundNum: updates['round_num'] ?? old.roundNum,
-        contextTeam: updates['context_team'] ?? old.contextTeam,
-        rfuTeamId: updates['rfu_team_id'] ?? old.rfuTeamId,
-        isCustom: true,
-      );
-      await _saveLocalFixturesCache();
-    }
+  static Future<bool> updateCustomFixture(dynamic arg1, [dynamic arg2]) async {
+    String? fixtureId;
+    Map<String, dynamic> updatePayload = {};
 
-    // Sync to Python backend
-    try {
-      await ApiService.updateBackendCustomFixture(id, updates);
-    } catch (_) {}
-
-    // Sync to Supabase
-    final client = _client;
-    if (client == null) return true;
-    try {
-      final payload = <String, dynamic>{};
-      if (updates.containsKey('date')) payload['date'] = updates['date'];
-      if (updates.containsKey('time')) payload['time'] = updates['time'];
-      if (updates.containsKey('home_team')) payload['home_team'] = updates['home_team'];
-      if (updates.containsKey('away_team')) payload['away_team'] = updates['away_team'];
-      if (updates.containsKey('venue')) payload['notes'] = updates['venue'];
-      if (updates.containsKey('status')) payload['status'] = updates['status'];
-      if (updates.containsKey('context_team')) payload['context_team'] = updates['context_team'];
-      if (updates.containsKey('rfu_team_id')) payload['rfu_team_id'] = updates['rfu_team_id'];
-      if (updates.containsKey('home_score') || updates.containsKey('away_score')) {
-        final h = updates['home_score'];
-        final a = updates['away_score'];
-        payload['score'] = (h != null && a != null) ? '$h - $a' : 'v';
+    if (arg1 is Fixture) {
+      fixtureId = arg1.id;
+      updatePayload = arg1.toJson();
+      final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
+      if (idx != -1) {
+        _localCustomFixtures[idx] = arg1;
+        await _saveLocalFixturesCache();
       }
-      if (payload.isNotEmpty) {
-        await client
-            .from('custom_fixtures')
-            .update(payload)
-            .eq('id', id);
+    } else if (arg1 is String && arg2 is Map<String, dynamic>) {
+      fixtureId = arg1;
+      updatePayload = arg2;
+      final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
+      if (idx != -1) {
+        final updatedFix = Fixture.fromJson({..._localCustomFixtures[idx].toJson(), ...updatePayload});
+        _localCustomFixtures[idx] = updatedFix;
+        await _saveLocalFixturesCache();
       }
-      return true;
-    } catch (e) {
-      debugPrint('Error updating fixture in Supabase: $e');
-      return false;
     }
-  }
 
-  static Future<bool> deleteCustomFixture(String id) async {
-    _localCustomFixtures.removeWhere((f) => f.id == id);
-    await _saveLocalFixturesCache();
+    if (fixtureId != null) {
+      try {
+        if (!fixtureId.startsWith('cust_')) {
+          await ApiService.updateBackendCustomFixture(fixtureId, updatePayload);
+        }
+      } catch (_) {}
 
-    // Sync to Python backend
-    try {
-      await ApiService.deleteBackendCustomFixture(id);
-    } catch (_) {}
-
-    // Sync to Supabase (Delete from both custom_fixtures and fixtures tables)
-    final client = _client;
-    if (client == null) return true;
-    try {
-      await client
-          .from('custom_fixtures')
-          .delete()
-          .eq('id', id);
-      
-      await client
-          .from('fixtures')
-          .delete()
-          .eq('id', id);
-      return true;
-    } catch (e) {
-      debugPrint('Error deleting fixture from Supabase: $e');
-      return false;
-    }
-  }
-
-  // --- Team Logos Storage & Database ---
-
-  static Future<String?> uploadTeamLogo(String teamName, Uint8List fileBytes, String fileExtension) async {
-    final cleanTeam = teamName.trim();
-    final cleanTeamKey = cleanTeam.toLowerCase();
-    final cleanFileExt = fileExtension.replaceAll('.', '').toLowerCase();
-    final mime = cleanFileExt == 'svg' ? 'image/svg+xml' : (cleanFileExt == 'jpg' ? 'image/jpeg' : 'image/$cleanFileExt');
-    final base64String = base64Encode(fileBytes);
-    final dataUri = 'data:$mime;base64,$base64String';
-
-    String chosenLogoUrl = dataUri;
-    final client = _client;
-
-    if (client != null) {
-      // 1. Attempt upload to Supabase Storage bucket
-      final candidateBuckets = [
-        'rfu-parcer-team-logos',
-        'rfu-parser-team-logos',
-        'rfu_parcer_team_logos',
-        'rfu_parser_team_logos',
-        'team-logos',
-        'team-logo',
-        'team_logos',
-        'team_logo',
-        'teamlogos',
-      ];
-      bool uploadSuccess = false;
-
-      for (var bucket in candidateBuckets) {
+      final client = _client;
+      if (client != null) {
         try {
-          final cleanPath = '${cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]'), '_')}$fileExtension';
-          await client.storage.from(bucket).uploadBinary(
-                cleanPath,
-                fileBytes,
-                fileOptions: const FileOptions(upsert: true),
-              );
-          chosenLogoUrl = client.storage.from(bucket).getPublicUrl(cleanPath);
-          uploadSuccess = true;
-          break;
-        } catch (_) {
-          // Try next bucket variant
+          await client.from('custom_fixtures').update(updatePayload).eq('id', fixtureId);
+          return true;
+        } catch (e) {
+          debugPrint('Supabase update custom fixture error: $e');
         }
       }
+    }
 
-      if (!uploadSuccess) {
-        debugPrint('Supabase storage bucket upload fallback to data URI');
-        chosenLogoUrl = dataUri;
+    return true;
+  }
+
+  static Future<bool> deleteCustomFixture(String fixtureId) async {
+    _localCustomFixtures.removeWhere((f) => f.id == fixtureId);
+    await _saveLocalFixturesCache();
+
+    try {
+      if (!fixtureId.startsWith('cust_')) {
+        await ApiService.deleteBackendCustomFixture(fixtureId);
       }
+    } catch (_) {}
 
-      // 2. Upsert mapping in team_logos table
+    final client = _client;
+    if (client != null) {
       try {
+        await client.from('custom_fixtures').delete().eq('id', fixtureId);
+        return true;
+      } catch (e) {
+        debugPrint('Supabase delete custom fixture error: $e');
+      }
+    }
+
+    return true;
+  }
+
+  // --- Team Logos Storage & Table Management ---
+
+  static Future<String?> uploadTeamLogo(String teamName, Uint8List fileBytes, String fileExtension) async {
+    final cleanExt = fileExtension.replaceAll('.', '').toLowerCase();
+    final cleanTeamKey = teamName.trim().toLowerCase();
+    final sanitizedSlug = cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]+'), '_').replaceAll(RegExp(r'^_+|_+$'), '');
+    final fileName = '$sanitizedSlug.$cleanExt';
+    
+    final client = _client;
+    String chosenLogoUrl = '';
+
+    if (client != null) {
+      try {
+        const bucketCandidates = [
+          'rfu-parcer-team-logos',
+          'rfu-parser-team-logos',
+          'rfu_parcer_team_logos',
+          'rfu_parser_team_logos',
+          'team-logos',
+          'team-logo',
+          'team_logos',
+          'team_logo',
+          'teamlogos',
+        ];
+
+        String? activeBucket;
+        for (var b in bucketCandidates) {
+          try {
+            await client.storage.from(b).uploadBinary(
+              fileName,
+              fileBytes,
+              fileOptions: FileOptions(
+                upsert: true,
+                contentType: cleanExt == 'svg' ? 'image/svg+xml' : 'image/$cleanExt',
+              ),
+            );
+            activeBucket = b;
+            break;
+          } catch (_) {}
+        }
+
+        if (activeBucket != null) {
+          chosenLogoUrl = client.storage.from(activeBucket).getPublicUrl(fileName);
+        }
+
+        if (chosenLogoUrl.isEmpty) {
+          chosenLogoUrl = 'https://tgexkxrhcyxvnqafbdff.supabase.co/storage/v1/object/public/rfu-parcer-team-logos/$fileName';
+        }
+
         await client.from('team_logos').upsert({
-          'team_name': cleanTeam,
+          'team_name': teamName.trim(),
           'logo_url': chosenLogoUrl,
           'updated_at': DateTime.now().toIso8601String(),
         }, onConflict: 'team_name');
@@ -396,7 +417,12 @@ class SupabaseService {
       }
     }
 
-    // 3. Store in persistent local cache so UI immediately and permanently displays it
+    if (chosenLogoUrl.isEmpty) {
+      final base64String = base64Encode(fileBytes);
+      final mime = cleanExt == 'svg' ? 'image/svg+xml' : 'image/$cleanExt';
+      chosenLogoUrl = 'data:$mime;base64,$base64String';
+    }
+
     _localLogosMap[cleanTeamKey] = chosenLogoUrl;
     await _saveLocalLogosCache();
     return chosenLogoUrl;
@@ -438,12 +464,20 @@ class SupabaseService {
       final divisionName = divisionData.divisionName as String;
       final season = divisionData.season as String;
       final sourceUrl = (divisionData.sourceUrl ?? '') as String;
+      final compId = divisionData.rfuCompetitionId as int?;
+      final divIdNum = divisionData.rfuDivisionId as int?;
+      final tier = divisionData.tierLevel as int?;
+      final reg = divisionData.region as String?;
 
       // 1. Upsert Division
       final divResponse = await client.from('divisions').upsert({
         'division_name': divisionName,
         'season': season,
         'source_url': sourceUrl,
+        if (compId != null) 'rfu_competition_id': compId,
+        if (divIdNum != null) 'rfu_division_id': divIdNum,
+        if (tier != null) 'tier_level': tier,
+        if (reg != null) 'region': reg,
         'updated_at': DateTime.now().toIso8601String(),
       }, onConflict: 'division_name,season').select('id').single();
 
@@ -453,21 +487,25 @@ class SupabaseService {
       // 2. Upsert Standings
       final standings = divisionData.standings as List;
       if (standings.isNotEmpty) {
-        final standingsPayload = standings.map((s) => {
-          'division_id': divisionId,
-          'position': s.pos,
-          'team_name': s.teamName,
-          'played': s.played,
-          'won': s.won,
-          'drawn': s.drawn,
-          'lost': s.lost,
-          'points_for': s.pointsFor,
-          'points_against': s.pointsAgainst,
-          'points_diff': s.pointsDiff,
-          'try_bonus': s.tryBonus,
-          'lose_bonus': s.lossBonus,
-          'points': s.points,
-          'updated_at': DateTime.now().toIso8601String(),
+        final standingsPayload = standings.map((s) {
+          final tId = s.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(s.teamName.toString());
+          return {
+            'division_id': divisionId,
+            'position': s.pos,
+            'team_name': s.teamName,
+            if (tId != null) 'rfu_team_id': tId,
+            'played': s.played,
+            'won': s.won,
+            'drawn': s.drawn,
+            'lost': s.lost,
+            'points_for': s.pointsFor,
+            'points_against': s.pointsAgainst,
+            'points_diff': s.pointsDiff,
+            'try_bonus': s.tryBonus,
+            'lose_bonus': s.lossBonus,
+            'points': s.points,
+            'updated_at': DateTime.now().toIso8601String(),
+          };
         }).toList();
 
         await client.from('standings').upsert(
@@ -476,22 +514,28 @@ class SupabaseService {
         );
       }
 
-      // 3. Upsert Fixtures (only official league fixtures, custom fixtures belong in custom_fixtures table)
+      // 3. Upsert Fixtures
       final fixtures = (divisionData.fixtures as List).where((f) => f.isCustom != true).toList();
       if (fixtures.isNotEmpty) {
-        final fixturesPayload = fixtures.map((f) => {
-          'division_id': divisionId,
-          'date': f.date,
-          'time': f.time != null && f.time.isNotEmpty ? f.time : '15:00',
-          'home_team': f.homeTeam,
-          'away_team': f.awayTeam,
-          'home_score': f.homeScore,
-          'away_score': f.awayScore,
-          'status': f.status,
-          'venue': f.venue ?? '',
-          'round_num': f.roundNum ?? '',
-          'is_custom': false,
-          'updated_at': DateTime.now().toIso8601String(),
+        final fixturesPayload = fixtures.map((f) {
+          final hId = f.homeTeamId ?? RfuTeamRegistry.lookupTeamId(f.homeTeam);
+          final aId = f.awayTeamId ?? RfuTeamRegistry.lookupTeamId(f.awayTeam);
+          return {
+            'division_id': divisionId,
+            'date': f.date,
+            'time': f.time != null && f.time.isNotEmpty ? f.time : '15:00',
+            'home_team': f.homeTeam,
+            'away_team': f.awayTeam,
+            if (hId != null) 'home_team_id': hId,
+            if (aId != null) 'away_team_id': aId,
+            'home_score': f.homeScore,
+            'away_score': f.awayScore,
+            'status': f.status,
+            'venue': f.venue ?? '',
+            'round_num': f.roundNum ?? '',
+            'is_custom': false,
+            'updated_at': DateTime.now().toIso8601String(),
+          };
         }).toList();
 
         await client.from('fixtures').upsert(
@@ -500,7 +544,7 @@ class SupabaseService {
         );
       }
 
-      // 4. Auto-Sync discovered Team Logos into team_logos table if not yet present
+      // 4. Auto-Sync discovered Team Logos into team_logos table
       final standingsList = divisionData.standings as List;
       for (var s in standingsList) {
         final tName = s.teamName.toString().trim();
@@ -541,12 +585,15 @@ class SupabaseService {
       String? divId;
       String? resolvedDivisionName = division;
       String? resolvedSourceUrl;
+      int? resolvedCompId;
+      int? resolvedDivIdNum;
+      int? resolvedTier;
+      String? resolvedRegion;
 
-      // 1. If division name is provided, search directly
       if (division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
         final divResp = await client
             .from('divisions')
-            .select('id, division_name, season, source_url')
+            .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
             .ilike('division_name', '%${division.trim()}%')
             .eq('season', season)
             .maybeSingle();
@@ -555,10 +602,13 @@ class SupabaseService {
           divId = divResp['id'] as String?;
           resolvedDivisionName = divResp['division_name'] as String?;
           resolvedSourceUrl = divResp['source_url'] as String?;
+          resolvedCompId = divResp['rfu_competition_id'] as int?;
+          resolvedDivIdNum = divResp['rfu_division_id'] as int?;
+          resolvedTier = divResp['tier_level'] as int?;
+          resolvedRegion = divResp['region'] as String?;
         }
       }
 
-      // 2. If division was not resolved yet but a team name was provided, search standings for the team's division
       if (divId == null && team != null && team.trim().isNotEmpty) {
         final cleanTeam = team.trim();
         final standingsMatch = await client
@@ -573,18 +623,21 @@ class SupabaseService {
           if (divId != null) {
             final divResp = await client
                 .from('divisions')
-                .select('id, division_name, season, source_url')
+                .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
                 .eq('id', divId)
                 .maybeSingle();
             if (divResp != null) {
               resolvedDivisionName = divResp['division_name'] as String?;
               resolvedSourceUrl = divResp['source_url'] as String?;
+              resolvedCompId = divResp['rfu_competition_id'] as int?;
+              resolvedDivIdNum = divResp['rfu_division_id'] as int?;
+              resolvedTier = divResp['tier_level'] as int?;
+              resolvedRegion = divResp['region'] as String?;
             }
           }
         }
       }
 
-      // 3. Fetch Standings & Fixtures if division was identified
       if (divId != null) {
         final standingsResp = await client
             .from('standings')
@@ -601,7 +654,6 @@ class SupabaseService {
         final standings = (standingsResp as List).map((row) => StandingEntry.fromJson(row)).toList();
         final fixtures = (fixturesResp as List).map((row) => Fixture.fromJson(row)).toList();
 
-        // Sort fixtures in strict chronological round order (Round 1, Round 2, ... Round 22)
         fixtures.sort((a, b) {
           int extractRound(String r) {
             final m = RegExp(r'(\d+)').firstMatch(r);
@@ -617,6 +669,10 @@ class SupabaseService {
           return DivisionData(
             divisionName: resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),
             season: season,
+            rfuCompetitionId: resolvedCompId,
+            rfuDivisionId: resolvedDivIdNum,
+            tierLevel: resolvedTier,
+            region: resolvedRegion,
             sourceUrl: resolvedSourceUrl ?? '',
             standings: standings,
             fixtures: fixtures,

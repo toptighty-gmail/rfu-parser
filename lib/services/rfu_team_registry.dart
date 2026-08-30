@@ -35,6 +35,7 @@ class RfuTeamRegistry {
     'paignton': 2036,
     'torquay athletic': 2038,
     'newton abbot': 2027,
+    'newton abbot ii': 2027,
     'okehampton': 2031,
     'sidmouth': 2032,
     'teignmouth': 2033,
@@ -42,6 +43,8 @@ class RfuTeamRegistry {
     'redruth': 2010,
     'cornish pirates': 5644,
     'plymouth albion': 2004,
+    'saltash': 18500,
+    'saltash ii': 18501,
     
     'bath rugby': 42,
     'exeter chiefs': 41,
@@ -62,6 +65,20 @@ class RfuTeamRegistry {
     'caldy': 3933,
     'chinnor': 4817,
   };
+
+  static List<String> get allKnownTeamNames {
+    return _teamToId.keys.map((k) {
+      // Title Case formatting
+      return k.split(' ').map((word) {
+        if (word == 'ii') return 'II';
+        if (word == 'iii') return 'III';
+        if (word == 'iv') return 'IV';
+        if (word == '&') return '&';
+        if (word.isEmpty) return '';
+        return word[0].toUpperCase() + word.substring(1);
+      }).join(' ');
+    }).toList();
+  }
 
   /// Returns the canonical RFU Team ID for a club name
   static int? lookupTeamId(String teamName) {

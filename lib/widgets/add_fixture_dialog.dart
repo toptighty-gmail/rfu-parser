@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
-
+import '../services/supabase_service.dart';
 import '../services/rfu_team_registry.dart';
 
 class AddFixtureDialog extends StatefulWidget {
@@ -37,6 +37,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   late TextEditingController _venueController;
   late TextEditingController _cupNameController;
 
+  List<String> _databaseTeams = [];
+  bool _isLoadingTeams = true;
+
   static final DateFormat _rfuDateFormat = DateFormat('EEEE, d MMM yyyy');
 
   @override
@@ -64,7 +67,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
     _dateController = TextEditingController(text: _rfuDateFormat.format(_selectedDate));
     _timeController = TextEditingController(text: _formatTimeOfDay(_selectedTime));
-    _homeTeamController = TextEditingController(text: f?.homeTeam ?? '');
+    _homeTeamController = TextEditingController(
+      text: f?.homeTeam ?? (widget.contextTeam ?? ''),
+    );
     _awayTeamController = TextEditingController(text: f?.awayTeam ?? '');
     _homeScoreController = TextEditingController(text: f?.homeScore?.toString() ?? '');
     _awayScoreController = TextEditingController(text: f?.awayScore?.toString() ?? '');
@@ -74,6 +79,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           ? f.competition
           : 'Devon Senior Cup',
     );
+
+    _loadDatabaseTeams();
+  }
+
+  Future<void> _loadDatabaseTeams() async {
+    final teams = await SupabaseService.fetchAllDistinctTeams();
+    if (mounted) {
+      setState(() {
+        _databaseTeams = teams;
+        _isLoadingTeams = false;
+      });
+    }
   }
 
   DateTime _parseFixtureDate(String? dateIso, String? dateStr) {
@@ -161,6 +178,18 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     }
   }
 
+  void _swapTeams() {
+    setState(() {
+      final temp = _homeTeamController.text;
+      _homeTeamController.text = _awayTeamController.text;
+      _awayTeamController.text = temp;
+
+      final tempScore = _homeScoreController.text;
+      _homeScoreController.text = _awayScoreController.text;
+      _awayScoreController.text = tempScore;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existingFixture != null;
@@ -174,7 +203,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       title: Row(
         children: [
           Icon(
-            isEditing ? Icons.edit : (_fixtureType == 'Cup' ? Icons.emoji_events : Icons.sports_rugby),
+            isEditing
+                ? Icons.edit_calendar
+                : (_fixtureType == 'Cup' ? Icons.emoji_events : Icons.sports_rugby),
             color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
           ),
           const SizedBox(width: 10),
@@ -363,11 +394,54 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              _buildInput('Home Team', _homeTeamController, icon: Icons.shield),
-              const SizedBox(height: 12),
-              _buildInput('Away Team', _awayTeamController, icon: Icons.shield_outlined),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
+
+              // Home Team (Searchable Dropdown + Manual Entry)
+              _buildTeamDropdownField(
+                label: 'Home Team (Select from DB or Type Custom Name)',
+                controller: _homeTeamController,
+                icon: Icons.shield,
+                isHome: true,
+              ),
+
+              // Swap Button
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: InkWell(
+                    onTap: _swapTeams,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppTheme.darkBg,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.cardBorder),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.swap_vert, size: 14, color: AppTheme.goldAccent),
+                          SizedBox(width: 4),
+                          Text('Swap Home / Away', style: TextStyle(fontSize: 10.5, color: AppTheme.goldAccent, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Away Team (Searchable Dropdown + Manual Entry)
+              _buildTeamDropdownField(
+                label: 'Away Team (Select from DB or Type Custom Name)',
+                controller: _awayTeamController,
+                icon: Icons.shield_outlined,
+                isHome: false,
+              ),
+
+              const SizedBox(height: 14),
+
+              // Scores (Optional)
               Row(
                 children: [
                   Expanded(
@@ -403,6 +477,94 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTeamDropdownField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    required bool isHome,
+  }) {
+    return RawAutocomplete<String>(
+      textEditingController: controller,
+      focusNode: FocusNode(),
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        final query = textEditingValue.text.trim().toLowerCase();
+        if (query.isEmpty) {
+          // If empty, suggest top 25 clubs in database
+          return _databaseTeams.take(25);
+        }
+        return _databaseTeams.where((team) => team.toLowerCase().contains(query)).take(30);
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 8,
+            color: AppTheme.surfaceBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: AppTheme.goldAccent, width: 1),
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 220,
+                maxWidth: MediaQuery.of(context).size.width > 600 ? 470 : MediaQuery.of(context).size.width * 0.85,
+              ),
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                shrinkWrap: true,
+                itemCount: options.length,
+                separatorBuilder: (_, __) => const Divider(color: AppTheme.cardBorder, height: 1),
+                itemBuilder: (context, index) {
+                  final team = options.elementAt(index);
+                  return ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.sports_rugby, size: 16, color: AppTheme.goldAccent),
+                    title: Text(
+                      team,
+                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    onTap: () => onSelected(team),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+      fieldViewBuilder: (context, fieldTextEditingController, focusNode, onFieldSubmitted) {
+        return TextField(
+          controller: fieldTextEditingController,
+          focusNode: focusNode,
+          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 12.5),
+            prefixIcon: Icon(icon, size: 18, color: AppTheme.goldAccent),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (fieldTextEditingController.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
+                    onPressed: () => fieldTextEditingController.clear(),
+                  ),
+                const Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                const SizedBox(width: 6),
+              ],
+            ),
+            filled: true,
+            fillColor: AppTheme.darkBg,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppTheme.cardBorder),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -449,41 +611,29 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ? widget.contextTeam!.trim()
         : (widget.existingFixture?.contextTeam ?? home);
 
-    final effectiveRfuId = widget.rfuTeamId ??
-        widget.existingFixture?.rfuTeamId ??
-        RfuTeamRegistry.lookupTeamId(effectiveContext) ??
-        RfuTeamRegistry.lookupTeamId(home) ??
-        RfuTeamRegistry.lookupTeamId(away);
+    final effectiveRfuId = widget.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(effectiveContext);
 
-    final baseVenue = _venueController.text.trim();
-    final enrichedVenue = baseVenue.isNotEmpty
-        ? '$baseVenue [Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}'
-        : '[Context: $effectiveContext]${effectiveRfuId != null ? " [ID: $effectiveRfuId]" : ""}';
-
-    final homeTeamId = widget.existingFixture?.homeTeamId ?? RfuTeamRegistry.lookupTeamId(home);
-    final awayTeamId = widget.existingFixture?.awayTeamId ?? RfuTeamRegistry.lookupTeamId(away);
-
-    final fixture = Fixture(
-      id: widget.existingFixture?.id,
+    final newFixture = Fixture(
+      id: widget.existingFixture?.id ?? 'cust_${DateTime.now().millisecondsSinceEpoch}',
       date: rfuFormattedDate,
       dateIso: dateIso,
-      time: _timeController.text.trim(),
+      time: _timeController.text.trim().isNotEmpty ? _timeController.text.trim() : '15:00',
       homeTeam: home,
       awayTeam: away,
-      homeTeamId: homeTeamId,
-      awayTeamId: awayTeamId,
       homeScore: hScore,
       awayScore: aScore,
       status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',
-      venue: enrichedVenue,
+      venue: _venueController.text.trim(),
       competition: competitionName,
       roundNum: roundLabel,
+      isCustom: true,
       contextTeam: effectiveContext,
       rfuTeamId: effectiveRfuId,
-      isCustom: true,
+      homeTeamId: RfuTeamRegistry.lookupTeamId(home),
+      awayTeamId: RfuTeamRegistry.lookupTeamId(away),
     );
 
-    widget.onSave(fixture);
+    widget.onSave(newFixture);
     Navigator.of(context).pop();
   }
 }

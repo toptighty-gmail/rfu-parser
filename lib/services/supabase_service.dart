@@ -523,6 +523,54 @@ class SupabaseService {
     }
   }
 
+  static List<String> _cachedDistinctTeams = [];
+
+  static Future<List<String>> fetchAllDistinctTeams() async {
+    if (_cachedDistinctTeams.isNotEmpty) return _cachedDistinctTeams;
+
+    final Set<String> teamsSet = {};
+
+    // 1. Add known team names from registry
+    for (var k in RfuTeamRegistry.allKnownTeamNames) {
+      if (k.trim().isNotEmpty) teamsSet.add(k.trim());
+    }
+
+    final client = _client;
+    if (client != null) {
+      try {
+        final standingsRes = await client.from('standings').select('team_name');
+        for (var row in (standingsRes as List)) {
+          final name = row['team_name']?.toString().trim();
+          if (name != null && name.isNotEmpty) teamsSet.add(name);
+        }
+      } catch (_) {}
+
+      try {
+        final fixRes = await client.from('fixtures').select('home_team, away_team');
+        for (var row in (fixRes as List)) {
+          final h = row['home_team']?.toString().trim();
+          final a = row['away_team']?.toString().trim();
+          if (h != null && h.isNotEmpty) teamsSet.add(h);
+          if (a != null && a.isNotEmpty) teamsSet.add(a);
+        }
+      } catch (_) {}
+
+      try {
+        final custRes = await client.from('custom_fixtures').select('home_team, away_team');
+        for (var row in (custRes as List)) {
+          final h = row['home_team']?.toString().trim();
+          final a = row['away_team']?.toString().trim();
+          if (h != null && h.isNotEmpty) teamsSet.add(h);
+          if (a != null && a.isNotEmpty) teamsSet.add(a);
+        }
+      } catch (_) {}
+    }
+
+    final sorted = teamsSet.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _cachedDistinctTeams = sorted;
+    return sorted;
+  }
+
   // --- Live Division, Standings & Fixtures Sync ---
 
   static Future<bool> upsertDivisionData(dynamic divisionData) async {

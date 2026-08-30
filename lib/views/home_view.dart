@@ -151,28 +151,35 @@ class _HomeViewState extends State<HomeView> {
 
     DivisionData? data;
 
-    // 1. Crawl live RFU web data directly from England Rugby site
-    data = await ApiService.crawlAndSyncLiveRFUData(
-      division: targetTeam == null ? targetDivision : null,
-      team: targetTeam,
-      season: _selectedSeason,
-    );
-
-    // 2. Try Supabase cloud database
-    data ??= await SupabaseService.fetchDivisionFromSupabase(
+    // 1. Primary: Fetch directly from Supabase cloud relational database
+    data = await SupabaseService.fetchDivisionFromSupabase(
       division: targetDivision,
       team: targetTeam,
       season: _selectedSeason,
     );
 
-    // 3. Fallback to parse endpoint if live crawl is still completing
-    data ??= await ApiService.fetchDivisionData(
-      division: targetTeam == null ? targetDivision : null,
-      team: targetTeam,
-      season: _selectedSeason,
-    );
+    // 2. Secondary: Crawl live RFU web data if not cached in Supabase
+    if (data == null || data.standings.isEmpty) {
+      data = await ApiService.crawlAndSyncLiveRFUData(
+        division: targetTeam == null ? targetDivision : null,
+        team: targetTeam,
+        season: _selectedSeason,
+      );
+      if (data != null && data.standings.isNotEmpty) {
+        await SupabaseService.upsertDivisionData(data);
+      }
+    }
 
-    // 4. Fallback to DivisionDataProvider to guarantee full standings & fixtures
+    // 3. Fallback to parse endpoint if live crawl is still completing
+    if (data == null || data.standings.isEmpty) {
+      data = await ApiService.fetchDivisionData(
+        division: targetTeam == null ? targetDivision : null,
+        team: targetTeam,
+        season: _selectedSeason,
+      );
+    }
+
+    // 4. Final Fallback: Offline Mock Data Provider
     if ((data == null || data.standings.isEmpty) && targetDivision != null) {
       data = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
     }

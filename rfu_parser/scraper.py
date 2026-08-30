@@ -892,22 +892,20 @@ class RFUParser:
         url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season_str}&division={div_id}"
 
         try:
-            req = urllib.request.Request(
+            resp = requests.get(
                 url,
-                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"},
+                timeout=12
             )
-            with urllib.request.urlopen(req, timeout=12) as resp:
-                if resp.status == 200:
-                    html_bytes = resp.read()
-                    html_str = html_bytes.decode('utf-8', errors='ignore')
-                    parsed = self.parse_html(html_str, url)
-                    if parsed and parsed.standings:
-                        parsed.season = season_str
-                        parsed.standings = self.format_standings_for_season(parsed.standings, season_str)
-                        parsed.fixtures = self.format_fixtures_for_season(parsed.fixtures, season_str)
-                        return parsed
+            if resp.status_code == 200:
+                parsed = self.parse_html(resp.text, url)
+                if parsed and parsed.standings:
+                    parsed.season = season_str
+                    parsed.standings = self.format_standings_for_season(parsed.standings, season_str)
+                    parsed.fixtures = self.format_fixtures_for_season(parsed.fixtures, season_str)
+                    return parsed
         except Exception as e:
-            logger.warning(f"Live crawling attempt for {url} failed: {e}. Falling back to sample data.")
+            print(f"Live crawling attempt for {url} failed: {e}. Falling back to sample data.")
 
         return self.get_sample_data(division_query=division_name, season_query=season_str)
 
@@ -932,25 +930,21 @@ class RFUParser:
                 "season": result.season,
                 "source_url": result.source_url or ""
             }]
-            div_req = urllib.request.Request(
+            requests.post(
                 f"{base_endpoint}/divisions?on_conflict=division_name,season",
-                data=json.dumps(div_payload).encode('utf-8'),
+                json=div_payload,
                 headers=headers,
-                method="POST"
+                timeout=10
             )
-            with urllib.request.urlopen(div_req, timeout=8) as resp:
-                pass
 
             # Fetch division_id
-            get_div_req = urllib.request.Request(
-                f"{base_endpoint}/divisions?division_name=eq.{urllib.parse.quote(result.division_name)}&season=eq.{urllib.parse.quote(result.season)}&select=id",
-                headers=headers
+            div_resp = requests.get(
+                f"{base_endpoint}/divisions?division_name=eq.{quote(result.division_name)}&season=eq.{quote(result.season)}&select=id",
+                headers=headers,
+                timeout=10
             )
-            division_id = None
-            with urllib.request.urlopen(get_div_req, timeout=8) as resp:
-                rows = json.loads(resp.read().decode('utf-8'))
-                if rows:
-                    division_id = rows[0].get("id")
+            rows = div_resp.json() if div_resp.status_code == 200 else []
+            division_id = rows[0].get("id") if rows else None
 
             if not division_id:
                 return False
@@ -975,14 +969,12 @@ class RFUParser:
                         "points": s.points,
                         "form": s.form or ""
                     })
-                st_req = urllib.request.Request(
+                requests.post(
                     f"{base_endpoint}/standings?on_conflict=division_id,team_name",
-                    data=json.dumps(standings_payload).encode('utf-8'),
+                    json=standings_payload,
                     headers=headers,
-                    method="POST"
+                    timeout=10
                 )
-                with urllib.request.urlopen(st_req, timeout=8) as resp:
-                    pass
 
             # 3. Upsert Fixtures
             if result.fixtures:
@@ -1001,18 +993,16 @@ class RFUParser:
                         "round_num": f.round_num or "",
                         "is_custom": f.is_custom
                     })
-                fix_req = urllib.request.Request(
+                requests.post(
                     f"{base_endpoint}/fixtures?on_conflict=division_id,home_team,away_team,round_num",
-                    data=json.dumps(fixtures_payload).encode('utf-8'),
+                    json=fixtures_payload,
                     headers=headers,
-                    method="POST"
+                    timeout=10
                 )
-                with urllib.request.urlopen(fix_req, timeout=8) as resp:
-                    pass
 
-            logger.info(f"Successfully synced {result.division_name} ({result.season}) to Supabase DB.")
+            print(f"Successfully synced {result.division_name} ({result.season}) to Supabase DB.")
             return True
         except Exception as e:
-            logger.warning(f"Error syncing {result.division_name} to Supabase: {e}")
+            print(f"Error syncing {result.division_name} to Supabase: {e}")
             return False
 

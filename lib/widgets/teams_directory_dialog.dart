@@ -186,6 +186,17 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
               autofocus: true,
               style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
               onChanged: _filter,
+              onSubmitted: (val) {
+                final query = val.trim();
+                if (query.isEmpty) return;
+                if (_filteredTeams.isNotEmpty) {
+                  Navigator.of(context).pop();
+                  widget.onSelectTeam(_filteredTeams.first);
+                } else {
+                  Navigator.of(context).pop();
+                  widget.onSelectTeam(query);
+                }
+              },
               decoration: InputDecoration(
                 hintText: 'Search RFU Teams (e.g. Plymstock, OPMs, Coventry)...',
                 hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),

@@ -17,6 +17,7 @@ import '../widgets/fixture_list.dart';
 import '../services/rfu_team_registry.dart';
 import '../services/team_logo_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/fixtures_util.dart' as fixtures_util;
 
 class PdfLogoItem {
   final pw.MemoryImage? rasterImage;
@@ -309,16 +310,12 @@ class BookletPrintView extends StatelessWidget {
   ) async {
     final doc = pw.Document();
 
-    // Identify the next upcoming fixture (first uncompleted fixture chronologically)
-    Fixture? nextUpcomingFixture;
-    for (final f in sortedFixtures) {
-      final isCompleted = f.status.toLowerCase() == 'completed' ||
-          (f.homeScore != null && f.awayScore != null);
-      if (!isCompleted) {
-        nextUpcomingFixture = f;
-        break;
-      }
-    }
+    // Identify next-match fixtures: single next fixture when team-filtered,
+    // or every fixture in the earliest upcoming round for a division-wide view.
+    final nextFixtures = fixtures_util.computeNextFixtures(
+      sortedFixtures,
+      filterTeam: isTeamFiltered ? filterTeam : null,
+    );
 
     final theme = AppTheme.currentMode;
     final primaryPdf = _toPdfColor(theme.darkBg);
@@ -642,11 +639,7 @@ class BookletPrintView extends StatelessWidget {
                     final isCompleted = f.status.toLowerCase() == 'completed' ||
                         (f.homeScore != null && f.awayScore != null);
 
-                    final isNextUpcoming = identical(f, nextUpcomingFixture) ||
-                        (nextUpcomingFixture?.id != null &&
-                         nextUpcomingFixture!.id!.isNotEmpty &&
-                         f.id != null &&
-                         f.id == nextUpcomingFixture.id);
+                    final isNextUpcoming = nextFixtures.contains(f);
 
                     // Alternating White & Light Grey for standard rows; Bright Yellow ONLY for Next Upcoming Match
                     final rowBg = isNextUpcoming
@@ -949,33 +942,41 @@ class BookletPrintView extends StatelessWidget {
         logoCache,
       );
 
-      if (kIsWeb) {
-        final blob = html.Blob([bytes], 'application/pdf');
-        final url = html.Url.createObjectUrlFromBlob(blob);
+      try {
+        // Opens the OS/browser print dialog so the user can print or
+        // choose "Save as PDF" directly, without leaving the app.
+        await Printing.layoutPdf(
+          name: fileName,
+          format: PdfPageFormat.a4,
+          onLayout: (format) async => bytes,
+        );
+      } catch (layoutError) {
+        debugPrint('Printing.layoutPdf failed, falling back: $layoutError');
+        // Fallback for browsers/platforms where the native print dialog isn't available.
+        if (kIsWeb) {
+          final blob = html.Blob([bytes], 'application/pdf');
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          html.window.open(url, '_blank');
 
-        // 1. Open PDF in a new tab for immediate viewing & printing
-        html.window.open(url, '_blank');
+          final anchor = html.AnchorElement(href: url)
+            ..setAttribute('download', fileName)
+            ..style.display = 'none';
+          html.document.body?.append(anchor);
+          anchor.click();
+          anchor.remove();
 
-        // 2. Download the file
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute('download', fileName)
-          ..style.display = 'none';
-        html.document.body?.append(anchor);
-        anchor.click();
-        anchor.remove();
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('PDF generated! Opened in new tab & download started.'),
-              backgroundColor: AppTheme.emeraldAccent,
-            ),
-          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('PDF generated! Opened in new tab & download started.'),
+                backgroundColor: AppTheme.emeraldAccent,
+              ),
+            );
+          }
+        } else {
+          await Printing.sharePdf(bytes: bytes, filename: fileName);
         }
-        return;
       }
-
-      await Printing.sharePdf(bytes: bytes, filename: fileName);
     } catch (e) {
       debugPrint('PDF Export Error: $e');
       if (context.mounted) {
@@ -1007,16 +1008,12 @@ class BookletPrintView extends StatelessWidget {
         return a.time.compareTo(b.time);
       });
 
-    // Identify next upcoming fixture
-    Fixture? nextUpcoming;
-    for (final f in activeFixtures) {
-      final isCompleted = f.status.toLowerCase() == 'completed' ||
-          (f.homeScore != null && f.awayScore != null);
-      if (!isCompleted) {
-        nextUpcoming = f;
-        break;
-      }
-    }
+    // Identify next-match fixtures: single next fixture when team-filtered,
+    // or every fixture in the earliest upcoming round for a division-wide view.
+    final nextFixtures = fixtures_util.computeNextFixtures(
+      activeFixtures,
+      filterTeam: isTeamFiltered ? filterTeam : null,
+    );
 
     return ValueListenableBuilder<AppThemeMode>(
       valueListenable: AppTheme.themeNotifier,
@@ -1201,7 +1198,7 @@ class BookletPrintView extends StatelessWidget {
                         leadingWidget: isTeamFiltered ? _buildTeamLogo(filterTeam!, null, size: 24) : null,
                       ),
                       const SizedBox(height: 10),
-                      _buildPrintFixtures(activeFixtures, filterTeam, nextUpcoming, theme),
+                      _buildPrintFixtures(activeFixtures, filterTeam, nextFixtures, theme),
 
                       const SizedBox(height: 24),
 
@@ -1403,7 +1400,7 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
-  Widget _buildPrintFixtures(List<Fixture> fixtures, String? highlightTeam, Fixture? nextUpcoming, AppThemeMode theme) {
+  Widget _buildPrintFixtures(List<Fixture> fixtures, String? highlightTeam, Set<Fixture> nextFixtures, AppThemeMode theme) {
     if (fixtures.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -1504,12 +1501,7 @@ class BookletPrintView extends StatelessWidget {
               final isCompleted = f.status.toLowerCase() == 'completed' ||
                   (f.homeScore != null && f.awayScore != null);
 
-              final isNextUpcoming = nextUpcoming != null &&
-                  (identical(f, nextUpcoming) ||
-                   (nextUpcoming.id != null &&
-                    nextUpcoming.id!.isNotEmpty &&
-                    f.id != null &&
-                    f.id == nextUpcoming.id));
+              final isNextUpcoming = nextFixtures.contains(f);
 
               final isEven = index % 2 == 0;
               final rowBg = isNextUpcoming

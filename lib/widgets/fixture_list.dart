@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 import '../services/rfu_team_registry.dart';
+import '../utils/fixtures_util.dart' as fixtures_util;
 import 'fixture_card.dart';
 
 class FixtureList extends StatelessWidget {
@@ -27,31 +27,7 @@ class FixtureList extends StatelessWidget {
     this.onDeleteFixture,
   });
 
-  static DateTime parseFixtureDate(Fixture f) {
-    if (f.dateIso.isNotEmpty) {
-      final dt = DateTime.tryParse(f.dateIso);
-      if (dt != null) return dt;
-    }
-    // Try parsing 'Thursday, 20 Aug 2026' or '20 Aug 2026'
-    try {
-      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
-      final parsed = DateFormat('d MMM yyyy').parse(clean);
-      return parsed;
-    } catch (_) {}
-
-    try {
-      final clean = f.date.replaceAll(RegExp(r'^[A-Za-z]+,\s*'), '').trim();
-      final parsed = DateFormat('MMMM d, yyyy').parse(clean);
-      return parsed;
-    } catch (_) {}
-
-    try {
-      final parsed = DateFormat('dd/MM/yyyy').parse(f.date);
-      return parsed;
-    } catch (_) {}
-
-    return DateTime(2099);
-  }
+  static DateTime parseFixtureDate(Fixture f) => fixtures_util.parseFixtureDate(f);
 
   static bool isExactTeamMatch(String fixtureTeam, String? filter) {
     if (filter == null || filter.trim().isEmpty) return false;
@@ -155,15 +131,8 @@ class FixtureList extends StatelessWidget {
           return a.time.compareTo(b.time);
         });
 
-      // Calculate next fixture for this team using strict object reference
-      Fixture? nextTeamFixture;
-      for (var f in sortedTeamFixtures) {
-        final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
-        if (!isComp) {
-          nextTeamFixture = f;
-          break;
-        }
-      }
+      // Calculate next fixture for this team
+      final nextTeamFixtures = fixtures_util.computeNextFixtures(sortedTeamFixtures, filterTeam: filterTeam);
 
       return Container(
         decoration: AppTheme.glassBoxDecoration(),
@@ -220,7 +189,7 @@ class FixtureList extends StatelessWidget {
             ...sortedTeamFixtures.map((f) => FixtureCard(
                   fixture: f,
                   isAdmin: isAdmin,
-                  isNextFixture: identical(f, nextTeamFixture),
+                  isNextFixture: nextTeamFixtures.contains(f),
                   filterTeam: filterTeam,
                   logoProvider: logoProvider,
                   onTeamSelected: onTeamSelected,
@@ -232,30 +201,8 @@ class FixtureList extends StatelessWidget {
       );
     }
 
-    // Identify next fixture overall in division view
-    final sortedAllFixtures = List<Fixture>.from(activeFixtures)
-      ..sort((a, b) {
-        final dtA = parseFixtureDate(a);
-        final dtB = parseFixtureDate(b);
-        final dateComp = dtA.compareTo(dtB);
-        if (dateComp != 0) return dateComp;
-        return a.time.compareTo(b.time);
-      });
-
-    // For division view, determine the set of "next" fixtures.
-    // If a team is selected we keep the single next fixture per team behavior.
-    // Otherwise (division-only view) mark all non-completed fixtures in the earliest round as NEXT UP.
-    Fixture? divisionNextFixture;
-    for (var f in sortedAllFixtures) {
-      final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
-      if (!isComp) {
-        divisionNextFixture = f;
-        break;
-      }
-    }
-
-    // Compute a set of division-level next fixtures (all fixtures on the first upcoming round)
-    final Set<Fixture> divisionNextFixtures = {};
+    // Division-only view: mark all non-completed fixtures in the earliest round as NEXT UP.
+    final Set<Fixture> divisionNextFixtures = fixtures_util.computeNextFixtures(activeFixtures);
 
     // Group fixtures by round or match category for full division view
     final Map<String, List<Fixture>> grouped = {};
@@ -276,16 +223,6 @@ class FixtureList extends StatelessWidget {
         if (comp != 0) return comp;
         return extractRoundNumber(a.key).compareTo(extractRoundNumber(b.key));
       });
-
-    // If no team filter, compute divisionNextFixtures as all upcoming (non-completed)
-    // fixtures that belong to the earliest round entry.
-    if (!isTeamFiltered && sortedEntries.isNotEmpty) {
-      final earliestEntry = sortedEntries.first;
-      for (var f in earliestEntry.value) {
-        final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
-        if (!isComp) divisionNextFixtures.add(f);
-      }
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -338,9 +275,7 @@ class FixtureList extends StatelessWidget {
                 ...sortedMatchesInRound.map((f) => FixtureCard(
                       fixture: f,
                       isAdmin: isAdmin,
-                      isNextFixture: isTeamFiltered
-                          ? identical(f, divisionNextFixture)
-                          : divisionNextFixtures.contains(f),
+                      isNextFixture: divisionNextFixtures.contains(f),
                       filterTeam: filterTeam,
                       logoProvider: logoProvider,
                       onTeamSelected: onTeamSelected,

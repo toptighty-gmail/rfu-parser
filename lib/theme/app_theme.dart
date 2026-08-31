@@ -3,131 +3,47 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode {
-  englandRfuOfficial(
-    id: 'england_rfu_official',
-    title: 'RFU Navy & Cyan (Official Website)',
-    subtitle: 'Exact Official RFU Colors: #141B4D RFU Navy, #00D0FF Electric Cyan & Rose Red',
-    darkBg: Color(0xFF0D1338), // Official England Rugby Deep Navy
-    surfaceBg: Color(0xFF141B4D), // Exact crawled CSS --ssa-color-palette-rfu-navy: rgb(20, 27, 77)
-    cardBorder: Color(0x4440E3FF), // Exact RFU cyan glow border: rgb(64, 227, 255)
-    goldAccent: Color(0xFF00D0FF), // Exact RFU lightblue gradient: rgb(0, 208, 255)
-    tertiaryAccent: Color(0xFFB61626), // Exact RFU Rose Red: rgb(182, 22, 38)
-    emeraldAccent: Color(0xFF10B981),
-    rubyAccent: Color(0xFFB61626), // Official Rose Red
-    textPrimary: Color(0xFFFFFFFF),
-    textMuted: Color(0xFF9497B0),
+  coolMinimalist(
+    id: 'cool_minimalist',
+    title: 'Cool Minimalist',
+    subtitle: 'Clean, airy, modern contrast',
+    darkBg: Color(0xFFF8FAFC), // background
+    surfaceBg: Color(0xFFFFFFFF), // surface
+    cardBorder: Color(0x33000000),
+    goldAccent: Color(0xFF38BDF8), // accent
+    tertiaryAccent: Color(0xFF64748B), // secondary
+    emeraldAccent: Color(0xFF38BDF8), // accent
+    rubyAccent: Color(0xFF4F46E5), // primary
+    textPrimary: Color(0xFF1E293B),
+    textMuted: Color(0xFF64748B), // secondary
   ),
-  plymouthOaks(
-    id: 'plymouth_oaks',
-    title: 'Green & Gold',
-    subtitle: 'British Racing Green & Gold (Plymstock Oaks RFC)',
-    darkBg: Color(0xFF041A11),
-    surfaceBg: Color(0xFF0A291C),
-    cardBorder: Color(0x3334D399),
-    goldAccent: Color(0xFFE5C158),
-    tertiaryAccent: Color(0xFF10B981), // Emerald Turf
-    emeraldAccent: Color(0xFF10B981),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFF8FAF8),
-    textMuted: Color(0xFFA3B8AC),
+  softNeutral(
+    id: 'soft_neutral',
+    title: 'Soft Neutral',
+    subtitle: 'Warm, muted, understated',
+    darkBg: Color(0xFFFAFAF9), // background
+    surfaceBg: Color(0xFFFFFFFF), // surface
+    cardBorder: Color(0x33000000),
+    goldAccent: Color(0xFFFBBF24), // accent
+    tertiaryAccent: Color(0xFF78716C), // secondary
+    emeraldAccent: Color(0xFFFBBF24), // accent
+    rubyAccent: Color(0xFF44403C), // primary
+    textPrimary: Color(0xFF292524),
+    textMuted: Color(0xFF78716C), // secondary
   ),
-  navySkyBlue(
-    id: 'navy_sky_blue',
-    title: 'Navy & Sky Blue',
-    subtitle: 'Deep Oxford Navy & Sky Blue (Coventry & Maritime Clubs)',
-    darkBg: Color(0xFF060F1E),
-    surfaceBg: Color(0xFF0D1C34),
-    cardBorder: Color(0x3338BDF8),
-    goldAccent: Color(0xFF38BDF8),
-    tertiaryAccent: Color(0xFFF59E0B), // Warm Amber
-    emeraldAccent: Color(0xFF0284C7),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFF0F6FC),
-    textMuted: Color(0xFF94A3B8),
-  ),
-  blackAmber(
-    id: 'black_amber',
-    title: 'Black & Amber',
-    subtitle: 'Carbon Obsidian & Rich Rugby Amber',
-    darkBg: Color(0xFF0A0A0A),
-    surfaceBg: Color(0xFF171717),
-    cardBorder: Color(0x33F59E0B),
-    goldAccent: Color(0xFFF59E0B),
-    tertiaryAccent: Color(0xFF06B6D4), // Electric Cyan
-    emeraldAccent: Color(0xFFD97706),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFF5F5F5),
-    textMuted: Color(0xFFA3A3A3),
-  ),
-  scarletWhite(
-    id: 'scarlet_white',
-    title: 'Scarlet & White',
-    subtitle: 'Dark Scarlet Charcoal & Crisp White',
-    darkBg: Color(0xFF170608),
-    surfaceBg: Color(0xFF260C10),
-    cardBorder: Color(0x33F43F5E),
-    goldAccent: Color(0xFFFFFFFF),
-    tertiaryAccent: Color(0xFFE5C158), // Championship Gold
-    emeraldAccent: Color(0xFFEF4444),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFFFF1F2),
-    textMuted: Color(0xFFFDA4AF),
-  ),
-  royalBlueYellow(
-    id: 'royal_blue_yellow',
-    title: 'Royal Blue & Yellow',
-    subtitle: 'Deep Royal Cobalt & Electric Yellow (Bath & Brixham style)',
-    darkBg: Color(0xFF051228),
-    surfaceBg: Color(0xFF0A1F42),
-    cardBorder: Color(0x33FACC15),
-    goldAccent: Color(0xFFFACC15),
-    tertiaryAccent: Color(0xFFFB923C), // Vibrant Tangerine
-    emeraldAccent: Color(0xFF3B82F6),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFEFF6FF),
-    textMuted: Color(0xFF93C5FD),
-  ),
-  maroonSilver(
-    id: 'maroon_silver',
-    title: 'Maroon & Silver',
-    subtitle: 'Deep Velvet Maroon & Platinum Silver',
-    darkBg: Color(0xFF14080F),
-    surfaceBg: Color(0xFF220D1A),
-    cardBorder: Color(0x33E2E8F0),
-    goldAccent: Color(0xFFE2E8F0),
-    tertiaryAccent: Color(0xFFE5C158), // Warm Gold
-    emeraldAccent: Color(0xFFFB7185),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFFFF1F2),
-    textMuted: Color(0xFFCBD5E1),
-  ),
-  emeraldWhite(
-    id: 'emerald_white',
-    title: 'Emerald & White',
-    subtitle: 'Deep Turf Green & Pure White (Trailfinders style)',
-    darkBg: Color(0xFF03160D),
-    surfaceBg: Color(0xFF072617),
-    cardBorder: Color(0x3322C55E),
-    goldAccent: Color(0xFFFFFFFF),
-    tertiaryAccent: Color(0xFFE5C158), // Warm Gold
-    emeraldAccent: Color(0xFF22C55E),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFF0FDF4),
-    textMuted: Color(0xFF86EFAC),
-  ),
-  rfuChampionship(
-    id: 'rfu_championship',
-    title: 'Midnight & Gold (Original)',
-    subtitle: 'Midnight Slate & Championship Gold (Classic RFU Theme)',
-    darkBg: Color(0xFF0B0F19),
-    surfaceBg: Color(0xFF131A29),
-    cardBorder: Color(0x33384260),
-    goldAccent: Color(0xFFE5C158),
-    tertiaryAccent: Color(0xFF10B981), // Emerald Green
-    emeraldAccent: Color(0xFF10B981),
-    rubyAccent: Color(0xFFEF4444),
-    textPrimary: Color(0xFFF3F4F6),
-    textMuted: Color(0xFF9CA3AF),
+  electricModern(
+    id: 'electric_modern',
+    title: 'Electric Modern',
+    subtitle: 'Bold, vivid, high-energy',
+    darkBg: Color(0xFFFAFAFA), // background
+    surfaceBg: Color(0xFFFFFFFF), // surface
+    cardBorder: Color(0x33000000),
+    goldAccent: Color(0xFFA3E635), // accent
+    tertiaryAccent: Color(0xFF3B82F6), // secondary
+    emeraldAccent: Color(0xFFA3E635), // accent
+    rubyAccent: Color(0xFF1D4ED8), // primary
+    textPrimary: Color(0xFF1F2937),
+    textMuted: Color(0xFF6B7280), // neutral gray (secondary here is a vivid blue, unsuitable for muted text)
   );
 
   final String id;
@@ -162,8 +78,8 @@ enum AppThemeMode {
 class AppTheme {
   static const String _kThemePrefKey = 'rfu_selected_theme_mode_v2';
   
-  // Default to Plymouth Oaks Green & Gold
-  static final ValueNotifier<AppThemeMode> themeNotifier = ValueNotifier<AppThemeMode>(AppThemeMode.plymouthOaks);
+  // Default to Cool Minimalist
+  static final ValueNotifier<AppThemeMode> themeNotifier = ValueNotifier<AppThemeMode>(AppThemeMode.coolMinimalist);
 
   static AppThemeMode get currentMode => themeNotifier.value;
 
@@ -186,7 +102,7 @@ class AppTheme {
       if (savedId != null && savedId.isNotEmpty) {
         final match = AppThemeMode.values.firstWhere(
           (m) => m.id == savedId,
-          orElse: () => AppThemeMode.plymouthOaks,
+          orElse: () => AppThemeMode.coolMinimalist,
         );
         themeNotifier.value = match;
       }
@@ -202,24 +118,24 @@ class AppTheme {
     } catch (_) {}
   }
 
-  /// Revert back to the original RFU Championship theme
+  /// Revert back to the default theme
   static Future<void> revertToOriginal() async {
-    await setTheme(AppThemeMode.rfuChampionship);
+    await setTheme(AppThemeMode.coolMinimalist);
   }
 
   static ThemeData get darkTheme => getTheme(currentMode);
 
   static ThemeData getTheme(AppThemeMode mode) {
-    return ThemeData.dark().copyWith(
+    return ThemeData.light().copyWith(
       scaffoldBackgroundColor: mode.darkBg,
       primaryColor: mode.goldAccent,
-      colorScheme: ColorScheme.dark(
+      colorScheme: ColorScheme.light(
         primary: mode.goldAccent,
         secondary: mode.tertiaryAccent,
         surface: mode.surfaceBg,
         error: mode.rubyAccent,
       ),
-      textTheme: GoogleFonts.soraTextTheme(ThemeData.dark().textTheme).copyWith(
+      textTheme: GoogleFonts.soraTextTheme(ThemeData.light().textTheme).copyWith(
         displayLarge: TextStyle(color: mode.textPrimary, fontWeight: FontWeight.bold, fontSize: 32),
         titleLarge: TextStyle(color: mode.textPrimary, fontWeight: FontWeight.bold, fontSize: 20),
         bodyLarge: TextStyle(color: mode.textPrimary, fontSize: 16),

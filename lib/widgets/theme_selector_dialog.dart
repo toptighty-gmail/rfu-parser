@@ -64,9 +64,6 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
             children: [
               ...AppThemeMode.values.map((mode) {
                 final isCurrent = _selected == mode;
-                final isOriginal = mode == AppThemeMode.rfuChampionship;
-                final isPlymouthOaks = mode == AppThemeMode.plymouthOaks;
-                final isRfuOfficial = mode == AppThemeMode.englandRfuOfficial;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -137,51 +134,6 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                                         fontSize: 14.5,
                                       ),
                                     ),
-                                    if (isRfuOfficial) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF141B4D),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFF00D0FF)),
-                                        ),
-                                        child: const Text(
-                                          'OFFICIAL RFU',
-                                          style: TextStyle(color: Color(0xFF00D0FF), fontSize: 9, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ],
-                                    if (isPlymouthOaks) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF041A11),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFF10B981)),
-                                        ),
-                                        child: const Text(
-                                          'PLYMSTOCK OAKS',
-                                          style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ],
-                                    if (isOriginal) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF0B0F19),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFFE5C158)),
-                                        ),
-                                        child: const Text(
-                                          'ORIGINAL',
-                                          style: TextStyle(color: Color(0xFFE5C158), fontSize: 9, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ],
                                   ],
                                 ),
                                 const SizedBox(height: 2),
@@ -225,10 +177,10 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
             foregroundColor: _selected.rubyAccent,
           ),
           icon: const Icon(Icons.restore, size: 16),
-          label: const Text('Revert to Original (Midnight & Gold)'),
+          label: const Text('Revert to Default (Cool Minimalist)'),
           onPressed: () {
             setState(() {
-              _selected = AppThemeMode.rfuChampionship;
+              _selected = AppThemeMode.coolMinimalist;
             });
             AppTheme.revertToOriginal();
           },

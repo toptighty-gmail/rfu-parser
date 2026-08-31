@@ -120,8 +120,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           value: seasons.contains(selectedSeason) ? selectedSeason : (seasons.isNotEmpty ? seasons.first : '2025-2026'),
           dropdownColor: theme.surfaceBg,
           isDense: true,
-          icon: Icon(Icons.calendar_month, color: theme.goldAccent, size: 15),
-          style: TextStyle(color: theme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold),
+          icon: Icon(Icons.calendar_month, color: theme.textPrimary, size: 15),
+          style: TextStyle(color: theme.textPrimary, fontSize: 12, fontWeight: FontWeight.bold),
           items: seasons.map((s) {
             return DropdownMenuItem(
               value: s,
@@ -138,7 +138,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: hasSelectedDivision ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSelectedDivision ? Colors.black : theme.goldAccent,
+        foregroundColor: hasSelectedDivision ? Colors.black : theme.textPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
           color: hasSelectedDivision ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.5),
@@ -149,7 +149,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.emoji_events,
         size: 16,
-        color: hasSelectedDivision ? Colors.black : theme.goldAccent,
+        color: hasSelectedDivision ? Colors.black : theme.textPrimary,
       ),
       label: Text(
         hasSelectedDivision ? 'Div: $selectedDivision' : 'Select Division...',
@@ -157,7 +157,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSelectedDivision ? Colors.black : theme.goldAccent,
+          color: hasSelectedDivision ? Colors.black : theme.textPrimary,
         ),
       ),
       onPressed: onOpenDivisionsDirectory,
@@ -168,7 +168,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: hasSearchedTeam ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSearchedTeam ? Colors.black : theme.goldAccent,
+        foregroundColor: hasSearchedTeam ? Colors.black : theme.textPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
           color: hasSearchedTeam ? theme.goldAccent : theme.goldAccent.withValues(alpha: 0.5),
@@ -179,7 +179,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.search,
         size: 16,
-        color: hasSearchedTeam ? Colors.black : theme.goldAccent,
+        color: hasSearchedTeam ? Colors.black : theme.textPrimary,
       ),
       label: Text(
         hasSearchedTeam ? 'Team: ${searchedTeam!.trim()}' : 'Search Team...',
@@ -187,7 +187,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSearchedTeam ? Colors.black : theme.goldAccent,
+          color: hasSearchedTeam ? Colors.black : theme.textPrimary,
         ),
       ),
       onPressed: onOpenTeamsDirectory,
@@ -246,26 +246,26 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
-                                      foregroundColor: theme.goldAccent,
+                                      foregroundColor: theme.textPrimary,
                                       side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
-                                    icon: Icon(Icons.picture_as_pdf, size: 16, color: theme.goldAccent),
-                                    label: const Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    icon: Icon(Icons.picture_as_pdf, size: 16, color: theme.textPrimary),
+                                    label: Text('Print A4 Booklet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: theme.textPrimary)),
                                     onPressed: onOpenBookletPrint,
                                   ),
                                   const SizedBox(width: 6),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: theme.goldAccent.withValues(alpha: 0.15),
-                                      foregroundColor: theme.goldAccent,
+                                      foregroundColor: theme.textPrimary,
                                       side: BorderSide(color: theme.goldAccent, width: 1.2),
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
-                                    icon: Icon(Icons.palette_outlined, size: 16, color: theme.goldAccent),
-                                    label: Text(theme.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    icon: Icon(Icons.palette_outlined, size: 16, color: theme.textPrimary),
+                                    label: Text(theme.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: theme.textPrimary)),
                                     onPressed: onOpenThemeSelector,
                                   ),
                                   const SizedBox(width: 6),
@@ -273,13 +273,13 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: theme.darkBg,
-                                        foregroundColor: theme.emeraldAccent,
+                                        foregroundColor: theme.textPrimary,
                                         side: BorderSide(color: theme.emeraldAccent, width: 1.1),
                                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                       ),
-                                      icon: Icon(Icons.analytics_outlined, size: 16, color: theme.emeraldAccent),
-                                      label: const Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      icon: Icon(Icons.analytics_outlined, size: 16, color: theme.textPrimary),
+                                      label: Text('DB Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: theme.textPrimary)),
                                       onPressed: onOpenDatabaseMetrics,
                                     ),
                                     const SizedBox(width: 6),
@@ -310,7 +310,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                   ],
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
-                                      foregroundColor: isAdmin ? theme.rubyAccent : theme.goldAccent,
+                                      foregroundColor: isAdmin ? theme.rubyAccent : theme.textPrimary,
                                       side: BorderSide(color: isAdmin ? theme.rubyAccent : theme.goldAccent),
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

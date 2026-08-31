@@ -114,7 +114,7 @@ class FixtureCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           const Text(
-                            'NEXT UP',
+                            'NEXT ROUND',
                             style: TextStyle(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w900,

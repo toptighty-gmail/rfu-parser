@@ -583,97 +583,12 @@ class RFUParser:
         )
 
     def format_standings_for_season(self, standings: List[LeagueTableEntry], season_query: Optional[str]) -> List[LeagueTableEntry]:
-        if not season_query:
-            return standings
-        sq = season_query.strip()
-        is_current_season = ("2027" in sq or "2026-2027" in sq or "2026/2027" in sq)
-        target_played = 14 if is_current_season else 22
-
-        formatted = []
-        for s in standings:
-            if s.played == target_played:
-                formatted.append(s)
-            else:
-                ratio = target_played / max(1, s.played)
-                w = int(round(s.won * ratio))
-                d = int(round(s.drawn * ratio))
-                l = max(0, target_played - w - d)
-                pts = (w * 4) + (d * 2) + s.try_bonus + s.lose_bonus
-                formatted.append(LeagueTableEntry(
-                    position=s.position,
-                    team_name=s.team_name,
-                    played=target_played,
-                    won=w,
-                    drawn=d,
-                    lost=l,
-                    points_for=int(round(s.points_for * ratio)),
-                    points_against=int(round(s.points_against * ratio)),
-                    points_diff=int(round(s.points_diff * ratio)),
-                    try_bonus=s.try_bonus,
-                    lose_bonus=s.lose_bonus,
-                    points=pts,
-                    form=s.form
-                ))
-        return formatted
+        # Do not extrapolate real data. Just return the standings as they are.
+        return standings
 
     def format_fixtures_for_season(self, fixtures: List[Fixture], season_query: Optional[str]) -> List[Fixture]:
-        active_season = season_query.strip() if season_query else "2026-2027"
-        match = re.search(r'(\d{4})', active_season)
-        start_year = int(match.group(1)) if match else 2026
-        end_year = start_year + 1
-        is_current_season = ("2027" in active_season or "2026-2027" in active_season or "2026/2027" in active_season)
-
-        months_years_schedule = [
-            ("Sep", start_year), ("Sep", start_year), ("Oct", start_year), ("Oct", start_year),
-            ("Nov", start_year), ("Nov", start_year), ("Dec", start_year), ("Dec", start_year),
-            ("Jan", end_year), ("Jan", end_year), ("Feb", end_year), ("Feb", end_year),
-            ("Mar", end_year), ("Mar", end_year), ("Apr", end_year), ("Apr", end_year),
-            ("Apr", end_year), ("May", end_year), ("May", end_year), ("May", end_year),
-            ("May", end_year), ("Jun", end_year)
-        ]
-
-        formatted = []
-        for idx, f in enumerate(fixtures):
-            r_int = 0
-            if f.round_num:
-                r_match = re.search(r'\d+', f.round_num)
-                if r_match:
-                    r_int = int(r_match.group(0))
-            if r_int <= 0:
-                r_int = (idx // 6) + 1
-
-            d_str = f.date
-            if d_str and len(d_str) > 3 and ("202" in d_str or "201" in d_str or "Sep" in d_str or "Oct" in d_str or "Nov" in d_str or "Dec" in d_str or "Jan" in d_str or "Feb" in d_str or "Mar" in d_str or "Apr" in d_str):
-                if "202" in d_str or "201" in d_str:
-                    date_str = re.sub(r'\b20\d{2}\b', str(start_year), d_str)
-                else:
-                    date_str = f"{d_str} {start_year}"
-            else:
-                month, yr = months_years_schedule[(r_int - 1) % len(months_years_schedule)]
-                day_num = 6 + (r_int * 7) % 22
-                date_str = f"Saturday, {day_num} {month} {yr}"
-
-            if f.is_custom:
-                is_past = True
-            elif is_current_season:
-                is_past = (r_int <= 1)
-            else:
-                is_past = True
-
-            formatted.append(Fixture(
-                date=date_str,
-                time=f.time if (f.time and f.time.strip()) else "15:00",
-                home_team=f.home_team,
-                away_team=f.away_team,
-                home_score=f.home_score if is_past else None,
-                away_score=f.away_score if is_past else None,
-                status=f.status if is_past else "Scheduled",
-                venue="",
-                round_num=f"Round {r_int}",
-                is_custom=f.is_custom,
-                id=f.id
-            ))
-        return formatted
+        # Do not mangle dates or extrapolate fixtures. Just return the live fixtures.
+        return fixtures
 
     def get_tier_key(self, name: str) -> str:
         name_clean = name.lower()

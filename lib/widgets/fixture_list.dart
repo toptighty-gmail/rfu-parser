@@ -242,6 +242,9 @@ class FixtureList extends StatelessWidget {
         return a.time.compareTo(b.time);
       });
 
+    // For division view, determine the set of "next" fixtures.
+    // If a team is selected we keep the single next fixture per team behavior.
+    // Otherwise (division-only view) mark all non-completed fixtures in the earliest round as NEXT UP.
     Fixture? divisionNextFixture;
     for (var f in sortedAllFixtures) {
       final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
@@ -250,6 +253,9 @@ class FixtureList extends StatelessWidget {
         break;
       }
     }
+
+    // Compute a set of division-level next fixtures (all fixtures on the first upcoming round)
+    final Set<Fixture> divisionNextFixtures = {};
 
     // Group fixtures by round or match category for full division view
     final Map<String, List<Fixture>> grouped = {};
@@ -274,6 +280,16 @@ class FixtureList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // If no team filter, compute divisionNextFixtures as all upcoming (non-completed)
+        // fixtures that belong to the earliest round entry.
+        if (!isTeamFiltered && sortedEntries.isNotEmpty) {
+          final earliestEntry = sortedEntries.first;
+          for (var f in earliestEntry.value) {
+            final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
+            if (!isComp) divisionNextFixtures.add(f);
+          }
+        }
+
         ...sortedEntries.map((entry) {
           final isCupSection = entry.key.toLowerCase().contains('cup');
           final headerColor = isCupSection ? AppTheme.emeraldAccent : AppTheme.goldAccent;
@@ -322,7 +338,9 @@ class FixtureList extends StatelessWidget {
                 ...sortedMatchesInRound.map((f) => FixtureCard(
                       fixture: f,
                       isAdmin: isAdmin,
-                      isNextFixture: identical(f, divisionNextFixture),
+                      isNextFixture: isTeamFiltered
+                          ? identical(f, divisionNextFixture)
+                          : divisionNextFixtures.contains(f),
                       filterTeam: filterTeam,
                       logoProvider: logoProvider,
                       onTeamSelected: onTeamSelected,

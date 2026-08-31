@@ -22,7 +22,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onAddFixture;
   final VoidCallback onUploadLogo;
   final VoidCallback onOpenBookletPrint;
-  final VoidCallback onSyncRfuData;
   final VoidCallback? onOpenDatabaseMetrics;
   final VoidCallback? onOpenThemeSelector;
 
@@ -43,7 +42,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onAddFixture,
     required this.onUploadLogo,
     required this.onOpenBookletPrint,
-    required this.onSyncRfuData,
     this.onOpenDatabaseMetrics,
     this.onOpenThemeSelector,
   });

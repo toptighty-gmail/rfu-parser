@@ -360,7 +360,6 @@ class _HomeViewState extends State<HomeView> {
         onAddFixture: _openAddFixtureDialog,
         onUploadLogo: _openUploadLogoDialog,
         onOpenBookletPrint: _openBookletPrint,
-        onSyncRfuData: _openSyncRfuDialog,
         onOpenDatabaseMetrics: _openDatabaseMetricsDialog,
         onOpenThemeSelector: _openThemeSelectorDialog,
       ),
@@ -1036,24 +1035,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  void _openSyncRfuDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => SyncRfuDialog(
-        currentDivision: _selectedDivision != 'ALL / Select Division' ? _selectedDivision : null,
-        selectedSeason: _selectedSeason,
-        onSyncCompleted: () {
-          _loadData();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Supabase cloud database successfully synced with official RFU fixtures & standings.'),
-              backgroundColor: AppTheme.emeraldAccent,
-            ),
-          );
-        },
-      ),
-    );
-  }
+
 
   void _openBookletPrint() {
     if (_divisionData == null) return;

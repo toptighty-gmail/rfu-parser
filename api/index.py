@@ -26,3 +26,8 @@ app = app
 def debug_path():
     from flask import request
     return {'path': request.path, 'url': request.url, 'script_root': request.script_root}
+
+@app.route('/<path:path>')
+def fallback_debug(path):
+    from flask import request
+    return {'path': request.path, 'url': request.url, 'headers': dict(request.headers)}

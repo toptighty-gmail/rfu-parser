@@ -249,7 +249,9 @@ def delete_custom_logo(team_name):
 def get_custom_fixtures():
     season = request.args.get("season", "").strip()
     team = request.args.get("team", "").strip()
-    items = CustomFixtureStorage.get_all(season=season if season else None, team=team if team else None)
+    # Use storage helper that accepts season/team filters and convert fixtures to dicts
+    fixtures = CustomFixtureStorage.get_fixtures_for_season_and_team(season or "2025-2026", team if team else None)
+    items = [f.to_dict() for f in fixtures]
     return jsonify({"success": True, "fixtures": items})
 
 @app.route("/api/fixtures/custom", methods=["POST"])

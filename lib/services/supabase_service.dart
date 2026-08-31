@@ -742,17 +742,18 @@ class SupabaseService {
               }
             }
           }
-          bestMatch ??= standingsMatches.first;
-
-          final divInfo = bestMatch['divisions'];
-          if (divInfo != null) {
-            divId = divInfo['id'] as String?;
-            resolvedDivisionName = divInfo['division_name'] as String?;
-            resolvedSourceUrl = divInfo['source_url'] as String?;
-            resolvedCompId = divInfo['rfu_competition_id'] as int?;
-            resolvedDivIdNum = divInfo['rfu_division_id'] as int?;
-            resolvedTier = divInfo['tier_level'] as int?;
-            resolvedRegion = divInfo['region'] as String?;
+          // 3rd Priority: Do NOT fallback to fuzzy matches if they fail strict checking. Let it return null so we can trigger a live crawl!
+          if (bestMatch != null) {
+            final divInfo = bestMatch['divisions'];
+            if (divInfo != null) {
+              divId = divInfo['id'] as String?;
+              resolvedDivisionName = divInfo['division_name'] as String?;
+              resolvedSourceUrl = divInfo['source_url'] as String?;
+              resolvedCompId = divInfo['rfu_competition_id'] as int?;
+              resolvedDivIdNum = divInfo['rfu_division_id'] as int?;
+              resolvedTier = divInfo['tier_level'] as int?;
+              resolvedRegion = divInfo['region'] as String?;
+            }
           }
         }
       }

@@ -277,19 +277,19 @@ class FixtureList extends StatelessWidget {
         return extractRoundNumber(a.key).compareTo(extractRoundNumber(b.key));
       });
 
+    // If no team filter, compute divisionNextFixtures as all upcoming (non-completed)
+    // fixtures that belong to the earliest round entry.
+    if (!isTeamFiltered && sortedEntries.isNotEmpty) {
+      final earliestEntry = sortedEntries.first;
+      for (var f in earliestEntry.value) {
+        final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
+        if (!isComp) divisionNextFixtures.add(f);
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // If no team filter, compute divisionNextFixtures as all upcoming (non-completed)
-        // fixtures that belong to the earliest round entry.
-        if (!isTeamFiltered && sortedEntries.isNotEmpty) {
-          final earliestEntry = sortedEntries.first;
-          for (var f in earliestEntry.value) {
-            final isComp = f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
-            if (!isComp) divisionNextFixtures.add(f);
-          }
-        }
-
         ...sortedEntries.map((entry) {
           final isCupSection = entry.key.toLowerCase().contains('cup');
           final headerColor = isCupSection ? AppTheme.emeraldAccent : AppTheme.goldAccent;

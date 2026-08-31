@@ -36,3 +36,5 @@ ephemeral/
 *.swp
 *.DS_Store
 Thumbs.db
+
+.env*

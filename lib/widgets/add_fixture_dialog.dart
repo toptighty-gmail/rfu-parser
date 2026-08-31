@@ -519,11 +519,12 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                 separatorBuilder: (_, __) => Divider(color: AppTheme.cardBorder, height: 1),
                 itemBuilder: (context, index) {
                   final team = options.elementAt(index);
+                  final teamId = RfuTeamRegistry.lookupTeamId(team);
                   return ListTile(
                     dense: true,
                     leading: Icon(Icons.sports_rugby, size: 16, color: AppTheme.goldAccent),
                     title: Text(
-                      team,
+                      teamId != null ? '$team ($teamId)' : team,
                       style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     onTap: () => onSelected(team),

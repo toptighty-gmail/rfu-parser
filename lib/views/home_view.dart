@@ -872,12 +872,24 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  void _openDivisionsDirectory() {
+  Future<void> _openDivisionsDirectory() async {
+    Map<String, int?> divisionIds = {};
+    try {
+      final catalog = await SupabaseService.fetchDivisionsCatalog(season: _selectedSeason);
+      divisionIds = {
+        for (final row in catalog)
+          (row['division_name'] ?? '').toString().toLowerCase().trim():
+              int.tryParse((row['rfu_division_id'] ?? '').toString()),
+      };
+    } catch (_) {}
+
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (_) => DivisionsDirectoryDialog(
         divisions: _divisions,
         selectedDivision: _selectedDivision,
+        divisionIds: divisionIds,
         onSelectDivision: (div) {
           setState(() {
             _selectedDivision = div;

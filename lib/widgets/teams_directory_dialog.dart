@@ -206,11 +206,12 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
                       separatorBuilder: (_, _) => Divider(height: 1, color: theme.cardBorder),
                       itemBuilder: (context, index) {
                         final teamName = _filteredTeams[index];
+                        final teamId = RfuTeamRegistry.lookupTeamId(teamName);
                         return ListTile(
                           dense: true,
                           leading: Icon(Icons.shield, color: theme.goldAccent, size: 18),
                           title: Text(
-                            teamName,
+                            teamId != null ? '$teamName ($teamId)' : teamName,
                             style: TextStyle(color: theme.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           trailing: Icon(Icons.arrow_forward_ios, size: 12, color: theme.textMuted),

@@ -5,12 +5,14 @@ class DivisionsDirectoryDialog extends StatefulWidget {
   final List<String> divisions;
   final String selectedDivision;
   final ValueChanged<String> onSelectDivision;
+  final Map<String, int?> divisionIds;
 
   const DivisionsDirectoryDialog({
     super.key,
     required this.divisions,
     required this.selectedDivision,
     required this.onSelectDivision,
+    this.divisionIds = const {},
   });
 
   @override
@@ -206,6 +208,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                         final divName = _filteredDivisions[index];
                         final isSelected = divName.toLowerCase().trim() == widget.selectedDivision.toLowerCase().trim();
                         final tierBadge = _getTierBadge(divName);
+                        final divId = widget.divisionIds[divName.toLowerCase().trim()];
 
                         return Container(
                           decoration: BoxDecoration(
@@ -231,7 +234,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                               ),
                             ),
                             title: Text(
-                              divName,
+                              divId != null ? '$divName ($divId)' : divName,
                               style: TextStyle(
                                 color: isSelected ? theme.goldAccent : theme.textPrimary,
                                 fontSize: 13,

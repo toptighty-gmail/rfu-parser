@@ -417,7 +417,7 @@ def serve_flutter_static(path):
         "debug": "serve_flutter_static",
         "path": request.path,
         "url": request.url,
-        "script_root": request.script_root
+        "headers": dict(request.headers)
     })
 
 if __name__ == "__main__":

@@ -21,3 +21,8 @@ def handle_options(dummy):
 
 # Vercel entry point
 app = app
+
+@app.route('/api/debug')
+def debug_path():
+    from flask import request
+    return {'path': request.path, 'url': request.url, 'script_root': request.script_root}

@@ -3,6 +3,11 @@
   "installCommand": "git clone https://github.com/flutter/flutter.git --depth 1 -b stable flutter_sdk && flutter_sdk/bin/flutter config --enable-web && flutter_sdk/bin/flutter pub get",
   "buildCommand": "flutter_sdk/bin/flutter build web --release",
   "outputDirectory": "build/web",
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "{flutter_sdk/**,build/**,.dart_tool/**,lib/**,assets/**,web/**,windows/**,linux/**,macos/**,android/**,ios/**,test/**,tests/**,scripts/**,scratch/**,backups/**,node_modules/**,*.bundle,pubspec.*}"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",

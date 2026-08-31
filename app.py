@@ -412,12 +412,13 @@ def suggest_teams():
 
 @app.route("/<path:path>")
 def serve_flutter_static(path):
-    full_path = os.path.join(FLUTTER_WEB_DIR, path)
-    if os.path.exists(full_path) and os.path.isfile(full_path):
-        return send_from_directory(FLUTTER_WEB_DIR, path)
-    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
-        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
-    return jsonify({"error": "Not found"}), 404
+    from flask import request
+    return jsonify({
+        "debug": "serve_flutter_static",
+        "path": request.path,
+        "url": request.url,
+        "script_root": request.script_root
+    })
 
 if __name__ == "__main__":
     safe_print("Starting RFU Parser Web App on http://127.0.0.1:5000")

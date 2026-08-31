@@ -394,7 +394,7 @@ class BookletPrintView extends StatelessWidget {
                     border: pw.Border.all(color: accentPdf),
                   ),
                   child: pw.Text(
-                    'Copyrighted Sean Cook 2026',
+                    'Developed by Sean Cook 2026 use by permission only',
                     style: pw.TextStyle(
                       color: accentPdf,
                       fontWeight: pw.FontWeight.bold,
@@ -1124,7 +1124,7 @@ class BookletPrintView extends StatelessWidget {
                                 border: Border.all(color: theme.goldAccent),
                               ),
                               child: Text(
-                                'Copyrighted Sean Cook 2026',
+                                'Developed by Sean Cook 2026 use by permission only',
                                 style: TextStyle(
                                   color: theme.goldAccent,
                                   fontWeight: FontWeight.w900,

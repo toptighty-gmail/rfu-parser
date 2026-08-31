@@ -52,16 +52,7 @@ def index():
         return send_from_directory(FLUTTER_WEB_DIR, "index.html")
     return render_template("index.html")
 
-@app.route("/<path:path>")
-def serve_flutter_static(path):
-    if path.startswith("api/"):
-        return jsonify({"error": "API route not found"}), 404
-    full_path = os.path.join(FLUTTER_WEB_DIR, path)
-    if os.path.exists(full_path) and os.path.isfile(full_path):
-        return send_from_directory(FLUTTER_WEB_DIR, path)
-    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
-        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
-    return jsonify({"error": "Not found"}), 404
+
     url = request.args.get("url", "").strip()
     team = request.args.get("team", "").strip()
     season = request.args.get("season", "").strip()
@@ -419,6 +410,14 @@ def suggest_teams():
     fallback_items = search_teams_fallback(q)
     return jsonify({"status": "success", "data": fallback_items})
 
+@app.route("/<path:path>")
+def serve_flutter_static(path):
+    full_path = os.path.join(FLUTTER_WEB_DIR, path)
+    if os.path.exists(full_path) and os.path.isfile(full_path):
+        return send_from_directory(FLUTTER_WEB_DIR, path)
+    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
+        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
+    return jsonify({"error": "Not found"}), 404
 
 if __name__ == "__main__":
     safe_print("Starting RFU Parser Web App on http://127.0.0.1:5000")

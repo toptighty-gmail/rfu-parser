@@ -908,7 +908,9 @@ class RFUParser:
                     season=season_str,
                     standings=table_data.entries if table_data else [],
                     fixtures=fixtures_data,
-                    source_url=url
+                    source_url=url,
+                    rfu_competition_id=int(comp_id) if comp_id and comp_id.isdigit() else None,
+                    rfu_division_id=int(div_id) if div_id and div_id.isdigit() else None
                 )
                 if parsed and parsed.standings:
                     parsed.season = season_str

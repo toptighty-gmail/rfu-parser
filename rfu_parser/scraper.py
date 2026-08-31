@@ -12,6 +12,21 @@ DEFAULT_USER_AGENT = (
     "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 )
 
+
+def _team_suffix_signature(name: str) -> tuple:
+    """Which numeral/qualifier suffix a (lowercased) team name carries.
+
+    Mirrors FixtureList.isExactTeamMatch's suffix guard on the Dart side, so a
+    club's 1st team is never confused with its II/III/IV/Colts sides - those
+    are different teams playing in different divisions.
+    """
+    n = name.strip().lower()
+    has_ii = bool(re.search(r"\b(ii|2nd|extra)\b", n))
+    has_iii = bool(re.search(r"\b(iii|3rd)\b", n))
+    has_iv = bool(re.search(r"\b(iv|4th)\b", n))
+    has_colts = bool(re.search(r"\bcolts\b", n))
+    return (has_ii, has_iii, has_iv, has_colts)
+
 class RFUParser:
     def __init__(self, user_agent: str = DEFAULT_USER_AGENT):
         self.headers = {
@@ -69,13 +84,32 @@ class RFUParser:
             if not teams_list:
                 return None
             
-            # Match exact team variation if possible, otherwise fallback to first match
-            selected_team = teams_list[0]
+            # Match exact team variation if possible. Never fall back to an
+            # arbitrary result (e.g. teams_list[0]) - a club's "II"/"2nd"/Colts
+            # side is a different team with a different division, so silently
+            # picking the wrong one would present that team's entire division
+            # as if it belonged to the searched team.
             target_clean = team_name.strip().lower()
+            selected_team = None
             for t in teams_list:
                 if t.get("name", "").strip().lower() == target_clean:
                     selected_team = t
                     break
+            if selected_team is None:
+                target_sig = _team_suffix_signature(target_clean)
+                for t in teams_list:
+                    name = t.get("name", "").strip().lower()
+                    if _team_suffix_signature(name) == target_sig and (
+                        target_clean in name or name in target_clean
+                    ):
+                        selected_team = t
+                        break
+            if selected_team is None:
+                print(
+                    "CRAWLER ERROR (step 1 - no safe match for '%s' among %s)"
+                    % (team_name, [t.get("name") for t in teams_list])
+                )
+                return None
             team_id = selected_team.get("_id")
         except Exception as e:
             print("CRAWLER ERROR (step 1 - resolve exception):", e)

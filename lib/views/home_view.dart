@@ -908,6 +908,9 @@ class _HomeViewState extends State<HomeView> {
         onSelectTeam: (team) {
           setState(() {
             _searchController.text = team;
+            // Clear any previously selected division so a stale division
+            // name can't linger if this team's own division fails to resolve.
+            _selectedDivision = 'ALL / Select Division';
           });
           _loadData(queryTeam: team);
         },

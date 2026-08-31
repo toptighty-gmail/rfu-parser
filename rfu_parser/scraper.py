@@ -919,9 +919,10 @@ class RFUParser:
                     parsed.fixtures = self.format_fixtures_for_season(parsed.fixtures, season_str)
                     return parsed
         except Exception as e:
-            print(f"Live crawling attempt for {url} failed: {e}. Falling back to sample data.")
+            print(f"Live crawling attempt for {url} failed: {e}.")
+            raise Exception("Cloudflare blocked the request or the live RFU site is unreachable.")
 
-        return self.get_sample_data(division_query=division_name, season_query=season_str)
+        raise Exception("Failed to parse live RFU data.")
 
     def sync_result_to_supabase(self, result: RFUDataResult, supabase_url: str, supabase_key: str) -> bool:
         """Upsert live parsed division, standings, and fixtures into Supabase database tables."""

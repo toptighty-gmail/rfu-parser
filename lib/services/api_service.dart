@@ -16,7 +16,7 @@ class ApiService {
     String? season,
   }) async {
     try {
-      final uri = _buildUri('/crawl', {
+      final uri = _buildUri('/api/crawl', {
         if (division != null && division.isNotEmpty) 'division': division,
         if (team != null && team.isNotEmpty) 'team': team,
         if (season != null && season.isNotEmpty) 'season': season,
@@ -42,7 +42,7 @@ class ApiService {
     String? url,
   }) async {
     try {
-      final uri = _buildUri('/parse', {
+      final uri = _buildUri('/api/parse', {
         if (division != null && division.isNotEmpty) 'division': division,
         if (team != null && team.isNotEmpty) 'team': team,
         if (season != null && season.isNotEmpty) 'season': season,
@@ -69,7 +69,7 @@ class ApiService {
 
     // 2. Try serverless backend verification for custom passwords
     try {
-      final uri = _buildUri('/admin/login');
+      final uri = _buildUri('/api/admin/login');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -90,7 +90,7 @@ class ApiService {
   static Future<List<Map<String, dynamic>>> suggestTeams(String query) async {
     if (query.trim().length < 2) return [];
     try {
-      final uri = _buildUri('/suggest-teams', {'q': query.trim()});
+      final uri = _buildUri('/api/suggest-teams', {'q': query.trim()});
       final response = await http.get(uri).timeout(const Duration(seconds: 6));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

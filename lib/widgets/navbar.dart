@@ -244,19 +244,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
-                                      foregroundColor: theme.goldAccent,
-                                      side: BorderSide(color: theme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    icon: Icon(Icons.cloud_sync, size: 16, color: theme.goldAccent),
-                                    label: const Text('Sync RFU', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                    onPressed: onSyncRfuData,
-                                  ),
-                                  const SizedBox(width: 6),
+
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: theme.goldAccent.withValues(alpha: 0.12),

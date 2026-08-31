@@ -906,7 +906,7 @@ class RFUParser:
                 parsed = RFUDataResult(
                     division_name=division_name or "",
                     season=season_str,
-                    standings=table_data,
+                    standings=table_data.entries if table_data else [],
                     fixtures=fixtures_data,
                     source_url=url
                 )

@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "installCommand": "rm -rf /tmp/flutter_sdk && git clone https://github.com/flutter/flutter.git --depth 1 -b stable /tmp/flutter_sdk && /tmp/flutter_sdk/bin/flutter config --enable-web && /tmp/flutter_sdk/bin/flutter pub get",
-  "buildCommand": "/tmp/flutter_sdk/bin/flutter build web --release",
+  "buildCommand": "rm -rf /tmp/flutter_sdk && git clone https://github.com/flutter/flutter.git --depth 1 -b stable /tmp/flutter_sdk && /tmp/flutter_sdk/bin/flutter config --enable-web && /tmp/flutter_sdk/bin/flutter pub get && /tmp/flutter_sdk/bin/flutter build web --release",
   "outputDirectory": "build/web",
   "functions": {
     "api/index.py": {

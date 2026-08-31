@@ -891,7 +891,8 @@ class RFUParser:
             tier = self.get_tier_key(div_clean)
             div_id = rfu_division_ids.get(tier, "75799")
 
-        url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season_str}&division={div_id}"
+        comp_id = "1699"
+        url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition={comp_id}&season={season_str}&division={div_id}"
 
         try:
             import cloudscraper

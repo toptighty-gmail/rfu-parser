@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
@@ -19,6 +20,22 @@ import '../services/rfu_team_registry.dart';
 import '../services/team_logo_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/fixtures_util.dart' as fixtures_util;
+
+/// Loads and caches the Sora TTFs bundled for PDF embedding, so generated
+/// booklets match the app's Sora UI font instead of the pdf package's
+/// default base-14 font.
+Future<pw.ThemeData>? _pdfSoraThemeFuture;
+
+Future<pw.ThemeData> _loadPdfSoraTheme() {
+  return _pdfSoraThemeFuture ??= () async {
+    final regularData = await rootBundle.load('assets/fonts/Sora-Regular.ttf');
+    final boldData = await rootBundle.load('assets/fonts/Sora-Bold.ttf');
+    return pw.ThemeData.withFont(
+      base: pw.Font.ttf(regularData),
+      bold: pw.Font.ttf(boldData),
+    );
+  }();
+}
 
 class PdfLogoItem {
   final pw.MemoryImage? rasterImage;
@@ -309,7 +326,7 @@ class BookletPrintView extends StatelessWidget {
     bool isTeamFiltered,
     Map<String, PdfLogoItem> logoCache,
   ) async {
-    final doc = pw.Document();
+    final doc = pw.Document(theme: await _loadPdfSoraTheme());
 
     // Identify next-match fixtures: single next fixture when team-filtered,
     // or every fixture in the earliest upcoming round for a division-wide view.

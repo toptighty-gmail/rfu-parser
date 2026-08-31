@@ -219,7 +219,7 @@ class AppTheme {
         surface: mode.surfaceBg,
         error: mode.rubyAccent,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
+      textTheme: GoogleFonts.soraTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: TextStyle(color: mode.textPrimary, fontWeight: FontWeight.bold, fontSize: 32),
         titleLarge: TextStyle(color: mode.textPrimary, fontWeight: FontWeight.bold, fontSize: 20),
         bodyLarge: TextStyle(color: mode.textPrimary, fontSize: 16),

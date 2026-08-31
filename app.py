@@ -410,15 +410,40 @@ def suggest_teams():
     fallback_items = search_teams_fallback(q)
     return jsonify({"status": "success", "data": fallback_items})
 
+@app.route("/api/index.py", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+def vercel_router():
+    path = request.args.get("path", "").strip("/")
+    
+    if path == "crawl":
+        return api_crawl()
+    elif path == "parse":
+        return api_parse()
+    elif path == "suggest-teams":
+        return api_suggest_teams()
+    elif path == "admin/login":
+        return api_admin_login()
+    elif path == "fixtures/custom":
+        if request.method == "GET":
+            return get_custom_fixtures()
+        elif request.method == "POST":
+            return add_custom_fixture()
+    elif path.startswith("fixtures/custom/"):
+        fixture_id = path.split("/")[-1]
+        if request.method == "PUT":
+            return update_custom_fixture(fixture_id)
+        elif request.method == "DELETE":
+            return delete_custom_fixture(fixture_id)
+            
+    return jsonify({"error": f"Route not found: {path}"}), 404
+
 @app.route("/<path:path>")
 def serve_flutter_static(path):
-    from flask import request
-    return jsonify({
-        "debug": "serve_flutter_static",
-        "path": request.path,
-        "url": request.url,
-        "headers": dict(request.headers)
-    })
+    full_path = os.path.join(FLUTTER_WEB_DIR, path)
+    if os.path.exists(full_path) and os.path.isfile(full_path):
+        return send_from_directory(FLUTTER_WEB_DIR, path)
+    if os.path.exists(os.path.join(FLUTTER_WEB_DIR, "index.html")):
+        return send_from_directory(FLUTTER_WEB_DIR, "index.html")
+    return jsonify({"error": "Not found"}), 404
 
 if __name__ == "__main__":
     safe_print("Starting RFU Parser Web App on http://127.0.0.1:5000")

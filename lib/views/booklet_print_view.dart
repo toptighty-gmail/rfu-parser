@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -910,6 +911,69 @@ class BookletPrintView extends StatelessWidget {
     );
   }
 
+  /// Triggers the browser's native print dialog for [bytes] (a PDF).
+  ///
+  /// Loads the PDF into a hidden iframe wrapped in an `<embed>` tag (rather
+  /// than pointing the iframe straight at the PDF blob URL) so the browser
+  /// always renders it inline via its built-in PDF viewer, even when the
+  /// user has "Download PDFs instead of opening them" enabled — a setting
+  /// that otherwise makes the direct blob-URL iframe approach fail silently.
+  /// Returns true once print() has been invoked, false if anything failed
+  /// or timed out, so callers can fall back to opening/downloading the PDF.
+  Future<bool> _printPdfOnWeb(Uint8List bytes, String fileName) async {
+    const frameId = '__rfu_hub_print_frame__';
+    try {
+      final pdfBlob = html.Blob([bytes], 'application/pdf');
+      final pdfUrl = html.Url.createObjectUrlFromBlob(pdfBlob);
+
+      final wrapperHtml =
+          '<html><head><title>${Uri.encodeFull(fileName)}</title>'
+          '<style>html,body,embed{margin:0;padding:0;width:100%;height:100%;border:0;}</style>'
+          '</head><body><embed src="$pdfUrl" type="application/pdf"></body></html>';
+      final wrapperBlob = html.Blob([wrapperHtml], 'text/html');
+      final wrapperUrl = html.Url.createObjectUrlFromBlob(wrapperBlob);
+
+      var frame = html.document.getElementById(frameId) as html.IFrameElement?;
+      frame ??= html.IFrameElement()..id = frameId;
+      frame.style
+        ..visibility = 'hidden'
+        ..position = 'fixed'
+        ..right = '0'
+        ..bottom = '0'
+        ..width = '0'
+        ..height = '0';
+      if (frame.parent == null) {
+        html.document.body?.append(frame);
+      }
+
+      final completer = Completer<bool>();
+      html.EventListener? onLoad;
+      onLoad = (html.Event event) {
+        if (onLoad != null) frame!.removeEventListener('load', onLoad);
+        // Give the <embed>'s PDF viewer a moment to finish rendering before printing.
+        Timer(const Duration(milliseconds: 300), () {
+          try {
+            (frame!.contentWindow as html.Window?)?.print();
+            if (!completer.isCompleted) completer.complete(true);
+          } catch (e) {
+            debugPrint('Web print(): $e');
+            if (!completer.isCompleted) completer.complete(false);
+          }
+        });
+      };
+      frame.addEventListener('load', onLoad);
+      frame.src = wrapperUrl;
+
+      return await completer.future.timeout(
+        const Duration(seconds: 6),
+        onTimeout: () => false,
+      );
+    } catch (e) {
+      debugPrint('Web print setup failed: $e');
+      return false;
+    }
+  }
+
   Future<void> _exportPdf(
     BuildContext context,
     List<Fixture> activeFixtures,
@@ -942,16 +1006,32 @@ class BookletPrintView extends StatelessWidget {
         logoCache,
       );
 
-      try {
-        // Opens the OS/browser print dialog so the user can print or
-        // choose "Save as PDF" directly, without leaving the app.
-        await Printing.layoutPdf(
-          name: fileName,
-          format: PdfPageFormat.a4,
-          onLayout: (format) async => bytes,
-        );
-      } catch (layoutError) {
-        debugPrint('Printing.layoutPdf failed, falling back: $layoutError');
+      bool printed = false;
+      if (kIsWeb) {
+        // On web, Printing.layoutPdf loads the PDF directly into a hidden
+        // iframe and calls contentWindow.print(). That silently fails to
+        // open the OS print dialog whenever the browser is configured to
+        // download PDFs instead of viewing them inline (a common Chrome/Edge
+        // setting), because the iframe never renders a viewer to print from.
+        // Wrapping the PDF in an <embed> forces the browser to render it
+        // inline regardless of that setting, so the print dialog reliably
+        // appears.
+        printed = await _printPdfOnWeb(bytes, fileName);
+      } else {
+        try {
+          // Opens the native OS print dialog so the user can print or
+          // choose "Save as PDF" directly, without leaving the app.
+          printed = await Printing.layoutPdf(
+            name: fileName,
+            format: PdfPageFormat.a4,
+            onLayout: (format) async => bytes,
+          );
+        } catch (layoutError) {
+          debugPrint('Printing.layoutPdf failed, falling back: $layoutError');
+        }
+      }
+
+      if (!printed) {
         // Fallback for browsers/platforms where the native print dialog isn't available.
         if (kIsWeb) {
           final blob = html.Blob([bytes], 'application/pdf');

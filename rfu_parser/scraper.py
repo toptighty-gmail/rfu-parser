@@ -29,9 +29,11 @@ class RFUParser:
             "Sec-Fetch-User": "?1"
         }
 
-    def fetch_url(self, url: str, timeout: int = 10) -> str:
+    def fetch_url(self, url: str, timeout: int = 15) -> str:
         """Fetch raw HTML from a URL with custom user-agent."""
-        response = requests.get(url, headers=self.headers, timeout=timeout)
+        import cloudscraper
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get(url, timeout=timeout)
         response.raise_for_status()
         return response.text
 
@@ -892,10 +894,11 @@ class RFUParser:
         url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season={season_str}&division={div_id}"
 
         try:
-            resp = requests.get(
+            import cloudscraper
+            scraper = cloudscraper.create_scraper()
+            resp = scraper.get(
                 url,
-                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"},
-                timeout=12
+                timeout=15
             )
             if resp.status_code == 200:
                 table_data = self.parse_table(resp.text)

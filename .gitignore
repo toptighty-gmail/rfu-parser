@@ -24,8 +24,7 @@ output.json
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-build/*
-!build/web/
+build/
 ephemeral/
 .pub-cache/
 .pub/

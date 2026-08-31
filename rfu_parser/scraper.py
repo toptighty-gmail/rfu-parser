@@ -940,14 +940,19 @@ class RFUParser:
 
         try:
             # 1. Upsert Division
-            div_payload = [{
+            div_payload = {
                 "division_name": result.division_name,
                 "season": result.season,
                 "source_url": result.source_url or ""
-            }]
+            }
+            if result.rfu_competition_id is not None:
+                div_payload["rfu_competition_id"] = result.rfu_competition_id
+            if result.rfu_division_id is not None:
+                div_payload["rfu_division_id"] = result.rfu_division_id
+                
             requests.post(
                 f"{base_endpoint}/divisions?on_conflict=division_name,season",
-                json=div_payload,
+                json=[div_payload],
                 headers=headers,
                 timeout=10
             )

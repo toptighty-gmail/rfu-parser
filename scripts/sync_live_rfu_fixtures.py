@@ -84,6 +84,13 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
             venue_tag = card.find(class_='coh-style-verticle-left')
             venue = venue_tag.get_text(strip=True) if venue_tag else ""
 
+            # Skip undetermined playoff/relegation placeholder slots (e.g. "TBC vs TBC") -
+            # the RFU page can list the same placeholder more than once per round, which
+            # collides with the DB's (division_id, home_team, away_team, round_num) unique
+            # constraint and fails the whole batch insert.
+            if home_team.upper() == 'TBC' and away_team.upper() == 'TBC':
+                continue
+
             hid = team_lookup.get(home_team.lower().strip())
             aid = team_lookup.get(away_team.lower().strip())
 
@@ -105,7 +112,10 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
             })
 
     if fixtures_payload:
-        requests.post(f'{SUPABASE_URL}/rest/v1/fixtures', headers=headers, json=fixtures_payload)
+        resp = requests.post(f'{SUPABASE_URL}/rest/v1/fixtures', headers=headers, json=fixtures_payload)
+        if resp.status_code not in (200, 201):
+            print(f"FAILED to sync fixtures for {division_name} ({season}): {resp.status_code} {resp.text}")
+            return
         print(f"Successfully scraped and synced {len(fixtures_payload)} official RFU fixtures for {division_name} ({season})")
         print(f"Sample scraped times:")
         for sample in fixtures_payload[:5]:

@@ -4,7 +4,7 @@
 class OfficialRfuFixturesData {
   static final Map<String, List<Map<String, String>>> allDivisionFixtures = {
     // gallagher premiership (comp=5, div=77026, count=46)
-    'gallagher premiership': [
+    'gallagher prem': [
       {'date': 'Friday, 25 Sep 2026', 'dateIso': '2026-09-25', 'home': 'Harlequins', 'away': 'Bath Rugby', 'time': '19:45', 'round': 'Round 1'},
       {'date': 'Friday, 25 Sep 2026', 'dateIso': '2026-09-25', 'home': 'Northampton Saints', 'away': 'Newcastle Red Bulls', 'time': '19:45', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Exeter Chiefs', 'away': 'Gloucester Rugby', 'time': '15:05', 'round': 'Round 2'},
@@ -238,7 +238,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 24 Apr 2027', 'dateIso': '2027-04-24', 'home': 'Hartpury RFC', 'away': 'Caldy', 'time': '15:00', 'round': 'Round 51'},
     ],
     // national 1 (comp=1605, div=75899, count=182)
-    'national 1': [
+    'national league 1': [
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Leeds Tykes', 'away': 'Camborne', 'time': '14:00', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Birmingham Moseley', 'away': 'Cambridge', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Bishop\'s Stortford', 'away': 'Dings Crusaders', 'time': '15:00', 'round': 'Round 1'},
@@ -423,7 +423,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 17 Apr 2027', 'dateIso': '2027-04-17', 'home': 'Sheffield', 'away': 'Tonbridge Juddians', 'time': '15:00', 'round': 'Round 30'},
     ],
     // national 2 west (comp=1605, div=75902, count=182)
-    'national 2 west': [
+    'national league 2 west': [
       {'date': 'Friday, 04 Sep 2026', 'dateIso': '2026-09-04', 'home': 'Taunton Titans', 'away': 'Devonport Services', 'time': '19:45', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Lymm', 'away': 'Loughborough Students', 'time': '14:15', 'round': 'Round 2'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Cinderford', 'away': 'Clifton', 'time': '15:00', 'round': 'Round 2'},
@@ -608,7 +608,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 17 Apr 2027', 'dateIso': '2027-04-17', 'home': 'Old Redcliffians', 'away': 'Hornets', 'time': '15:00', 'round': 'Round 28'},
     ],
     // national 2 east (comp=1605, div=75901, count=182)
-    'national 2 east': [
+    'national league 2 east': [
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Jersey Rugby Football Club', 'away': 'London Welsh', 'time': '13:00', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Oundle', 'away': 'Esher', 'time': '14:00', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Barnes', 'away': 'Colchester', 'time': '15:00', 'round': 'Round 1'},
@@ -793,7 +793,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 17 Apr 2027', 'dateIso': '2027-04-17', 'home': 'Old Albanians', 'away': 'Canterbury', 'time': '15:00', 'round': 'Round 27'},
     ],
     // national 2 north (comp=1605, div=75900, count=182)
-    'national 2 north': [
+    'national league 2 north': [
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Billingham', 'away': 'Fylde', 'time': '14:15', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Preston Grasshoppers', 'away': 'Heath', 'time': '14:30', 'round': 'Round 1'},
       {'date': 'Saturday, 05 Sep 2026', 'dateIso': '2026-09-05', 'home': 'Sedgley Park', 'away': 'Darlington Mowden Park', 'time': '14:30', 'round': 'Round 1'},
@@ -978,7 +978,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 17 Apr 2027', 'dateIso': '2027-04-17', 'home': 'Wharfedale', 'away': 'Chester', 'time': '15:00', 'round': 'Round 28'},
     ],
     // regional 1 tribute south west (comp=1699, div=75790, count=132)
-    'regional 1 tribute south west': [
+    'regional 1 tribute ale south west': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Brixham', 'away': 'Exmouth', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'St Austell', 'away': 'Chew Valley', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Topsham', 'away': 'Lydney', 'time': '15:00', 'round': 'Round 1'},
@@ -1753,7 +1753,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 24 Apr 2027', 'dateIso': '2027-04-24', 'home': 'Hartpury RFC', 'away': 'Caldy', 'time': '15:00', 'round': 'Round 51'},
     ],
     // regional 2 tribute south west (comp=1699, div=75790, count=132)
-    'regional 2 tribute south west': [
+    'regional 2 tribute ale south west': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Brixham', 'away': 'Exmouth', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'St Austell', 'away': 'Chew Valley', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Topsham', 'away': 'Lydney', 'time': '15:00', 'round': 'Round 1'},
@@ -1888,7 +1888,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Brixham', 'away': 'Weston-super-Mare', 'time': '14:30', 'round': 'Round 23'},
     ],
     // regional 2 tribute severn (comp=1699, div=75795, count=121)
-    'regional 2 tribute severn': [
+    'regional 2 tribute ale severn': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Clifton II', 'away': 'Cinderford II', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Dings Crusaders II', 'away': 'Cheltenham', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Midsomer Norton', 'away': 'Gordano', 'time': '15:00', 'round': 'Round 1'},
@@ -2012,7 +2012,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Old Redcliffians II', 'away': 'Gordon League', 'time': '15:00', 'round': 'Round 24'},
     ],
     // counties 1 tribute western west (comp=1699, div=75796, count=132)
-    'counties 1 tribute western west': [
+    'counties 1 tribute ale western west': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Camborne II', 'away': 'Saltash', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Redruth II', 'away': 'Devonport Services II', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'St Ives (SW)', 'away': 'Paignton', 'time': '15:00', 'round': 'Round 1'},
@@ -2147,7 +2147,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Paignton', 'away': 'Saltash', 'time': '15:00', 'round': 'Round 25'},
     ],
     // counties 1 tribute southern south (comp=261, div=75781, count=132)
-    'counties 1 tribute southern south': [
+    'counties 1 tribute ale southern south': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Bognor', 'away': 'Winchester', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Camberley', 'away': 'Old Tiffinians', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Petersfield', 'away': 'Chobham', 'time': '15:00', 'round': 'Round 1'},
@@ -2406,7 +2406,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Old Redcliffians II', 'away': 'Gordon League', 'time': '15:00', 'round': 'Round 24'},
     ],
     // counties 2 tribute devon (comp=1699, div=75799, count=132)
-    'counties 2 tribute devon': [
+    'counties 2 tribute ale devon': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Crediton II', 'away': 'Exeter Saracens', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Exmouth II', 'away': 'Old Plymothian & Mannamedian', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'South Molton', 'away': 'Bideford', 'time': '15:00', 'round': 'Round 1'},
@@ -2541,7 +2541,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Topsham II', 'away': 'Exmouth II', 'time': '15:00', 'round': 'Round 22'},
     ],
     // counties 2 tribute cornwall (comp=1699, div=75796, count=132)
-    'counties 2 tribute cornwall': [
+    'counties 2 tribute ale cornwall': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Camborne II', 'away': 'Saltash', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Redruth II', 'away': 'Devonport Services II', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'St Ives (SW)', 'away': 'Paignton', 'time': '15:00', 'round': 'Round 1'},
@@ -2676,7 +2676,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Paignton', 'away': 'Saltash', 'time': '15:00', 'round': 'Round 25'},
     ],
     // counties 2 tribute somerset (comp=1699, div=75848, count=132)
-    'counties 2 tribute somerset': [
+    'counties 2 tribute ale somerset': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Burnham-on-Sea II', 'away': 'Castle Cary', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Chard II', 'away': 'Somerton', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Hornets III', 'away': 'Martock', 'time': '15:00', 'round': 'Round 1'},
@@ -2946,7 +2946,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Old Technicians', 'away': 'Kingsbridge II', 'time': '15:00', 'round': 'Round 22'},
     ],
     // counties 3 tribute somerset (comp=1699, div=75791, count=131)
-    'counties 3 tribute somerset': [
+    'counties 3 tribute ale somerset south': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'North Petherton', 'away': 'Wadebridge Camels', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Okehampton', 'away': 'Wiveliscombe', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Penzance & Newlyn', 'away': 'Teignmouth', 'time': '15:00', 'round': 'Round 1'},
@@ -3080,7 +3080,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Wiveliscombe', 'away': 'Crediton', 'time': '15:00', 'round': 'Round 22'},
     ],
     // counties 3 tribute cornwall (comp=1699, div=75797, count=132)
-    'counties 3 tribute cornwall': [
+    'counties 3 tribute ale cornwall': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Bude', 'away': 'St Austell II', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Launceston II', 'away': 'Liskeard-Looe', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Perranporth', 'away': 'Penryn', 'time': '15:00', 'round': 'Round 1'},
@@ -3401,7 +3401,7 @@ class OfficialRfuFixturesData {
       {'date': 'Saturday, 10 Apr 2027', 'dateIso': '2027-04-10', 'home': 'Tiverton II', 'away': 'Cullompton II', 'time': '15:00', 'round': 'Round 24'},
     ],
     // counties 4 tribute somerset (comp=1699, div=75790, count=132)
-    'counties 4 tribute somerset': [
+    'counties 4 tribute ale somerset south': [
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Brixham', 'away': 'Exmouth', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'St Austell', 'away': 'Chew Valley', 'time': '15:00', 'round': 'Round 1'},
       {'date': 'Saturday, 26 Sep 2026', 'dateIso': '2026-09-26', 'home': 'Topsham', 'away': 'Lydney', 'time': '15:00', 'round': 'Round 1'},

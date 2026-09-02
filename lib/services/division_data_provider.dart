@@ -6,7 +6,7 @@ import 'official_rfu_fixtures_data.dart';
 
 class DivisionDataProvider {
   static final Map<String, List<String>> _divisionTeams = {
-    'gallagher premiership': [
+    'gallagher prem': [
       'Bath Rugby',
       'Northampton Saints',
       'Sale Sharks',
@@ -32,7 +32,7 @@ class DivisionDataProvider {
       'Hartpury University',
       'Chinnor',
     ],
-    'national 1': [
+    'national league 1': [
       'Rams',
       'Rosslyn Park',
       'Richmond',
@@ -48,7 +48,7 @@ class DivisionDataProvider {
       'Dings Crusaders',
       'Rotherham Titans',
     ],
-    'national 2 west': [
+    'national league 2 west': [
       'Luctonians',
       'Clifton',
       'Camborne',
@@ -64,7 +64,7 @@ class DivisionDataProvider {
       'Macclesfield',
       'Devonport Services',
     ],
-    'national 2 east': [
+    'national league 2 east': [
       'Esher',
       'Barnes',
       'Worthing',
@@ -80,7 +80,7 @@ class DivisionDataProvider {
       'Havant',
       'Oxford Harlequins',
     ],
-    'national 2 north': [
+    'national league 2 north': [
       'Leeds Tykes',
       'Sheffield',
       'Wharfedale',
@@ -96,7 +96,7 @@ class DivisionDataProvider {
       'Harrogate',
       'Huddersfield',
     ],
-    'regional 1 tribute south west': [
+    'regional 1 tribute ale south west': [
       'Barnstaple',
       'Brixham',
       'Chew Valley',
@@ -166,7 +166,7 @@ class DivisionDataProvider {
       'Percy Park',
       'Morpeth',
     ],
-    'regional 2 tribute south west': [
+    'regional 2 tribute ale south west': [
       'Crediton',
       'Newton Abbot',
       'Topsham',
@@ -180,7 +180,7 @@ class DivisionDataProvider {
       'Teignmouth',
       'Wadebridge Camels',
     ],
-    'regional 2 tribute severn': [
+    'regional 2 tribute ale severn': [
       'Chosen Hill Former Pupils',
       'Gordano',
       'Keynsham',
@@ -194,7 +194,7 @@ class DivisionDataProvider {
       'Coney Hill',
       'Frampton Cotterell',
     ],
-    'counties 1 tribute western west': [
+    'counties 1 tribute ale western west': [
       'Torquay Athletic',
       'Kingsbridge',
       'Tiverton',
@@ -208,7 +208,7 @@ class DivisionDataProvider {
       'St Ives',
       'Barnstaple II',
     ],
-    'counties 1 tribute southern south': [
+    'counties 1 tribute ale southern south': [
       'Wimborne',
       'Swanage & Wareham',
       'Salisbury',
@@ -236,7 +236,7 @@ class DivisionDataProvider {
       'Wells',
       'Yatton',
     ],
-    'counties 2 tribute devon': [
+    'counties 2 tribute ale devon': [
       'Bideford',
       'Brixham II',
       'Crediton II',
@@ -250,7 +250,7 @@ class DivisionDataProvider {
       'Topsham II',
       'Withycombe',
     ],
-    'counties 2 tribute cornwall': [
+    'counties 2 tribute ale cornwall': [
       'Saltash',
       'St Austell II',
       'Helston',
@@ -264,7 +264,7 @@ class DivisionDataProvider {
       'Camborne II',
       'Lankelly-Fowey',
     ],
-    'counties 2 tribute somerset': [
+    'counties 2 tribute ale somerset': [
       'Castle Cary',
       'Cheddar Valley',
       'Crewkerne',
@@ -290,7 +290,7 @@ class DivisionDataProvider {
       'Torquay Athletic II',
       'Tavistock II',
     ],
-    'counties 3 tribute somerset': [
+    'counties 3 tribute ale somerset north': [
       'Wiveliscombe II',
       'Chard II',
       'Wellington II',
@@ -302,7 +302,19 @@ class DivisionDataProvider {
       'Martock',
       'Castle Cary II',
     ],
-    'counties 3 tribute cornwall': [
+    'counties 3 tribute ale somerset south': [
+      'Wiveliscombe II',
+      'Chard II',
+      'Wellington II',
+      'North Petherton II',
+      'Wyvern',
+      'Morganians',
+      'Bridgwater & Albion III',
+      'Yeovil II',
+      'Martock',
+      'Castle Cary II',
+    ],
+    'counties 3 tribute ale cornwall': [
       'Perranporth',
       'Roseland',
       'Stithians',
@@ -326,7 +338,19 @@ class DivisionDataProvider {
       'Cullompton II',
       'Crediton III',
     ],
-    'counties 4 tribute somerset': [
+    'counties 4 tribute ale somerset north': [
+      'Chew Valley III',
+      'Nailsea & Backwell II',
+      'Weston-super-Mare III',
+      'Bristol Barbarians',
+      'Old Bristolians II',
+      'Clevedon II',
+      'Yatton II',
+      'Keynsham III',
+      'Midsomer Norton III',
+      'Wells III',
+    ],
+    'counties 4 tribute ale somerset south': [
       'Chew Valley III',
       'Nailsea & Backwell II',
       'Weston-super-Mare III',

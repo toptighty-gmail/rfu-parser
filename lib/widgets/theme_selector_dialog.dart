@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'custom_theme_editor_dialog.dart';
 
 class ThemeSelectorDialog extends StatefulWidget {
   const ThemeSelectorDialog({super.key});
@@ -160,6 +161,20 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                               _buildSwatch(mode.tertiaryAccent, '3rd'),
                             ],
                           ),
+                          if (mode.isCustom) ...[
+                            const SizedBox(width: 8),
+                            IconButton(
+                              tooltip: 'Edit custom colors & font',
+                              icon: Icon(Icons.edit, color: mode.goldAccent, size: 18),
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: (_) => const CustomThemeEditorDialog(),
+                                );
+                                setState(() {});
+                              },
+                            ),
+                          ],
                         ],
                       ),
                     ),

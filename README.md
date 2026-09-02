@@ -43,6 +43,21 @@ python -m pytest
 
 ---
 
+## Flutter App Theming
+
+The Flutter client (`lib/`) offers three built-in color themes plus a fully
+editable **Custom** theme (`lib/theme/app_theme.dart`, `lib/theme/custom_theme_store.dart`,
+`lib/widgets/custom_theme_editor_dialog.dart`):
+
+- Open the theme picker (palette icon in the navbar) and pick **Custom**, or
+  tap its pencil icon to edit it directly.
+- Adjust Primary, Accent, Background, Surface, Text, Muted Text, and Border
+  colors with an HSV/hex picker, and pick a font from a curated Google Fonts
+  list. A live preview and a WCAG contrast warning update as you edit.
+- **Apply** saves your choices (persisted locally) and switches the app to
+  the Custom theme; **Cancel** discards unsaved edits; **Reset to Defaults**
+  restores the Custom theme's original colors/font.
+
 ## Project Structure
 ```
 rfu-parser/

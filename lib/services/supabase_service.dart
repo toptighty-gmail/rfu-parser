@@ -12,6 +12,7 @@ import 'api_service.dart';
 import 'team_logo_provider.dart';
 import 'rfu_team_registry.dart';
 import '../widgets/fixture_list.dart';
+import '../utils/fixtures_util.dart' as fixtures_util;
 
 class SupabaseService {
   static SupabaseClient? _client;
@@ -161,7 +162,7 @@ class SupabaseService {
 
   // --- Custom Fixtures CRUD ---
 
-  static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team}) async {
+  static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team, String? season}) async {
     if (_localCustomFixtures.isEmpty) {
       await _loadFromLocalCache();
     }
@@ -195,21 +196,34 @@ class SupabaseService {
 
     final cleanTeamLower = cleanTeam.toLowerCase();
     final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanTeamLower);
+    final cleanSeason = season?.trim();
 
     return allFixtures.where((f) {
-      // 1. Primary: If both have rfu_team_id, match strictly on rfu_team_id
-      if (targetTeamId != null && f.rfuTeamId != null) {
-        return f.rfuTeamId == targetTeamId;
-      }
+      final matchesTeam = () {
+        // 1. Primary: If both have rfu_team_id, match strictly on rfu_team_id
+        if (targetTeamId != null && f.rfuTeamId != null) {
+          return f.rfuTeamId == targetTeamId;
+        }
 
-      // 2. Secondary: If context_team is present, match strictly using isExactTeamMatch
-      if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
-        return FixtureList.isExactTeamMatch(f.contextTeam!, cleanTeam);
-      }
+        // 2. Secondary: If context_team is present, match strictly using isExactTeamMatch
+        if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
+          return FixtureList.isExactTeamMatch(f.contextTeam!, cleanTeam);
+        }
 
-      // 3. Fallback: Check home/away team with strict squad matching
-      return FixtureList.isExactTeamMatch(f.homeTeam, cleanTeam) ||
-             FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
+        // 3. Fallback: Check home/away team with strict squad matching
+        return FixtureList.isExactTeamMatch(f.homeTeam, cleanTeam) ||
+               FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
+      }();
+      if (!matchesTeam) return false;
+
+      // Custom fixtures carry no season column in the DB, so a team's manually
+      // added friendlies/cup games from every season would otherwise all show
+      // up regardless of which season is currently selected. Bucket them by
+      // their own match date instead.
+      if (cleanSeason != null && cleanSeason.isNotEmpty) {
+        return fixtures_util.isDateInSeason(fixtures_util.parseFixtureDate(f), cleanSeason);
+      }
+      return true;
     }).toList();
   }
 

@@ -236,6 +236,7 @@ class _HomeViewState extends State<HomeView> {
         ? await SupabaseService.fetchCustomFixtures(
             division: targetDivision,
             team: targetTeam,
+            season: _selectedSeason,
           )
         : <Fixture>[];
 

@@ -31,6 +31,21 @@ bool isFixtureCompleted(Fixture f) {
   return f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
 }
 
+/// Returns true if [date] falls within the RFU season window for [season]
+/// (e.g. "2025-2026"). The window runs from 1 Jul of the start year through
+/// 30 Jun of the following year, safely covering pre-season friendlies
+/// through end-of-season fixtures. If [season] can't be parsed, returns
+/// true so callers don't silently drop fixtures they can't classify.
+bool isDateInSeason(DateTime date, String season) {
+  final parts = season.split(RegExp(r'[-/]'));
+  if (parts.isEmpty) return true;
+  final startYear = int.tryParse(parts.first.trim());
+  if (startYear == null) return true;
+  final start = DateTime(startYear, 7, 1);
+  final end = DateTime(startYear + 1, 6, 30, 23, 59, 59);
+  return !date.isBefore(start) && !date.isAfter(end);
+}
+
 int compareFixturesChronologically(Fixture a, Fixture b) {
   final dateComp = parseFixtureDate(a).compareTo(parseFixtureDate(b));
   if (dateComp != 0) return dateComp;

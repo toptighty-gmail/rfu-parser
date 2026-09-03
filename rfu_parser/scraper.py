@@ -329,6 +329,19 @@ class RFUParser:
                                 status = "Completed"
                             except ValueError:
                                 pass
+                        else:
+                            # Walkovers ("HWO"/"AWO"), abandoned ("Ab - Ab") and postponed
+                            # ("P - P") matches render as a plain span instead of <a> score
+                            # tags, so the numeric branch above finds nothing for them. A
+                            # not-yet-played fixture renders "VS" here and should stay
+                            # "Scheduled", which is the fallthrough default.
+                            compact = re.sub(r'[\s-]+', '', score_div.get_text(strip=True).upper())
+                            if compact in ('HWO', 'AWO'):
+                                status = compact
+                            elif compact == 'ABAB':
+                                status = 'Abandoned'
+                            elif compact == 'PP':
+                                status = 'Postponed'
 
                     venue_tag = card.find(class_='coh-style-verticle-left')
                     venue = venue_tag.get_text(strip=True) if venue_tag else ""

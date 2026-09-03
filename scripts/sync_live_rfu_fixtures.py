@@ -76,6 +76,19 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
                         status = 'Completed'
                     except ValueError:
                         pass
+                else:
+                    # Walkovers ("HWO"/"AWO"), abandoned ("Ab - Ab") and postponed
+                    # ("P - P") matches render as a plain span instead of <a> score
+                    # tags, so the numeric branch above finds nothing for them. A
+                    # not-yet-played fixture renders "VS" here and should stay
+                    # "Scheduled", which is the fallthrough default.
+                    compact = re.sub(r'[\s-]+', '', score_div.get_text(strip=True).upper())
+                    if compact in ('HWO', 'AWO'):
+                        status = compact
+                    elif compact == 'ABAB':
+                        status = 'Abandoned'
+                    elif compact == 'PP':
+                        status = 'Postponed'
 
             # If KO time is explicitly confirmed on RFU (e.g. 14:30, 16:00, 14:00), use it;
             # otherwise if not confirmed yet, default to official RFU Saturday league kickoff (15:00)

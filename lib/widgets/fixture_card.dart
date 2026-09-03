@@ -3,6 +3,7 @@ import '../models/fixture.dart';
 import '../theme/app_theme.dart';
 import 'team_logo_image.dart';
 import 'fixture_list.dart';
+import '../utils/fixtures_util.dart' as fixtures_util;
 
 class FixtureCard extends StatelessWidget {
   final Fixture fixture;
@@ -49,8 +50,12 @@ class FixtureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
-    final isCompleted = fixture.status.toLowerCase() == 'completed' ||
-        (fixture.homeScore != null && fixture.awayScore != null);
+    final isCompleted = fixtures_util.isFixtureCompleted(fixture);
+    final isPostponed = fixtures_util.isPostponed(fixture);
+    final isUnreported = !isCompleted && !isPostponed && fixtures_util.isPastUnreported(fixture);
+    final scoreText = fixtures_util.fixtureScoreText(fixture);
+    // Muted colour for any non-"live" state: no result reported, or postponed.
+    const mutedColor = Color(0xFF94A3B8);
 
     final cleanFilter = filterTeam?.trim();
     final isHomeMatched = FixtureList.isExactTeamMatch(fixture.homeTeam, cleanFilter) ||
@@ -254,26 +259,36 @@ class FixtureCard extends StatelessWidget {
               ),
             ),
 
-            // Score / VS Box (Always 'VS' for upcoming matches, Score for completed)
+            // Score / VS Box (Score for completed, muted for past-unreported/postponed, gold 'VS' for upcoming)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 14),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
+                color: isCompleted
+                    ? AppTheme.darkBg
+                    : (isUnreported || isPostponed)
+                        ? AppTheme.darkBg
+                        : AppTheme.goldAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.45),
+                  color: isCompleted
+                      ? AppTheme.cardBorder
+                      : (isUnreported || isPostponed)
+                          ? mutedColor.withValues(alpha: 0.4)
+                          : AppTheme.goldAccent.withValues(alpha: 0.45),
                   width: 1,
                 ),
               ),
               child: Text(
-                isCompleted
-                    ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
-                    : 'VS',
+                scoreText,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
-                  color: isCompleted ? AppTheme.textPrimary : AppTheme.goldAccent,
+                  color: isCompleted
+                      ? AppTheme.textPrimary
+                      : (isUnreported || isPostponed)
+                          ? mutedColor
+                          : AppTheme.goldAccent,
                 ),
               ),
             ),
@@ -316,24 +331,34 @@ class FixtureCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isCompleted
-                        ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green – always
-                        : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue – always
+                        ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green – result recorded
+                        : (isUnreported || isPostponed)
+                            ? mutedColor.withValues(alpha: 0.18) // Slate – no result reported, or postponed
+                            : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue – upcoming
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isCompleted
                           ? const Color(0xFF22C55E).withValues(alpha: 0.5)
-                          : const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                          : (isUnreported || isPostponed)
+                              ? mutedColor.withValues(alpha: 0.5)
+                              : const Color(0xFF38BDF8).withValues(alpha: 0.4),
                       width: 0.8,
                     ),
                   ),
                   child: Text(
-                    fixture.status.toUpperCase(),
+                    isUnreported
+                        ? 'NO RESULT'
+                        : isPostponed
+                            ? 'POSTPONED'
+                            : fixture.status.toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: isCompleted
                           ? const Color(0xFF22C55E) // Vivid Green
-                          : const Color(0xFF38BDF8), // Vivid Sky Blue
+                          : (isUnreported || isPostponed)
+                              ? mutedColor // Slate
+                              : const Color(0xFF38BDF8), // Vivid Sky Blue
                     ),
                   ),
                 ),
@@ -482,24 +507,34 @@ class FixtureCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isCompleted
-                          ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green
-                          : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue
+                          ? const Color(0xFF22C55E).withValues(alpha: 0.18) // Vivid Green – result recorded
+                          : (isUnreported || isPostponed)
+                              ? mutedColor.withValues(alpha: 0.18) // Slate – no result reported, or postponed
+                              : const Color(0xFF38BDF8).withValues(alpha: 0.15), // Vivid Sky Blue – upcoming
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                         color: isCompleted
                             ? const Color(0xFF22C55E).withValues(alpha: 0.5)
-                            : const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                            : (isUnreported || isPostponed)
+                                ? mutedColor.withValues(alpha: 0.5)
+                                : const Color(0xFF38BDF8).withValues(alpha: 0.4),
                         width: 0.8,
                       ),
                     ),
                     child: Text(
-                      fixture.status.toUpperCase(),
+                      isUnreported
+                          ? 'NO RESULT'
+                          : isPostponed
+                              ? 'POSTPONED'
+                              : fixture.status.toUpperCase(),
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                         color: isCompleted
                             ? const Color(0xFF22C55E) // Vivid Green
-                            : const Color(0xFF38BDF8), // Vivid Sky Blue
+                            : (isUnreported || isPostponed)
+                                ? mutedColor // Slate
+                                : const Color(0xFF38BDF8), // Vivid Sky Blue
                       ),
                     ),
                   ),
@@ -542,21 +577,31 @@ class FixtureCard extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: isCompleted ? AppTheme.darkBg : AppTheme.goldAccent.withValues(alpha: 0.12),
+                  color: isCompleted
+                      ? AppTheme.darkBg
+                      : (isUnreported || isPostponed)
+                          ? AppTheme.darkBg
+                          : AppTheme.goldAccent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: isCompleted ? AppTheme.cardBorder : AppTheme.goldAccent.withValues(alpha: 0.45),
+                    color: isCompleted
+                        ? AppTheme.cardBorder
+                        : (isUnreported || isPostponed)
+                            ? mutedColor.withValues(alpha: 0.4)
+                            : AppTheme.goldAccent.withValues(alpha: 0.45),
                     width: 1,
                   ),
                 ),
                 child: Text(
-                  isCompleted
-                      ? '${fixture.homeScore ?? 0} - ${fixture.awayScore ?? 0}'
-                      : 'VS',
+                  scoreText,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
-                    color: isCompleted ? AppTheme.textPrimary : AppTheme.goldAccent,
+                    color: isCompleted
+                        ? AppTheme.textPrimary
+                        : (isUnreported || isPostponed)
+                            ? mutedColor
+                            : AppTheme.goldAccent,
                   ),
                 ),
               ),

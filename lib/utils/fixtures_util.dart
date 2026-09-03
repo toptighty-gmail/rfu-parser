@@ -27,8 +27,53 @@ DateTime parseFixtureDate(Fixture f) {
   return DateTime(2099);
 }
 
+bool isWalkover(Fixture f) {
+  final s = f.status.toLowerCase();
+  return s == 'hwo' || s == 'awo';
+}
+
+bool isAbandoned(Fixture f) => f.status.toLowerCase() == 'abandoned';
+
+/// Postponed matches are awaiting a new date, unlike a walkover or an
+/// abandoned match (both settled outcomes) or "Scheduled" (still on for its
+/// stated date). Not treated as completed, and not folded into "no result
+/// reported" either - it has its own distinct display.
+bool isPostponed(Fixture f) => f.status.toLowerCase() == 'postponed';
+
+/// A fixture whose outcome is settled: a numeric score, a walkover, or an
+/// abandoned match. Postponed and genuinely-upcoming fixtures are not.
 bool isFixtureCompleted(Fixture f) {
-  return f.status.toLowerCase() == 'completed' || (f.homeScore != null && f.awayScore != null);
+  return f.status.toLowerCase() == 'completed' ||
+      isWalkover(f) ||
+      isAbandoned(f) ||
+      (f.homeScore != null && f.awayScore != null);
+}
+
+/// The text to show in place of a numeric score: the real score when known,
+/// "HWO"/"AWO" for a walkover, "ABANDONED"/"POSTPONED" for those outcomes
+/// (RFU never publishes points for any of these), or a plain "v" for a
+/// fixture that hasn't been played yet.
+String fixtureScoreText(Fixture f) {
+  if (isWalkover(f)) return f.status.toUpperCase();
+  if (isAbandoned(f)) return 'ABANDONED';
+  if (isPostponed(f)) return 'POSTPONED';
+  if (isFixtureCompleted(f)) return '${f.homeScore ?? 0} - ${f.awayScore ?? 0}';
+  return 'v';
+}
+
+/// True once a fixture's stated match date has passed - used to stop a stale
+/// date (an unreported past match, or a postponed one still carrying its old
+/// date) from being treated as "next up".
+bool hasPastDate(Fixture f) => parseFixtureDate(f).isBefore(DateTime.now());
+
+/// True when a fixture's match date has already passed but no result was ever
+/// recorded (the RFU source itself never had a score for it - not a sync gap
+/// we can fix by re-crawling). Distinct from "Scheduled", which should only
+/// describe genuinely upcoming matches, and from "Postponed", which has its
+/// own explicit label.
+bool isPastUnreported(Fixture f) {
+  if (isFixtureCompleted(f) || isPostponed(f)) return false;
+  return hasPastDate(f);
 }
 
 /// Returns true if [date] falls within the RFU season window for [season]
@@ -77,11 +122,16 @@ int _extractRoundNumber(String key) {
 Set<Fixture> computeNextFixtures(List<Fixture> fixtures, {String? filterTeam}) {
   if (fixtures.isEmpty) return {};
 
+  // Eligible to be "next": not completed, and not carrying a past date -
+  // covers both a past match whose result was never reported and a postponed
+  // fixture still sitting on its original (now stale) date.
+  bool isEligibleNext(Fixture f) => !isFixtureCompleted(f) && !hasPastDate(f);
+
   final isTeamFiltered = filterTeam != null && filterTeam.trim().isNotEmpty;
   if (isTeamFiltered) {
     final sorted = List<Fixture>.from(fixtures)..sort(compareFixturesChronologically);
     for (final f in sorted) {
-      if (!isFixtureCompleted(f)) return {f};
+      if (isEligibleNext(f)) return {f};
     }
     return {};
   }
@@ -92,7 +142,8 @@ Set<Fixture> computeNextFixtures(List<Fixture> fixtures, {String? filterTeam}) {
   }
   if (grouped.isEmpty) return {};
 
-  final sortedEntries = grouped.entries.toList()
+  // Only consider rounds that still have at least one genuinely upcoming fixture.
+  final eligibleEntries = grouped.entries.where((e) => e.value.any(isEligibleNext)).toList()
     ..sort((a, b) {
       final earliestA = a.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
       final earliestB = b.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
@@ -100,7 +151,8 @@ Set<Fixture> computeNextFixtures(List<Fixture> fixtures, {String? filterTeam}) {
       if (comp != 0) return comp;
       return _extractRoundNumber(a.key).compareTo(_extractRoundNumber(b.key));
     });
+  if (eligibleEntries.isEmpty) return {};
 
-  final earliestEntry = sortedEntries.first;
-  return earliestEntry.value.where((f) => !isFixtureCompleted(f)).toSet();
+  final earliestEntry = eligibleEntries.first;
+  return earliestEntry.value.where(isEligibleNext).toSet();
 }

@@ -27,7 +27,8 @@ class FixtureList extends StatelessWidget {
     this.onDeleteFixture,
   });
 
-  static DateTime parseFixtureDate(Fixture f) => fixtures_util.parseFixtureDate(f);
+  static DateTime parseFixtureDate(Fixture f) =>
+      fixtures_util.parseFixtureDate(f);
 
   static bool isExactTeamMatch(String fixtureTeam, String? filter) {
     if (filter == null || filter.trim().isEmpty) return false;
@@ -50,12 +51,19 @@ class FixtureList extends StatelessWidget {
 
     // Base name normalization (strip RFC, Club, XV)
     String normalizeBase(String s) {
-      return s.replaceAll(RegExp(r'\b(rfc|rugby club|club|xv)\b', caseSensitive: false), '').trim();
+      return s
+          .replaceAll(
+            RegExp(r'\b(rfc|rugby club|club|xv)\b', caseSensitive: false),
+            '',
+          )
+          .trim();
     }
 
     final baseFt = normalizeBase(ft);
     final baseQt = normalizeBase(qt);
-    return baseFt == baseQt || baseFt.contains(baseQt) || baseQt.contains(baseFt);
+    return baseFt == baseQt ||
+        baseFt.contains(baseQt) ||
+        baseQt.contains(baseFt);
   }
 
   @override
@@ -67,7 +75,9 @@ class FixtureList extends StatelessWidget {
         ? fixtures.where((f) {
             // For custom fixtures (e.g. Friendlies / Cup entries):
             if (f.isCustom) {
-              final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanFilter.toLowerCase());
+              final targetTeamId = RfuTeamRegistry.lookupTeamId(
+                cleanFilter.toLowerCase(),
+              );
               if (targetTeamId != null && f.rfuTeamId != null) {
                 return f.rfuTeamId == targetTeamId;
               }
@@ -75,7 +85,8 @@ class FixtureList extends StatelessWidget {
                 return isExactTeamMatch(f.contextTeam!, cleanFilter);
               }
             }
-            return isExactTeamMatch(f.homeTeam, cleanFilter) || isExactTeamMatch(f.awayTeam, cleanFilter);
+            return isExactTeamMatch(f.homeTeam, cleanFilter) ||
+                isExactTeamMatch(f.awayTeam, cleanFilter);
           }).toList()
         : fixtures;
 
@@ -85,7 +96,11 @@ class FixtureList extends StatelessWidget {
         decoration: AppTheme.glassBoxDecoration(),
         child: Column(
           children: [
-            Icon(isTeamFiltered ? Icons.search_off : Icons.event_busy, color: AppTheme.goldAccent, size: 36),
+            Icon(
+              isTeamFiltered ? Icons.search_off : Icons.event_busy,
+              color: AppTheme.goldAccent,
+              size: 36,
+            ),
             SizedBox(height: 12),
             Text(
               isTeamFiltered
@@ -100,7 +115,9 @@ class FixtureList extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.goldAccent,
                   side: BorderSide(color: AppTheme.goldAccent),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 icon: const Icon(Icons.clear_all, size: 16),
                 label: const Text('Show All Division Fixtures'),
@@ -132,7 +149,10 @@ class FixtureList extends StatelessWidget {
         });
 
       // Calculate next fixture for this team
-      final nextTeamFixtures = fixtures_util.computeNextFixtures(sortedTeamFixtures, filterTeam: filterTeam);
+      final nextTeamFixtures = fixtures_util.computeNextFixtures(
+        sortedTeamFixtures,
+        filterTeam: filterTeam,
+      );
 
       return Container(
         decoration: AppTheme.glassBoxDecoration(),
@@ -147,37 +167,62 @@ class FixtureList extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.goldAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppTheme.goldAccent.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_month, color: AppTheme.goldAccent, size: 16),
-                      SizedBox(width: 8),
-                      Text(
-                        'CHRONOLOGICAL SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month,
                           color: AppTheme.goldAccent,
-                          letterSpacing: 0.8,
+                          size: 16,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'CHRONOLOGICAL SCHEDULE FOR "${filterTeam!.trim().toUpperCase()}" (${sortedTeamFixtures.length} MATCHES)',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              color: AppTheme.goldAccent,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   if (onClearTeamFilter != null)
                     InkWell(
                       onTap: onClearTeamFilter,
                       borderRadius: BorderRadius.circular(6),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         child: Row(
                           children: [
-                            Icon(Icons.close, size: 13, color: AppTheme.textMuted),
+                            Icon(
+                              Icons.close,
+                              size: 13,
+                              color: AppTheme.textMuted,
+                            ),
                             SizedBox(width: 4),
-                            Text('Clear', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                            Text(
+                              'Clear',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -186,30 +231,40 @@ class FixtureList extends StatelessWidget {
               ),
             ),
 
-            ...sortedTeamFixtures.map((f) => FixtureCard(
-                  fixture: f,
-                  isAdmin: isAdmin,
-                  isNextFixture: nextTeamFixtures.contains(f),
-                  filterTeam: filterTeam,
-                  logoProvider: logoProvider,
-                  onTeamSelected: onTeamSelected,
-                  onEdit: onEditFixture,
-                  onDelete: onDeleteFixture,
-                )),
+            ...sortedTeamFixtures.map(
+              (f) => FixtureCard(
+                fixture: f,
+                isAdmin: isAdmin,
+                isNextFixture: nextTeamFixtures.contains(f),
+                filterTeam: filterTeam,
+                logoProvider: logoProvider,
+                onTeamSelected: onTeamSelected,
+                onEdit: onEditFixture,
+                onDelete: onDeleteFixture,
+              ),
+            ),
           ],
         ),
       );
     }
 
     // Division-only view: mark all non-completed fixtures in the earliest round as NEXT UP.
-    final Set<Fixture> divisionNextFixtures = fixtures_util.computeNextFixtures(activeFixtures);
+    final Set<Fixture> divisionNextFixtures = fixtures_util.computeNextFixtures(
+      activeFixtures,
+    );
 
     // Group fixtures by round or match category for full division view
     final Map<String, List<Fixture>> grouped = {};
     for (var f in activeFixtures) {
-      final isCup = f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup');
+      final isCup =
+          f.competition.toLowerCase().contains('cup') ||
+          f.roundNum.toLowerCase().contains('cup');
       final key = f.isCustom
-          ? (isCup ? (f.competition.isNotEmpty && f.competition != 'Cup Match' ? f.competition : 'Cup Matches') : 'Friendly Matches')
+          ? (isCup
+                ? (f.competition.isNotEmpty && f.competition != 'Cup Match'
+                      ? f.competition
+                      : 'Cup Matches')
+                : 'Friendly Matches')
           : f.roundNum;
       grouped.putIfAbsent(key, () => []).add(f);
     }
@@ -217,8 +272,12 @@ class FixtureList extends StatelessWidget {
     // Sort round entries chronologically by the earliest match date in each round
     final sortedEntries = grouped.entries.toList()
       ..sort((a, b) {
-        final earliestA = a.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
-        final earliestB = b.value.map(parseFixtureDate).reduce((min, d) => d.isBefore(min) ? d : min);
+        final earliestA = a.value
+            .map(parseFixtureDate)
+            .reduce((min, d) => d.isBefore(min) ? d : min);
+        final earliestB = b.value
+            .map(parseFixtureDate)
+            .reduce((min, d) => d.isBefore(min) ? d : min);
         final comp = earliestA.compareTo(earliestB);
         if (comp != 0) return comp;
         return extractRoundNumber(a.key).compareTo(extractRoundNumber(b.key));
@@ -229,7 +288,9 @@ class FixtureList extends StatelessWidget {
       children: [
         ...sortedEntries.map((entry) {
           final isCupSection = entry.key.toLowerCase().contains('cup');
-          final headerColor = isCupSection ? AppTheme.emeraldAccent : AppTheme.goldAccent;
+          final headerColor = isCupSection
+              ? AppTheme.emeraldAccent
+              : AppTheme.goldAccent;
 
           // Sort matches inside each round by date & kickoff time
           final sortedMatchesInRound = List<Fixture>.from(entry.value)
@@ -272,16 +333,18 @@ class FixtureList extends StatelessWidget {
                   ),
                 ),
 
-                ...sortedMatchesInRound.map((f) => FixtureCard(
-                      fixture: f,
-                      isAdmin: isAdmin,
-                      isNextFixture: divisionNextFixtures.contains(f),
-                      filterTeam: filterTeam,
-                      logoProvider: logoProvider,
-                      onTeamSelected: onTeamSelected,
-                      onEdit: onEditFixture,
-                      onDelete: onDeleteFixture,
-                    )),
+                ...sortedMatchesInRound.map(
+                  (f) => FixtureCard(
+                    fixture: f,
+                    isAdmin: isAdmin,
+                    isNextFixture: divisionNextFixtures.contains(f),
+                    filterTeam: filterTeam,
+                    logoProvider: logoProvider,
+                    onTeamSelected: onTeamSelected,
+                    onEdit: onEditFixture,
+                    onDelete: onDeleteFixture,
+                  ),
+                ),
               ],
             ),
           );

@@ -795,18 +795,27 @@ class _HomeViewState extends State<HomeView> {
                                                     : Colors.black,
                                               ),
                                               const SizedBox(width: 6),
-                                              Text(
-                                                'TEAM: ${_searchController.text.trim().toUpperCase()}',
-                                                style: TextStyle(
-                                                  fontSize: 11.5,
-                                                  fontWeight: FontWeight.w900,
-                                                  color:
-                                                      currentTheme.goldAccent
-                                                              .computeLuminance() <
-                                                          0.5
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                  letterSpacing: 0.6,
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      MediaQuery.of(
+                                                        context,
+                                                      ).size.width *
+                                                      0.55,
+                                                ),
+                                                child: Text(
+                                                  'TEAM: ${_searchController.text.trim().toUpperCase()}',
+                                                  style: TextStyle(
+                                                    fontSize: 11.5,
+                                                    fontWeight: FontWeight.w900,
+                                                    color:
+                                                        currentTheme.goldAccent
+                                                                .computeLuminance() <
+                                                            0.5
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                    letterSpacing: 0.6,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -846,14 +855,24 @@ class _HomeViewState extends State<HomeView> {
                                                       currentTheme.goldAccent,
                                                 ),
                                                 const SizedBox(width: 5),
-                                                Text(
-                                                  'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w900,
-                                                    color:
-                                                        currentTheme.goldAccent,
-                                                    letterSpacing: 0.5,
+                                                ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        MediaQuery.of(
+                                                          context,
+                                                        ).size.width *
+                                                        0.55,
+                                                  ),
+                                                  child: Text(
+                                                    'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      color: currentTheme
+                                                          .goldAccent,
+                                                      letterSpacing: 0.5,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -974,13 +993,22 @@ class _HomeViewState extends State<HomeView> {
                                               size: 20,
                                             ),
                                             SizedBox(width: 8),
-                                            Text(
-                                              'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w900,
-                                                color: AppTheme.goldAccent,
-                                                letterSpacing: 1.1,
-                                                fontSize: 13,
+                                            ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxWidth:
+                                                    MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.65,
+                                              ),
+                                              child: Text(
+                                                'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  color: AppTheme.goldAccent,
+                                                  letterSpacing: 1.1,
+                                                  fontSize: 13,
+                                                ),
                                               ),
                                             ),
                                           ],

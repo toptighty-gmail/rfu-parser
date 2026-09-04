@@ -7,10 +7,12 @@ class AdminDatabaseMetricsDialog extends StatefulWidget {
   const AdminDatabaseMetricsDialog({super.key});
 
   @override
-  State<AdminDatabaseMetricsDialog> createState() => _AdminDatabaseMetricsDialogState();
+  State<AdminDatabaseMetricsDialog> createState() =>
+      _AdminDatabaseMetricsDialogState();
 }
 
-class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog> {
+class _AdminDatabaseMetricsDialogState
+    extends State<AdminDatabaseMetricsDialog> {
   List<TableMetric> _metrics = [];
   bool _isLoading = true;
 
@@ -55,7 +57,10 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
 
   @override
   Widget build(BuildContext context) {
-    final totalRecords = _metrics.fold<int>(0, (sum, item) => sum + item.recordCount);
+    final totalRecords = _metrics.fold<int>(
+      0,
+      (sum, item) => sum + item.recordCount,
+    );
     final numberFormatter = NumberFormat('#,###');
 
     return AlertDialog(
@@ -67,31 +72,49 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: AppTheme.emeraldAccent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: AppTheme.emeraldAccent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.analytics_outlined,
+                    color: AppTheme.emeraldAccent,
+                    size: 22,
+                  ),
                 ),
-                child: Icon(Icons.analytics_outlined, color: AppTheme.emeraldAccent, size: 22),
-              ),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Supabase Database Health',
-                    style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+                SizedBox(width: 12),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Supabase Database Health',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Live Table Record Counts & Last Sync Timestamps',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Live Table Record Counts & Last Sync Timestamps',
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
           IconButton(
             icon: Icon(Icons.close, color: AppTheme.textMuted),
@@ -100,7 +123,9 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
         ],
       ),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width > 680 ? 620 : MediaQuery.of(context).size.width * 0.94,
+        width: MediaQuery.of(context).size.width > 680
+            ? 620
+            : MediaQuery.of(context).size.width * 0.94,
         child: _isLoading
             ? SizedBox(
                 height: 240,
@@ -110,7 +135,10 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                     children: [
                       CircularProgressIndicator(color: AppTheme.emeraldAccent),
                       SizedBox(height: 16),
-                      Text('Querying Supabase live table metrics...', style: TextStyle(color: AppTheme.textMuted)),
+                      Text(
+                        'Querying Supabase live table metrics...',
+                        style: TextStyle(color: AppTheme.textMuted),
+                      ),
                     ],
                   ),
                 ),
@@ -121,7 +149,10 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                   children: [
                     // Total database summary banner
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -131,14 +162,20 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                           ],
                         ),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.4)),
+                        border: Border.all(
+                          color: AppTheme.emeraldAccent.withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.storage, color: AppTheme.emeraldAccent, size: 18),
+                              Icon(
+                                Icons.storage,
+                                color: AppTheme.emeraldAccent,
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'TOTAL REPOSITORIES & DATA RECORDS',
@@ -152,7 +189,10 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppTheme.emeraldAccent,
                               borderRadius: BorderRadius.circular(6),
@@ -190,7 +230,11 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(color: AppTheme.cardBorder),
                               ),
-                              child: Icon(m.icon, color: AppTheme.goldAccent, size: 22),
+                              child: Icon(
+                                m.icon,
+                                color: AppTheme.goldAccent,
+                                size: 22,
+                              ),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -209,10 +253,17 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                                       ),
                                       const SizedBox(width: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.08),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Text(
                                           'public.${m.tableName}',
@@ -228,7 +279,11 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                                   SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      Icon(Icons.access_time, size: 12, color: AppTheme.textMuted),
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 12,
+                                        color: AppTheme.textMuted,
+                                      ),
                                       SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
@@ -246,11 +301,20 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
                             ),
                             const SizedBox(width: 12),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppTheme.goldAccent.withValues(alpha: 0.15),
+                                color: AppTheme.goldAccent.withValues(
+                                  alpha: 0.15,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.3)),
+                                border: Border.all(
+                                  color: AppTheme.goldAccent.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -288,7 +352,9 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
           style: OutlinedButton.styleFrom(
             foregroundColor: AppTheme.textPrimary,
             side: BorderSide(color: AppTheme.cardBorder),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           icon: Icon(Icons.refresh, size: 16, color: AppTheme.emeraldAccent),
           label: Text('Refresh Counts'),
@@ -298,10 +364,15 @@ class _AdminDatabaseMetricsDialogState extends State<AdminDatabaseMetricsDialog>
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.emeraldAccent,
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: const Text(
+            'Close',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );

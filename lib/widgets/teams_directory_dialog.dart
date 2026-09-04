@@ -7,10 +7,7 @@ import '../theme/app_theme.dart';
 class TeamsDirectoryDialog extends StatefulWidget {
   final ValueChanged<String> onSelectTeam;
 
-  const TeamsDirectoryDialog({
-    super.key,
-    required this.onSelectTeam,
-  });
+  const TeamsDirectoryDialog({super.key, required this.onSelectTeam});
 
   @override
   State<TeamsDirectoryDialog> createState() => _TeamsDirectoryDialogState();
@@ -31,7 +28,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     'Plymouth Albion', 'Rams', 'Sale FC', 'Rosslyn Park', 'Blackheath',
     'Bishop\'s Stortford', 'Leicester Lions', 'Cinderford', 'Sedgley Park',
     'Taunton Titans', 'Birmingham Moseley', 'Darlington Mowden Park', 'Esher',
-    
+
     // Regional & Counties Leagues
     'Devonport Services', 'Exmouth', 'Barnstaple', 'Brixham', 'Camborne',
     'Launceston', 'Okehampton', 'Chew Valley', 'St Austell', 'Matson',
@@ -40,9 +37,13 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     'Truro', 'Sidmouth', 'Crediton', 'Topsham', 'Kingsbridge',
     'Tiverton', 'Bideford', 'Torquay Athletic', 'Paignton', 'Penryn',
     'Falmouth', 'Penzance & Newlyn', 'Redruth', 'Hayle', 'Saltash',
-    
+
     // Plymouth & District / Local Clubs
-    'Plymstock Oaks', 'Plymouth Argaum', 'Plymstock Albion Oaks', 'OPMs', 'Tamar Saracens',
+    'Plymstock Oaks',
+    'Plymouth Argaum',
+    'Plymstock Albion Oaks',
+    'OPMs',
+    'Tamar Saracens',
     'Old Techs', 'Salcombe', 'Totnes', 'Dartmouth', 'Buckfastleigh Ramblers',
     'South Molton', 'North Tawton', 'Ilfracombe', 'Torrington',
     'Honiton', 'Ottery St Mary', 'Exeter Athletic', 'Exeter Saracens',
@@ -54,7 +55,8 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
   @override
   void initState() {
     super.initState();
-    _filteredTeams = List.from(_indexedTeams)..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _filteredTeams = List.from(_indexedTeams)
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     _loadDatabaseTeams();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
@@ -88,7 +90,10 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
       return;
     }
 
-    final allTeams = {..._indexedTeams, ...RfuTeamRegistry.allKnownTeamNames}.toList();
+    final allTeams = {
+      ..._indexedTeams,
+      ...RfuTeamRegistry.allKnownTeamNames,
+    }.toList();
     final matches = allTeams.where((t) => t.toLowerCase().contains(q)).toList();
 
     setState(() {
@@ -101,7 +106,11 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
       final apiResults = await ApiService.suggestTeams(query.trim());
       if (mounted) {
         final apiNames = apiResults
-            .map((e) => RfuTeamRegistry.normalizeTeamName((e['name'] ?? '').toString()))
+            .map(
+              (e) => RfuTeamRegistry.normalizeTeamName(
+                (e['name'] ?? '').toString(),
+              ),
+            )
             .where((name) => name.isNotEmpty)
             .toList();
         final combined = {...matches, ...apiNames}.toList()..sort();
@@ -128,22 +137,35 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: theme.goldAccent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: theme.goldAccent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.sports_rugby,
+                    color: theme.goldAccent,
+                    size: 20,
+                  ),
                 ),
-                child: Icon(Icons.sports_rugby, color: theme.goldAccent, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'Search RFU Teams',
-                style: TextStyle(color: theme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    'Search RFU Teams',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: theme.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           IconButton(
             icon: Icon(Icons.close, color: theme.textMuted),
@@ -152,7 +174,9 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
         ],
       ),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width > 600 ? 480 : MediaQuery.of(context).size.width * 0.92,
+        width: MediaQuery.of(context).size.width > 600
+            ? 480
+            : MediaQuery.of(context).size.width * 0.92,
         height: (MediaQuery.of(context).size.height * 0.72).clamp(380.0, 560.0),
         child: Column(
           children: [
@@ -174,13 +198,25 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
                 }
               },
               decoration: InputDecoration(
-                hintText: 'Search RFU Teams (e.g. Plymstock, OPMs, Coventry)...',
+                hintText:
+                    'Search RFU Teams (e.g. Plymstock, OPMs, Coventry)...',
                 hintStyle: TextStyle(color: theme.textMuted, fontSize: 13),
-                prefixIcon: Icon(Icons.search, color: theme.goldAccent, size: 20),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: theme.goldAccent,
+                  size: 20,
+                ),
                 suffixIcon: _isLoading
                     ? Padding(
                         padding: const EdgeInsets.all(12),
-                        child: SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: theme.goldAccent)),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.goldAccent,
+                          ),
+                        ),
                       )
                     : null,
                 filled: true,
@@ -199,22 +235,38 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
             Expanded(
               child: _filteredTeams.isEmpty
                   ? Center(
-                      child: Text('No matching RFU teams found', style: TextStyle(color: theme.textMuted)),
+                      child: Text(
+                        'No matching RFU teams found',
+                        style: TextStyle(color: theme.textMuted),
+                      ),
                     )
                   : ListView.separated(
                       itemCount: _filteredTeams.length,
-                      separatorBuilder: (_, _) => Divider(height: 1, color: theme.cardBorder),
+                      separatorBuilder: (_, _) =>
+                          Divider(height: 1, color: theme.cardBorder),
                       itemBuilder: (context, index) {
                         final teamName = _filteredTeams[index];
                         final teamId = RfuTeamRegistry.lookupTeamId(teamName);
                         return ListTile(
                           dense: true,
-                          leading: Icon(Icons.shield, color: theme.goldAccent, size: 18),
+                          leading: Icon(
+                            Icons.shield,
+                            color: theme.goldAccent,
+                            size: 18,
+                          ),
                           title: Text(
                             teamId != null ? '$teamName ($teamId)' : teamName,
-                            style: TextStyle(color: theme.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: theme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 12, color: theme.textMuted),
+                          trailing: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: theme.textMuted,
+                          ),
                           onTap: () {
                             Navigator.of(context).pop();
                             widget.onSelectTeam(teamName);

@@ -55,27 +55,43 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       try {
         if (f.time.isNotEmpty && f.time.contains(':')) {
           final timeParts = f.time.split(':');
-          _selectedTime = TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+          _selectedTime = TimeOfDay(
+            hour: int.parse(timeParts[0]),
+            minute: int.parse(timeParts[1]),
+          );
         }
       } catch (_) {
         _selectedTime = const TimeOfDay(hour: 15, minute: 0);
       }
 
-      final isCup = f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup');
+      final isCup =
+          f.competition.toLowerCase().contains('cup') ||
+          f.roundNum.toLowerCase().contains('cup');
       _fixtureType = isCup ? 'Cup' : 'Friendly';
     }
 
-    _dateController = TextEditingController(text: _rfuDateFormat.format(_selectedDate));
-    _timeController = TextEditingController(text: _formatTimeOfDay(_selectedTime));
+    _dateController = TextEditingController(
+      text: _rfuDateFormat.format(_selectedDate),
+    );
+    _timeController = TextEditingController(
+      text: _formatTimeOfDay(_selectedTime),
+    );
     _homeTeamController = TextEditingController(
       text: f?.homeTeam ?? (widget.contextTeam ?? ''),
     );
     _awayTeamController = TextEditingController(text: f?.awayTeam ?? '');
-    _homeScoreController = TextEditingController(text: f?.homeScore?.toString() ?? '');
-    _awayScoreController = TextEditingController(text: f?.awayScore?.toString() ?? '');
+    _homeScoreController = TextEditingController(
+      text: f?.homeScore?.toString() ?? '',
+    );
+    _awayScoreController = TextEditingController(
+      text: f?.awayScore?.toString() ?? '',
+    );
     _venueController = TextEditingController(text: f?.venue ?? '');
     _cupNameController = TextEditingController(
-      text: f != null && (f.competition.toLowerCase().contains('cup') || f.roundNum.toLowerCase().contains('cup'))
+      text:
+          f != null &&
+              (f.competition.toLowerCase().contains('cup') ||
+                  f.roundNum.toLowerCase().contains('cup'))
           ? f.competition
           : 'Devon Senior Cup',
     );
@@ -205,21 +221,32 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           Icon(
             isEditing
                 ? Icons.edit_calendar
-                : (_fixtureType == 'Cup' ? Icons.emoji_events : Icons.sports_rugby),
-            color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+                : (_fixtureType == 'Cup'
+                      ? Icons.emoji_events
+                      : Icons.sports_rugby),
+            color: _fixtureType == 'Cup'
+                ? AppTheme.emeraldAccent
+                : AppTheme.goldAccent,
           ),
           SizedBox(width: 10),
-          Text(
-            isEditing
-                ? 'Edit Custom Fixture'
-                : (_fixtureType == 'Cup' ? 'Add Cup Fixture' : 'Add Friendly Fixture'),
-            style: TextStyle(color: AppTheme.textPrimary, fontSize: 18),
+          Flexible(
+            child: Text(
+              isEditing
+                  ? 'Edit Custom Fixture'
+                  : (_fixtureType == 'Cup'
+                        ? 'Add Cup Fixture'
+                        : 'Add Friendly Fixture'),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 18),
+            ),
           ),
         ],
       ),
       content: SingleChildScrollView(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width > 600 ? 520 : MediaQuery.of(context).size.width * 0.92,
+          width: MediaQuery.of(context).size.width > 600
+              ? 520
+              : MediaQuery.of(context).size.width * 0.92,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,11 +255,16 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
               if (widget.contextTeam != null && widget.contextTeam!.isNotEmpty)
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.goldAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5)),
+                    border: Border.all(
+                      color: AppTheme.goldAccent.withValues(alpha: 0.5),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -271,7 +303,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _fixtureType == 'Friendly' ? AppTheme.goldAccent : Colors.transparent,
+                            color: _fixtureType == 'Friendly'
+                                ? AppTheme.goldAccent
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -280,7 +314,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                               Icon(
                                 Icons.sports_rugby,
                                 size: 16,
-                                color: _fixtureType == 'Friendly' ? Colors.black : AppTheme.textMuted,
+                                color: _fixtureType == 'Friendly'
+                                    ? Colors.black
+                                    : AppTheme.textMuted,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -288,7 +324,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: _fixtureType == 'Friendly' ? Colors.black : AppTheme.textMuted,
+                                  color: _fixtureType == 'Friendly'
+                                      ? Colors.black
+                                      : AppTheme.textMuted,
                                 ),
                               ),
                             ],
@@ -303,7 +341,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : Colors.transparent,
+                            color: _fixtureType == 'Cup'
+                                ? AppTheme.emeraldAccent
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -312,7 +352,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                               Icon(
                                 Icons.emoji_events,
                                 size: 16,
-                                color: _fixtureType == 'Cup' ? Colors.black : AppTheme.textMuted,
+                                color: _fixtureType == 'Cup'
+                                    ? Colors.black
+                                    : AppTheme.textMuted,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -320,7 +362,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: _fixtureType == 'Cup' ? Colors.black : AppTheme.textMuted,
+                                  color: _fixtureType == 'Cup'
+                                      ? Colors.black
+                                      : AppTheme.textMuted,
                                 ),
                               ),
                             ],
@@ -334,7 +378,11 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
               // Cup Name Input (Visible when Cup is selected)
               if (_fixtureType == 'Cup') ...[
-                _buildInput('Cup Competition (e.g. Devon Senior Cup, Papa Johns Cup)', _cupNameController, icon: Icons.emoji_events),
+                _buildInput(
+                  'Cup Competition (e.g. Devon Senior Cup, Papa Johns Cup)',
+                  _cupNameController,
+                  icon: Icons.emoji_events,
+                ),
                 const SizedBox(height: 12),
               ],
 
@@ -348,18 +396,36 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                       child: IgnorePointer(
                         child: TextField(
                           controller: _dateController,
-                          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          style: TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'Date (e.g. Saturday, 26 Sep 2026)',
-                            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                            prefixIcon: Icon(Icons.calendar_month, size: 18, color: AppTheme.goldAccent),
-                            suffixIcon: Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            labelStyle: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 13,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.calendar_month,
+                              size: 18,
+                              color: AppTheme.goldAccent,
+                            ),
+                            suffixIcon: Icon(
+                              Icons.arrow_drop_down,
+                              color: AppTheme.goldAccent,
+                            ),
                             filled: true,
                             fillColor: AppTheme.darkBg,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: AppTheme.cardBorder),
+                              borderSide: BorderSide(
+                                color: AppTheme.cardBorder,
+                              ),
                             ),
                           ),
                         ),
@@ -374,18 +440,36 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                       child: IgnorePointer(
                         child: TextField(
                           controller: _timeController,
-                          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                          style: TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'Time (HH:MM)',
-                            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                            prefixIcon: Icon(Icons.access_time, size: 18, color: AppTheme.goldAccent),
-                            suffixIcon: Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                            labelStyle: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 13,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.access_time,
+                              size: 18,
+                              color: AppTheme.goldAccent,
+                            ),
+                            suffixIcon: Icon(
+                              Icons.arrow_drop_down,
+                              color: AppTheme.goldAccent,
+                            ),
                             filled: true,
                             fillColor: AppTheme.darkBg,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: AppTheme.cardBorder),
+                              borderSide: BorderSide(
+                                color: AppTheme.cardBorder,
+                              ),
                             ),
                           ),
                         ),
@@ -412,7 +496,10 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                     onTap: _swapTeams,
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.darkBg,
                         borderRadius: BorderRadius.circular(20),
@@ -421,9 +508,20 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.swap_vert, size: 14, color: AppTheme.goldAccent),
+                          Icon(
+                            Icons.swap_vert,
+                            size: 14,
+                            color: AppTheme.goldAccent,
+                          ),
                           SizedBox(width: 4),
-                          Text('Swap Home / Away', style: TextStyle(fontSize: 10.5, color: AppTheme.goldAccent, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Swap Home / Away',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: AppTheme.goldAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -445,16 +543,28 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildInput('Home Score (Optional)', _homeScoreController, isNumber: true),
+                    child: _buildInput(
+                      'Home Score (Optional)',
+                      _homeScoreController,
+                      isNumber: true,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildInput('Away Score (Optional)', _awayScoreController, isNumber: true),
+                    child: _buildInput(
+                      'Away Score (Optional)',
+                      _awayScoreController,
+                      isNumber: true,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              _buildInput('Venue / Location (Optional)', _venueController, icon: Icons.location_on),
+              _buildInput(
+                'Venue / Location (Optional)',
+                _venueController,
+                icon: Icons.location_on,
+              ),
             ],
           ),
         ),
@@ -466,13 +576,21 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: _fixtureType == 'Cup' ? AppTheme.emeraldAccent : AppTheme.goldAccent,
+            backgroundColor: _fixtureType == 'Cup'
+                ? AppTheme.emeraldAccent
+                : AppTheme.goldAccent,
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: _save,
           child: Text(
-            isEditing ? 'Save Changes' : (_fixtureType == 'Cup' ? 'Create Cup Fixture' : 'Create Friendly Fixture'),
+            isEditing
+                ? 'Save Changes'
+                : (_fixtureType == 'Cup'
+                      ? 'Create Cup Fixture'
+                      : 'Create Friendly Fixture'),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -495,7 +613,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           // If empty, suggest top 25 clubs in database
           return _databaseTeams.take(25);
         }
-        return _databaseTeams.where((team) => team.toLowerCase().contains(query)).take(30);
+        return _databaseTeams
+            .where((team) => team.toLowerCase().contains(query))
+            .take(30);
       },
       optionsViewBuilder: (context, onSelected, options) {
         return Align(
@@ -510,22 +630,33 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: 220,
-                maxWidth: MediaQuery.of(context).size.width > 600 ? 470 : MediaQuery.of(context).size.width * 0.85,
+                maxWidth: MediaQuery.of(context).size.width > 600
+                    ? 470
+                    : MediaQuery.of(context).size.width * 0.85,
               ),
               child: ListView.separated(
                 padding: EdgeInsets.symmetric(vertical: 6),
                 shrinkWrap: true,
                 itemCount: options.length,
-                separatorBuilder: (_, __) => Divider(color: AppTheme.cardBorder, height: 1),
+                separatorBuilder: (_, __) =>
+                    Divider(color: AppTheme.cardBorder, height: 1),
                 itemBuilder: (context, index) {
                   final team = options.elementAt(index);
                   final teamId = RfuTeamRegistry.lookupTeamId(team);
                   return ListTile(
                     dense: true,
-                    leading: Icon(Icons.sports_rugby, size: 16, color: AppTheme.goldAccent),
+                    leading: Icon(
+                      Icons.sports_rugby,
+                      size: 16,
+                      color: AppTheme.goldAccent,
+                    ),
                     title: Text(
                       teamId != null ? '$team ($teamId)' : team,
-                      style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     onTap: () => onSelected(team),
                   );
@@ -535,41 +666,57 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           ),
         );
       },
-      fieldViewBuilder: (context, fieldTextEditingController, focusNode, onFieldSubmitted) {
-        return TextField(
-          controller: fieldTextEditingController,
-          focusNode: focusNode,
-          style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 12.5),
-            prefixIcon: Icon(icon, size: 18, color: AppTheme.goldAccent),
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (fieldTextEditingController.text.isNotEmpty)
-                  IconButton(
-                    icon: Icon(Icons.clear, size: 16, color: AppTheme.textMuted),
-                    onPressed: () => fieldTextEditingController.clear(),
-                  ),
-                Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
-                SizedBox(width: 6),
-              ],
-            ),
-            filled: true,
-            fillColor: AppTheme.darkBg,
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppTheme.cardBorder),
-            ),
-          ),
-        );
-      },
+      fieldViewBuilder:
+          (context, fieldTextEditingController, focusNode, onFieldSubmitted) {
+            return TextField(
+              controller: fieldTextEditingController,
+              focusNode: focusNode,
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 12.5,
+                ),
+                prefixIcon: Icon(icon, size: 18, color: AppTheme.goldAccent),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (fieldTextEditingController.text.isNotEmpty)
+                      IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          size: 16,
+                          color: AppTheme.textMuted,
+                        ),
+                        onPressed: () => fieldTextEditingController.clear(),
+                      ),
+                    Icon(Icons.arrow_drop_down, color: AppTheme.goldAccent),
+                    SizedBox(width: 6),
+                  ],
+                ),
+                filled: true,
+                fillColor: AppTheme.darkBg,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppTheme.cardBorder),
+                ),
+              ),
+            );
+          },
     );
   }
 
-  Widget _buildInput(String label, TextEditingController controller, {IconData? icon, bool isNumber = false}) {
+  Widget _buildInput(
+    String label,
+    TextEditingController controller, {
+    IconData? icon,
+    bool isNumber = false,
+  }) {
     return TextField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
@@ -577,7 +724,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 13),
-        prefixIcon: icon != null ? Icon(icon, size: 18, color: AppTheme.goldAccent) : null,
+        prefixIcon: icon != null
+            ? Icon(icon, size: 18, color: AppTheme.goldAccent)
+            : null,
         filled: true,
         fillColor: AppTheme.darkBg,
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -602,23 +751,32 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
     final isCup = _fixtureType == 'Cup';
     final competitionName = isCup
-        ? (_cupNameController.text.trim().isNotEmpty ? _cupNameController.text.trim() : 'Cup Match')
+        ? (_cupNameController.text.trim().isNotEmpty
+              ? _cupNameController.text.trim()
+              : 'Cup Match')
         : 'Friendly';
     final roundLabel = isCup
-        ? (_cupNameController.text.trim().isNotEmpty ? _cupNameController.text.trim() : 'Cup Matches')
+        ? (_cupNameController.text.trim().isNotEmpty
+              ? _cupNameController.text.trim()
+              : 'Cup Matches')
         : 'Friendly Matches';
 
     final effectiveContext = widget.contextTeam?.trim().isNotEmpty == true
         ? widget.contextTeam!.trim()
         : (widget.existingFixture?.contextTeam ?? home);
 
-    final effectiveRfuId = widget.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(effectiveContext);
+    final effectiveRfuId =
+        widget.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(effectiveContext);
 
     final newFixture = Fixture(
-      id: widget.existingFixture?.id ?? 'cust_${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          widget.existingFixture?.id ??
+          'cust_${DateTime.now().millisecondsSinceEpoch}',
       date: rfuFormattedDate,
       dateIso: dateIso,
-      time: _timeController.text.trim().isNotEmpty ? _timeController.text.trim() : '15:00',
+      time: _timeController.text.trim().isNotEmpty
+          ? _timeController.text.trim()
+          : '15:00',
       homeTeam: home,
       awayTeam: away,
       homeScore: hScore,

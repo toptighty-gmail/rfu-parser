@@ -72,7 +72,7 @@ class _HomeViewState extends State<HomeView> {
   String _selectedSeason = '2026-2027';
   String _activeTab = 'Standings'; // 'Standings', 'Fixtures'
   final TextEditingController _searchController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isAdmin = false;
   DivisionData? _divisionData;
@@ -102,7 +102,10 @@ class _HomeViewState extends State<HomeView> {
       return _customLogosMap[clean];
     }
     // Alias check for OPMs / Old Plymothian
-    if (clean == 'opms' || clean == 'opm' || clean == 'opms ii' || clean.contains('plymothian')) {
+    if (clean == 'opms' ||
+        clean == 'opm' ||
+        clean == 'opms ii' ||
+        clean.contains('plymothian')) {
       for (var entry in _customLogosMap.entries) {
         final k = entry.key.toLowerCase();
         if (k.contains('plymothian') || k == 'opms' || k == 'opm') {
@@ -115,7 +118,9 @@ class _HomeViewState extends State<HomeView> {
       if (clean == key || clean.contains(key) || key.contains(clean)) {
         return entry.value;
       }
-      final cleanWords = clean.split(' ').where((w) => w.length > 3 && w != 'club' && w != 'rfc');
+      final cleanWords = clean
+          .split(' ')
+          .where((w) => w.length > 3 && w != 'club' && w != 'rfc');
       for (var w in cleanWords) {
         if (key.contains(w)) return entry.value;
       }
@@ -124,12 +129,15 @@ class _HomeViewState extends State<HomeView> {
     // 2. Check standings table logoUrl
     if (_divisionData != null) {
       for (var s in _divisionData!.standings) {
-        if (s.teamName.trim().toLowerCase() == clean && s.logoUrl != null && s.logoUrl!.isNotEmpty) {
+        if (s.teamName.trim().toLowerCase() == clean &&
+            s.logoUrl != null &&
+            s.logoUrl!.isNotEmpty) {
           return s.logoUrl;
         }
       }
       for (var s in _divisionData!.standings) {
-        if ((s.teamName.toLowerCase().contains(clean) || clean.contains(s.teamName.toLowerCase())) &&
+        if ((s.teamName.toLowerCase().contains(clean) ||
+                clean.contains(s.teamName.toLowerCase())) &&
             s.logoUrl != null &&
             s.logoUrl!.isNotEmpty) {
           return s.logoUrl;
@@ -159,7 +167,9 @@ class _HomeViewState extends State<HomeView> {
     setState(() => _isLoading = true);
 
     // If searching by team, do NOT constrain the query by the previously active division!
-    final targetDivision = hasTeam ? null : (hasDivision ? _selectedDivision : null);
+    final targetDivision = hasTeam
+        ? null
+        : (hasDivision ? _selectedDivision : null);
     final targetTeam = hasTeam ? team : null;
 
     DivisionData? data;
@@ -179,13 +189,17 @@ class _HomeViewState extends State<HomeView> {
         season: _selectedSeason,
       );
       if (crawledData != null) {
-        final isValid = crawledData.sourceUrl != null && 
-                        crawledData.sourceUrl!.trim().isNotEmpty && 
-                        crawledData.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+        final isValid =
+            crawledData.sourceUrl != null &&
+            crawledData.sourceUrl!.trim().isNotEmpty &&
+            crawledData.sourceUrl!.trim() !=
+                'https://www.englandrugby.com/fixtures-and-results';
         if (isValid) {
           data = crawledData;
         } else {
-          debugPrint('Discarding backend crawl data: missing valid source_url (backend fallback)');
+          debugPrint(
+            'Discarding backend crawl data: missing valid source_url (backend fallback)',
+          );
         }
       }
     }
@@ -198,25 +212,35 @@ class _HomeViewState extends State<HomeView> {
         season: _selectedSeason,
       );
       if (parsedData != null) {
-        final isValid = parsedData.sourceUrl != null && 
-                        parsedData.sourceUrl!.trim().isNotEmpty && 
-                        parsedData.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+        final isValid =
+            parsedData.sourceUrl != null &&
+            parsedData.sourceUrl!.trim().isNotEmpty &&
+            parsedData.sourceUrl!.trim() !=
+                'https://www.englandrugby.com/fixtures-and-results';
         if (isValid) {
           data = parsedData;
         } else {
-          debugPrint('Discarding backend parse data: missing valid source_url (backend fallback)');
+          debugPrint(
+            'Discarding backend parse data: missing valid source_url (backend fallback)',
+          );
         }
       }
     }
 
     // 4. Final Fallback: Offline Mock Data Provider
     if ((data == null || data.standings.isEmpty) && targetDivision != null) {
-      data = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
+      data = DivisionDataProvider.generateDivisionData(
+        targetDivision,
+        _selectedSeason,
+      );
     }
 
     // 4b. Ensure Fixtures are always populated even if database only had standings
     if (data != null && data.fixtures.isEmpty && targetDivision != null) {
-      final fallbackData = DivisionDataProvider.generateDivisionData(targetDivision, _selectedSeason);
+      final fallbackData = DivisionDataProvider.generateDivisionData(
+        targetDivision,
+        _selectedSeason,
+      );
       data = DivisionData(
         divisionName: data.divisionName,
         season: data.season,
@@ -244,9 +268,11 @@ class _HomeViewState extends State<HomeView> {
       // Only persist to Supabase if data came from a real source (live crawl / Supabase).
       // Offline-generated (mock) data must NEVER overwrite the database.
       // Also, if the backend returns crawled data but the source_url is empty, it means the backend fell back to generated data.
-      final bool hasValidSourceUrl = data.sourceUrl != null && 
-                                     data.sourceUrl!.trim().isNotEmpty && 
-                                     data.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+      final bool hasValidSourceUrl =
+          data.sourceUrl != null &&
+          data.sourceUrl!.trim().isNotEmpty &&
+          data.sourceUrl!.trim() !=
+              'https://www.englandrugby.com/fixtures-and-results';
 
       if (!data.isOfflineGenerated && hasValidSourceUrl) {
         SupabaseService.upsertDivisionData(data);
@@ -264,7 +290,9 @@ class _HomeViewState extends State<HomeView> {
     } else {
       // Fallback empty container with custom fixtures if offline
       data = DivisionData(
-        divisionName: targetDivision ?? (targetTeam != null ? 'Team: $targetTeam' : 'RFU Leagues'),
+        divisionName:
+            targetDivision ??
+            (targetTeam != null ? 'Team: $targetTeam' : 'RFU Leagues'),
         season: _selectedSeason,
         standings: [],
         fixtures: customFixtures,
@@ -274,7 +302,9 @@ class _HomeViewState extends State<HomeView> {
     if (mounted) {
       setState(() {
         _divisionData = data;
-        if (data != null && data.divisionName.isNotEmpty && !data.divisionName.startsWith('Team:')) {
+        if (data != null &&
+            data.divisionName.isNotEmpty &&
+            !data.divisionName.startsWith('Team:')) {
           _selectedDivision = data.divisionName;
         }
         _isLoading = false;
@@ -282,9 +312,16 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Widget _buildTabButton(String tabId, String label, IconData icon, AppThemeMode theme) {
+  Widget _buildTabButton(
+    String tabId,
+    String label,
+    IconData icon,
+    AppThemeMode theme,
+  ) {
     final isActive = _activeTab == tabId;
-    final activeTextColor = theme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black;
+    final activeTextColor = theme.goldAccent.computeLuminance() < 0.5
+        ? Colors.white
+        : Colors.black;
     return InkWell(
       onTap: () => setState(() => _activeTab = tabId),
       borderRadius: BorderRadius.circular(8),
@@ -326,57 +363,67 @@ class _HomeViewState extends State<HomeView> {
       builder: (context, currentTheme, _) {
         return Scaffold(
           backgroundColor: currentTheme.darkBg,
-          appBar: Navbar(
-            selectedDivision: _selectedDivision,
-            divisions: _divisions,
-        onDivisionSelected: (newDiv) {
-          setState(() {
-            _selectedDivision = newDiv;
-            _searchController.clear();
-          });
-          _loadData();
-        },
-        selectedSeason: _selectedSeason,
-        seasons: _seasons,
-        onSeasonChanged: (newSeason) {
-          if (newSeason != null) {
-            setState(() {
-              _selectedSeason = newSeason;
-            });
-            _loadData(queryTeam: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null);
-          }
-        },
-        searchedTeam: _searchController.text.trim(),
-        onTeamSelected: (selectedTeam) {
-          if (selectedTeam.trim().isNotEmpty) {
-            setState(() {
-              _searchController.text = selectedTeam;
-            });
-            _loadData(queryTeam: selectedTeam.trim());
-          }
-        },
-        onOpenDivisionsDirectory: _openDivisionsDirectory,
-        onOpenTeamsDirectory: _openTeamsDirectory,
-        isAdmin: _isAdmin,
-        onAdminToggle: _toggleAdmin,
-        onAddFixture: _openAddFixtureDialog,
-        onUploadLogo: _openUploadLogoDialog,
-        onOpenBookletPrint: _openBookletPrint,
-        onOpenDatabaseMetrics: _openDatabaseMetricsDialog,
-        onOpenThemeSelector: _openThemeSelectorDialog,
-      ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: AppTheme.goldAccent),
-                  SizedBox(height: 16),
-                  Text('Crawling RFU League Data & Live Fixtures...', style: TextStyle(color: AppTheme.textMuted)),
-                ],
-              ),
-            )
-          : _divisionData == null
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(Navbar.heightFor(context)),
+            child: Navbar(
+              selectedDivision: _selectedDivision,
+              divisions: _divisions,
+              onDivisionSelected: (newDiv) {
+                setState(() {
+                  _selectedDivision = newDiv;
+                  _searchController.clear();
+                });
+                _loadData();
+              },
+              selectedSeason: _selectedSeason,
+              seasons: _seasons,
+              onSeasonChanged: (newSeason) {
+                if (newSeason != null) {
+                  setState(() {
+                    _selectedSeason = newSeason;
+                  });
+                  _loadData(
+                    queryTeam: _searchController.text.trim().isNotEmpty
+                        ? _searchController.text.trim()
+                        : null,
+                  );
+                }
+              },
+              searchedTeam: _searchController.text.trim(),
+              onTeamSelected: (selectedTeam) {
+                if (selectedTeam.trim().isNotEmpty) {
+                  setState(() {
+                    _searchController.text = selectedTeam;
+                  });
+                  _loadData(queryTeam: selectedTeam.trim());
+                }
+              },
+              onOpenDivisionsDirectory: _openDivisionsDirectory,
+              onOpenTeamsDirectory: _openTeamsDirectory,
+              isAdmin: _isAdmin,
+              onAdminToggle: _toggleAdmin,
+              onAddFixture: _openAddFixtureDialog,
+              onUploadLogo: _openUploadLogoDialog,
+              onOpenBookletPrint: _openBookletPrint,
+              onOpenDatabaseMetrics: _openDatabaseMetricsDialog,
+              onOpenThemeSelector: _openThemeSelectorDialog,
+            ),
+          ),
+          body: _isLoading
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: AppTheme.goldAccent),
+                      SizedBox(height: 16),
+                      Text(
+                        'Crawling RFU League Data & Live Fixtures...',
+                        style: TextStyle(color: AppTheme.textMuted),
+                      ),
+                    ],
+                  ),
+                )
+              : _divisionData == null
               ? SingleChildScrollView(
                   padding: ResponsiveLayout.horizontalPadding(context),
                   child: _buildBlankInitialState(),
@@ -389,282 +436,570 @@ class _HomeViewState extends State<HomeView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      // Dedicated Admin Mode Control Banner
-                      if (_isAdmin)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [AppTheme.emeraldAccent.withValues(alpha: 0.2), AppTheme.goldAccent.withValues(alpha: 0.2)],
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppTheme.emeraldAccent, width: 1.5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.shield, color: AppTheme.emeraldAccent, size: 22),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'ADMIN MODE ACTIVE',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: AppTheme.emeraldAccent,
-                                      letterSpacing: 1.2,
-                                      fontSize: 14,
+                          // Dedicated Admin Mode Control Banner
+                          if (_isAdmin)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.emeraldAccent.withValues(
+                                      alpha: 0.2,
                                     ),
+                                    AppTheme.goldAccent.withValues(alpha: 0.2),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: AppTheme.emeraldAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.shield,
+                                        color: AppTheme.emeraldAccent,
+                                        size: 22,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        'ADMIN MODE ACTIVE',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          color: AppTheme.emeraldAccent,
+                                          letterSpacing: 1.2,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 8,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF0F172A),
+                                          foregroundColor:
+                                              AppTheme.emeraldAccent,
+                                          side: BorderSide(
+                                            color: AppTheme.emeraldAccent,
+                                            width: 1.2,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          Icons.analytics_outlined,
+                                          size: 18,
+                                          color: AppTheme.emeraldAccent,
+                                        ),
+                                        label: Text(
+                                          'Database Metrics',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        onPressed: _openDatabaseMetricsDialog,
+                                      ),
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppTheme.emeraldAccent,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.add_circle,
+                                          size: 18,
+                                        ),
+                                        label: const Text(
+                                          'Add Friendly Fixture',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            _openAddFixtureDialog(),
+                                      ),
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              currentTheme.goldAccent,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.cloud_upload,
+                                          size: 18,
+                                        ),
+                                        label: const Text(
+                                          'Upload Team Logo',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        onPressed: _openUploadLogoDialog,
+                                      ),
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              currentTheme.surfaceBg,
+                                          foregroundColor:
+                                              currentTheme.goldAccent,
+                                          side: BorderSide(
+                                            color: currentTheme.goldAccent,
+                                            width: 1.2,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          Icons.palette_outlined,
+                                          size: 18,
+                                          color: currentTheme.goldAccent,
+                                        ),
+                                        label: Text(
+                                          'Theme: ${currentTheme.title}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        onPressed: _openThemeSelectorDialog,
+                                      ),
+                                      OutlinedButton.icon(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppTheme.rubyAccent,
+                                          side: BorderSide(
+                                            color: AppTheme.rubyAccent,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.lock_open,
+                                          size: 16,
+                                        ),
+                                        label: const Text('Logout Admin'),
+                                        onPressed: _toggleAdmin,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 8,
+                            ),
+
+                          // Division Banner with Source URL Badge
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: AppTheme.glassBoxDecoration(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _divisionData?.divisionName ??
+                                            _selectedDivision,
+                                        style: TextStyle(
+                                          fontSize: isDesktop ? 22 : 17,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.goldAccent,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Season: ${_divisionData?.season ?? _selectedSeason}',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppTheme.textMuted,
+                                        ),
+                                      ),
+                                      if (_divisionData?.sourceUrl != null &&
+                                          _divisionData!
+                                              .sourceUrl!
+                                              .isNotEmpty) ...[
+                                        const SizedBox(height: 10),
+                                        InkWell(
+                                          onTap: () async {
+                                            final uri = Uri.parse(
+                                              _divisionData!.sourceUrl!,
+                                            );
+                                            if (await canLaunchUrl(uri)) {
+                                              await launchUrl(uri);
+                                            }
+                                          },
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.darkBg,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: AppTheme.goldAccent
+                                                    .withValues(alpha: 0.35),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.link,
+                                                  size: 15,
+                                                  color: AppTheme.goldAccent,
+                                                ),
+                                                SizedBox(width: 6),
+                                                Flexible(
+                                                  child: Text(
+                                                    'Parsing Source URL: ${_divisionData!.sourceUrl}',
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppTheme.goldAccent,
+                                                      decoration: TextDecoration
+                                                          .underline,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.refresh,
+                                    color: AppTheme.goldAccent,
+                                  ),
+                                  tooltip: 'Refresh Data',
+                                  onPressed: () => _loadData(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Selected Context Banner (Team Context or Division Context)
+                          if (_searchController.text.trim().isNotEmpty)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 12,
+                              ),
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.goldAccent.withValues(alpha: 0.20),
+                                    AppTheme.emeraldAccent.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppTheme.goldAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF0F172A),
-                                      foregroundColor: AppTheme.emeraldAccent,
-                                      side: BorderSide(color: AppTheme.emeraldAccent, width: 1.2),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  Expanded(
+                                    child: Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      spacing: 10,
+                                      runSpacing: 8,
+                                      children: [
+                                        // Highlighted Club Name Badge
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 11,
+                                            vertical: 5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.goldAccent,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.25,
+                                                ),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.shield,
+                                                size: 15,
+                                                color:
+                                                    currentTheme.goldAccent
+                                                            .computeLuminance() <
+                                                        0.5
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                'TEAM: ${_searchController.text.trim().toUpperCase()}',
+                                                style: TextStyle(
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w900,
+                                                  color:
+                                                      currentTheme.goldAccent
+                                                              .computeLuminance() <
+                                                          0.5
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  letterSpacing: 0.6,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        // Division Badge matching selected theme
+                                        if (_divisionData?.divisionName !=
+                                                null &&
+                                            _divisionData!
+                                                .divisionName
+                                                .isNotEmpty &&
+                                            !_divisionData!.divisionName
+                                                .startsWith('Team:'))
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4.5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: currentTheme.surfaceBg,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: currentTheme.goldAccent
+                                                    .withValues(alpha: 0.5),
+                                                width: 1,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.emoji_events,
+                                                  size: 14,
+                                                  color:
+                                                      currentTheme.goldAccent,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w900,
+                                                    color:
+                                                        currentTheme.goldAccent,
+                                                    letterSpacing: 0.5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                        // Season Badge
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4.5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.darkBg,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                            border: Border.all(
+                                              color: AppTheme.cardBorder,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_month,
+                                                size: 13,
+                                                color: AppTheme.goldAccent,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                'SEASON: $_selectedSeason',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppTheme.textPrimary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    icon: Icon(Icons.analytics_outlined, size: 18, color: AppTheme.emeraldAccent),
-                                    label: Text('Database Metrics', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    onPressed: _openDatabaseMetricsDialog,
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.emeraldAccent,
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    icon: const Icon(Icons.add_circle, size: 18),
-                                    label: const Text('Add Friendly Fixture', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    onPressed: () => _openAddFixtureDialog(),
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: currentTheme.goldAccent,
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    icon: const Icon(Icons.cloud_upload, size: 18),
-                                    label: const Text('Upload Team Logo', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    onPressed: _openUploadLogoDialog,
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: currentTheme.surfaceBg,
-                                      foregroundColor: currentTheme.goldAccent,
-                                      side: BorderSide(color: currentTheme.goldAccent, width: 1.2),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    icon: Icon(Icons.palette_outlined, size: 18, color: currentTheme.goldAccent),
-                                    label: Text('Theme: ${currentTheme.title}', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    onPressed: _openThemeSelectorDialog,
                                   ),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
-                                      foregroundColor: AppTheme.rubyAccent,
-                                      side: BorderSide(color: AppTheme.rubyAccent),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      foregroundColor: AppTheme.textPrimary,
+                                      side: BorderSide(
+                                        color: AppTheme.cardBorder,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
-                                    icon: const Icon(Icons.lock_open, size: 16),
-                                    label: const Text('Logout Admin'),
-                                    onPressed: _toggleAdmin,
+                                    icon: Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: AppTheme.rubyAccent,
+                                    ),
+                                    label: Text(
+                                      'Clear Team Filter',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchController.clear();
+                                      });
+                                      _loadData();
+                                    },
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-
-                      // Division Banner with Source URL Badge
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: AppTheme.glassBoxDecoration(),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _divisionData?.divisionName ?? _selectedDivision,
-                                    style: TextStyle(
-                                      fontSize: isDesktop ? 22 : 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.goldAccent,
+                            )
+                          else if (_selectedDivision != 'ALL / Select Division')
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 12,
+                              ),
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.goldAccent.withValues(alpha: 0.18),
+                                    AppTheme.emeraldAccent.withValues(
+                                      alpha: 0.12,
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Season: ${_divisionData?.season ?? _selectedSeason}',
-                                    style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
-                                  ),
-                                  if (_divisionData?.sourceUrl != null && _divisionData!.sourceUrl!.isNotEmpty) ...[
-                                    const SizedBox(height: 10),
-                                    InkWell(
-                                      onTap: () async {
-                                        final uri = Uri.parse(_divisionData!.sourceUrl!);
-                                        if (await canLaunchUrl(uri)) {
-                                          await launchUrl(uri);
-                                        }
-                                      },
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.darkBg,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.35)),
-                                        ),
-                                        child: Row(
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppTheme.goldAccent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      spacing: 12,
+                                      runSpacing: 6,
+                                      children: [
+                                        Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.link, size: 15, color: AppTheme.goldAccent),
-                                            SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                'Parsing Source URL: ${_divisionData!.sourceUrl}',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppTheme.goldAccent,
-                                                  decoration: TextDecoration.underline,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                            Icon(
+                                              Icons.emoji_events,
+                                              color: AppTheme.goldAccent,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                color: AppTheme.goldAccent,
+                                                letterSpacing: 1.1,
+                                                fontSize: 13,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.refresh, color: AppTheme.goldAccent),
-                              tooltip: 'Refresh Data',
-                              onPressed: () => _loadData(),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Selected Context Banner (Team Context or Division Context)
-                      if (_searchController.text.trim().isNotEmpty)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.goldAccent.withValues(alpha: 0.20),
-                                AppTheme.emeraldAccent.withValues(alpha: 0.12),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.goldAccent, width: 1.5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 10,
-                                  runSpacing: 8,
-                                  children: [
-                                    // Highlighted Club Name Badge
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.goldAccent,
-                                        borderRadius: BorderRadius.circular(6),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.25),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 3,
                                           ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.shield,
-                                            size: 15,
-                                            color: currentTheme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            'TEAM: ${_searchController.text.trim().toUpperCase()}',
-                                            style: TextStyle(
-                                              fontSize: 11.5,
-                                              fontWeight: FontWeight.w900,
-                                              color: currentTheme.goldAccent.computeLuminance() < 0.5 ? Colors.white : Colors.black,
-                                              letterSpacing: 0.6,
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.darkBg,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                            border: Border.all(
+                                              color: AppTheme.cardBorder,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-
-                                     // Division Badge matching selected theme
-                                     if (_divisionData?.divisionName != null &&
-                                         _divisionData!.divisionName.isNotEmpty &&
-                                         !_divisionData!.divisionName.startsWith('Team:'))
-                                       Container(
-                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
-                                         decoration: BoxDecoration(
-                                           color: currentTheme.surfaceBg,
-                                           borderRadius: BorderRadius.circular(6),
-                                           border: Border.all(color: currentTheme.goldAccent.withValues(alpha: 0.5), width: 1),
-                                         ),
-                                         child: Row(
-                                           mainAxisSize: MainAxisSize.min,
-                                           children: [
-                                             Icon(Icons.emoji_events, size: 14, color: currentTheme.goldAccent),
-                                             const SizedBox(width: 5),
-                                             Text(
-                                               'DIVISION: ${_divisionData!.divisionName.toUpperCase()}',
-                                               style: TextStyle(
-                                                 fontSize: 11,
-                                                 fontWeight: FontWeight.w900,
-                                                 color: currentTheme.goldAccent,
-                                                 letterSpacing: 0.5,
-                                               ),
-                                             ),
-                                           ],
-                                         ),
-                                       ),
-
-                                    // Season Badge
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.darkBg,
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: AppTheme.cardBorder),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.calendar_month, size: 13, color: AppTheme.goldAccent),
-                                          SizedBox(width: 5),
-                                          Text(
+                                          child: Text(
                                             'SEASON: $_selectedSeason',
                                             style: TextStyle(
                                               fontSize: 11,
@@ -672,203 +1007,169 @@ class _HomeViewState extends State<HomeView> {
                                               color: AppTheme.textPrimary,
                                             ),
                                           ),
-                                        ],
+                                        ),
+                                        if (_divisionData?.standings != null &&
+                                            _divisionData!.standings.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.emeraldAccent
+                                                  .withValues(alpha: 0.18),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: AppTheme.emeraldAccent
+                                                    .withValues(alpha: 0.5),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '${_divisionData!.standings.length} TEAMS',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.emeraldAccent,
+                                              ),
+                                            ),
+                                          ),
+                                        if (_divisionData?.fixtures != null &&
+                                            _divisionData!.fixtures.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.goldAccent
+                                                  .withValues(alpha: 0.18),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: AppTheme.goldAccent
+                                                    .withValues(alpha: 0.5),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '${_divisionData!.fixtures.length} MATCHES',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.goldAccent,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppTheme.goldAccent,
+                                      side: BorderSide(
+                                        color: AppTheme.goldAccent,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                    icon: Icon(
+                                      Icons.swap_horiz,
+                                      size: 16,
+                                      color: AppTheme.goldAccent,
+                                    ),
+                                    label: Text(
+                                      'Change Division',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    onPressed: _openDivisionsDirectory,
+                                  ),
+                                ],
                               ),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppTheme.textPrimary,
-                                  side: BorderSide(color: AppTheme.cardBorder),
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+
+                          // View Selection 2-Tab Bar (Standings vs Fixtures)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppTheme.darkBg,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppTheme.cardBorder),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildTabButton(
+                                  'Standings',
+                                  'League Standings',
+                                  Icons.table_chart,
+                                  currentTheme,
                                 ),
-                                icon: Icon(Icons.close, size: 14, color: AppTheme.rubyAccent),
-                                label: Text('Clear Team Filter', style: TextStyle(fontSize: 12)),
-                                onPressed: () {
+                                const SizedBox(width: 4),
+                                _buildTabButton(
+                                  'Fixtures',
+                                  'Fixtures & Results',
+                                  Icons.event,
+                                  currentTheme,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Main Content Area (100% Full Width Rendering per Tab)
+                          if (_activeTab == 'Fixtures')
+                            SizedBox(
+                              width: double.infinity,
+                              child: FixtureList(
+                                fixtures: _divisionData?.fixtures ?? [],
+                                isAdmin: _isAdmin,
+                                filterTeam: _searchController.text.trim(),
+                                logoProvider: _getTeamLogo,
+                                onTeamSelected: (team) {
+                                  setState(() {
+                                    _searchController.text = team;
+                                  });
+                                  _loadData(queryTeam: team);
+                                },
+                                onClearTeamFilter: () {
                                   setState(() {
                                     _searchController.clear();
                                   });
                                   _loadData();
                                 },
+                                onEditFixture: (f) =>
+                                    _openAddFixtureDialog(existing: f),
+                                onDeleteFixture: _deleteFixture,
                               ),
-                            ],
-                          ),
-                        )
-                      else if (_selectedDivision != 'ALL / Select Division')
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.goldAccent.withValues(alpha: 0.18),
-                                AppTheme.emeraldAccent.withValues(alpha: 0.12),
-                              ],
+                            )
+                          else
+                            SizedBox(
+                              width: double.infinity,
+                              child: StandingsTable(
+                                standings: _divisionData?.standings ?? [],
+                                highlightedTeam: _searchController.text.trim(),
+                                logoProvider: _getTeamLogo,
+                                onTeamSelected: (team) {
+                                  setState(() {
+                                    _searchController.text = team;
+                                  });
+                                  _loadData(queryTeam: team);
+                                },
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.goldAccent, width: 1.5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 12,
-                                  runSpacing: 6,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.emoji_events, color: AppTheme.goldAccent, size: 20),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'SELECTED DIVISION CONTEXT: ${_selectedDivision.toUpperCase()}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w900,
-                                            color: AppTheme.goldAccent,
-                                            letterSpacing: 1.1,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.darkBg,
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: AppTheme.cardBorder),
-                                      ),
-                                      child: Text(
-                                        'SEASON: $_selectedSeason',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppTheme.textPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                    if (_divisionData?.standings != null && _divisionData!.standings.isNotEmpty)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.emeraldAccent.withValues(alpha: 0.18),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: AppTheme.emeraldAccent.withValues(alpha: 0.5)),
-                                        ),
-                                        child: Text(
-                                          '${_divisionData!.standings.length} TEAMS',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.emeraldAccent,
-                                          ),
-                                        ),
-                                      ),
-                                    if (_divisionData?.fixtures != null && _divisionData!.fixtures.isNotEmpty)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.goldAccent.withValues(alpha: 0.18),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5)),
-                                        ),
-                                        child: Text(
-                                          '${_divisionData!.fixtures.length} MATCHES',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.goldAccent,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppTheme.goldAccent,
-                                  side: BorderSide(color: AppTheme.goldAccent),
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: Icon(Icons.swap_horiz, size: 16, color: AppTheme.goldAccent),
-                                label: Text('Change Division', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                onPressed: _openDivisionsDirectory,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      // View Selection 2-Tab Bar (Standings vs Fixtures)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.darkBg,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.cardBorder),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildTabButton('Standings', 'League Standings', Icons.table_chart, currentTheme),
-                            const SizedBox(width: 4),
-                            _buildTabButton('Fixtures', 'Fixtures & Results', Icons.event, currentTheme),
-                          ],
-                        ),
+                        ],
                       ),
-
-                      // Main Content Area (100% Full Width Rendering per Tab)
-                      if (_activeTab == 'Fixtures')
-                        SizedBox(
-                          width: double.infinity,
-                          child: FixtureList(
-                            fixtures: _divisionData?.fixtures ?? [],
-                            isAdmin: _isAdmin,
-                            filterTeam: _searchController.text.trim(),
-                            logoProvider: _getTeamLogo,
-                            onTeamSelected: (team) {
-                              setState(() {
-                                _searchController.text = team;
-                              });
-                              _loadData(queryTeam: team);
-                            },
-                            onClearTeamFilter: () {
-                              setState(() {
-                                _searchController.clear();
-                              });
-                              _loadData();
-                            },
-                            onEditFixture: (f) => _openAddFixtureDialog(existing: f),
-                            onDeleteFixture: _deleteFixture,
-                          ),
-                        )
-                      else
-                        SizedBox(
-                          width: double.infinity,
-                          child: StandingsTable(
-                            standings: _divisionData?.standings ?? [],
-                            highlightedTeam: _searchController.text.trim(),
-                            logoProvider: _getTeamLogo,
-                            onTeamSelected: (team) {
-                              setState(() {
-                                _searchController.text = team;
-                              });
-                              _loadData(queryTeam: team);
-                            },
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
         );
       },
     );
@@ -877,7 +1178,9 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _openDivisionsDirectory() async {
     Map<String, int?> divisionIds = {};
     try {
-      final catalog = await SupabaseService.fetchDivisionsCatalog(season: _selectedSeason);
+      final catalog = await SupabaseService.fetchDivisionsCatalog(
+        season: _selectedSeason,
+      );
       divisionIds = {
         for (final row in catalog)
           (row['division_name'] ?? '').toString().toLowerCase().trim():
@@ -921,18 +1224,15 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _openThemeSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => const ThemeSelectorDialog(),
-    );
+    showDialog(context: context, builder: (_) => const ThemeSelectorDialog());
   }
 
   void _toggleAdmin() {
     if (_isAdmin) {
       setState(() => _isAdmin = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logged out of Admin Mode')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Logged out of Admin Mode')));
     } else {
       showDialog(
         context: context,
@@ -944,7 +1244,9 @@ class _HomeViewState extends State<HomeView> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Admin Mode Authenticated Successfully! You can now add friendly fixtures and upload logos.'),
+                    content: Text(
+                      'Admin Mode Authenticated Successfully! You can now add friendly fixtures and upload logos.',
+                    ),
                     backgroundColor: AppTheme.emeraldAccent,
                   ),
                 );
@@ -974,7 +1276,9 @@ class _HomeViewState extends State<HomeView> {
 
   void _openAddFixtureDialog({Fixture? existing}) {
     final activeTeam = _searchController.text.trim();
-    final activeRfuId = activeTeam.isNotEmpty ? RfuTeamRegistry.lookupTeamId(activeTeam) : null;
+    final activeRfuId = activeTeam.isNotEmpty
+        ? RfuTeamRegistry.lookupTeamId(activeTeam)
+        : null;
 
     showDialog(
       context: context,
@@ -989,13 +1293,17 @@ class _HomeViewState extends State<HomeView> {
             await SupabaseService.addCustomFixture(fixture, _selectedDivision);
           }
           if (mounted) {
-            final typeLabel = fixture.competition.toLowerCase().contains('cup') ? 'Cup fixture' : 'Friendly fixture';
+            final typeLabel = fixture.competition.toLowerCase().contains('cup')
+                ? 'Cup fixture'
+                : 'Friendly fixture';
             setState(() {
               _activeTab = 'Fixtures';
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('$typeLabel between ${fixture.homeTeam} and ${fixture.awayTeam} saved!'),
+                content: Text(
+                  '$typeLabel between ${fixture.homeTeam} and ${fixture.awayTeam} saved!',
+                ),
                 backgroundColor: AppTheme.emeraldAccent,
               ),
             );
@@ -1036,7 +1344,9 @@ class _HomeViewState extends State<HomeView> {
       context: context,
       builder: (_) => LogoUploadDialog(
         availableTeams: teamList,
-        initialTeam: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+        initialTeam: _searchController.text.trim().isNotEmpty
+            ? _searchController.text.trim()
+            : null,
         onUploaded: (teamName, logoUrl) {
           setState(() {
             _customLogosMap[teamName.toLowerCase()] = logoUrl;
@@ -1051,8 +1361,6 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-
-
 
   void _openBookletPrint() {
     if (_divisionData == null) return;
@@ -1086,7 +1394,11 @@ class _HomeViewState extends State<HomeView> {
                 color: theme.goldAccent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.sports_rugby, color: theme.goldAccent, size: 44),
+              child: Icon(
+                Icons.sports_rugby,
+                color: theme.goldAccent,
+                size: 44,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -1102,7 +1414,11 @@ class _HomeViewState extends State<HomeView> {
             Text(
               'Select an RFU Division or search for a Team above to view live standings, fixtures, and results.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: theme.textMuted, fontSize: 14, height: 1.5),
+              style: TextStyle(
+                color: theme.textMuted,
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -1114,22 +1430,42 @@ class _HomeViewState extends State<HomeView> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.goldAccent,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   icon: const Icon(Icons.search, size: 18),
-                  label: const Text('Search RFU Team', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'Search RFU Team',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   onPressed: _openTeamsDirectory,
                 ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.goldAccent,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  icon: const Icon(Icons.emoji_events, size: 18, color: Colors.black),
-                  label: const Text('Browse Divisions', style: TextStyle(fontWeight: FontWeight.bold)),
+                  icon: const Icon(
+                    Icons.emoji_events,
+                    size: 18,
+                    color: Colors.black,
+                  ),
+                  label: const Text(
+                    'Browse Divisions',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   onPressed: _openDivisionsDirectory,
                 ),
               ],

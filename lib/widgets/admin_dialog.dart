@@ -26,7 +26,13 @@ class _AdminDialogState extends State<AdminDialog> {
         children: [
           Icon(Icons.admin_panel_settings, color: AppTheme.goldAccent),
           SizedBox(width: 10),
-          Text('Admin Mode Authentication', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18)),
+          Flexible(
+            child: Text(
+              'Admin Mode Authentication',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 18),
+            ),
+          ),
         ],
       ),
       content: Column(
@@ -50,7 +56,11 @@ class _AdminDialogState extends State<AdminDialog> {
               hintText: '',
               filled: true,
               fillColor: AppTheme.darkBg,
-              prefixIcon: Icon(Icons.lock, color: AppTheme.goldAccent, size: 18),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: AppTheme.goldAccent,
+                size: 18,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: AppTheme.cardBorder),
@@ -73,12 +83,24 @@ class _AdminDialogState extends State<AdminDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.goldAccent,
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: _isLoading ? null : _submit,
           child: _isLoading
-              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-              : const Text('Authenticate', style: TextStyle(fontWeight: FontWeight.bold)),
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.black,
+                  ),
+                )
+              : const Text(
+                  'Authenticate',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
         ),
       ],
     );

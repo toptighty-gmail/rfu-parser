@@ -5,7 +5,7 @@ class RfuTeamRegistry {
     'plymstock oaks colts': 16979,
     'plymstock': 16976,
     'plymstock albion oaks': 16976,
-    
+
     'opms': 15907,
     'opms ii': 15907,
     'opm': 15907,
@@ -14,7 +14,7 @@ class RfuTeamRegistry {
     'old plymothian & mannamedians': 15907,
     'old plymothian & mannamedian ii': 15907,
     'old plymothian': 15907,
-    
+
     'withycombe': 25785,
     'honiton': 10355,
     'south molton': 19624,
@@ -50,7 +50,7 @@ class RfuTeamRegistry {
     'plymouth albion': 2004,
     'saltash': 18500,
     'saltash ii': 18501,
-    
+
     'bath rugby': 42,
     'exeter chiefs': 41,
     'bristol bears': 43,
@@ -71,60 +71,100 @@ class RfuTeamRegistry {
     'chinnor': 4817,
   };
 
+  /// The authoritative source of team IDs: loaded at app startup from the
+  /// real `teams` table in Supabase (1500+ teams), which the hardcoded map
+  /// above predates and only ever covered a small hand-picked subset of.
+  /// That map above remains as an instant-available fallback for the brief
+  /// window before this finishes loading.
+  static Map<String, int> _dbTeamToId = {};
+
+  static void loadDatabaseTeams(Map<String, int> teamIdsByName) {
+    _dbTeamToId = teamIdsByName;
+  }
+
   /// Normalizes any team name variation to its canonical user-facing display name.
   /// Converts "Old Plymothian & Mannamedian" -> "OPMs", and 2nd team -> "OPMs II".
   static String normalizeTeamName(String teamName) {
     final clean = teamName.trim();
     if (clean.isEmpty) return clean;
     final lower = clean.toLowerCase();
-    
+
     if (lower.contains('old plymothian') || lower.contains('old plymothians')) {
-      if (lower.contains('ii') || lower.contains('2nd') || lower.contains('seconds')) {
+      if (lower.contains('ii') ||
+          lower.contains('2nd') ||
+          lower.contains('seconds')) {
         return 'OPMs II';
       }
       return 'OPMs';
     }
     if (lower == 'opm') return 'OPMs';
-    if (lower == 'opm ii' || lower == 'opm 2nd' || lower == 'opms 2nd') return 'OPMs II';
+    if (lower == 'opm ii' || lower == 'opm 2nd' || lower == 'opms 2nd')
+      return 'OPMs II';
     return clean;
   }
 
   static List<String> get allKnownTeamNames {
-    return _teamToId.keys.map((k) {
-      final normalized = normalizeTeamName(k);
-      if (normalized == 'OPMs' || normalized == 'OPMs II') return normalized;
-      // Title Case formatting
-      return k.split(' ').map((word) {
-        if (word == 'ii') return 'II';
-        if (word == 'iii') return 'III';
-        if (word == 'iv') return 'IV';
-        if (word == '&') return '&';
-        if (word.isEmpty) return '';
-        return word[0].toUpperCase() + word.substring(1);
-      }).join(' ');
-    }).toSet().toList();
+    return _teamToId.keys
+        .map((k) {
+          final normalized = normalizeTeamName(k);
+          if (normalized == 'OPMs' || normalized == 'OPMs II')
+            return normalized;
+          // Title Case formatting
+          return k
+              .split(' ')
+              .map((word) {
+                if (word == 'ii') return 'II';
+                if (word == 'iii') return 'III';
+                if (word == 'iv') return 'IV';
+                if (word == '&') return '&';
+                if (word.isEmpty) return '';
+                return word[0].toUpperCase() + word.substring(1);
+              })
+              .join(' ');
+        })
+        .toSet()
+        .toList();
   }
 
-  /// Returns the canonical RFU Team ID for a club name
+  /// Returns the canonical RFU Team ID for a club name. Checks the
+  /// database-loaded map first (authoritative, ~1500+ teams), falling back
+  /// to the small hardcoded map above for the brief window before that
+  /// finishes loading (or if Supabase is unreachable).
   static int? lookupTeamId(String teamName) {
     if (teamName.trim().isEmpty) return null;
     final clean = teamName.trim().toLowerCase();
-    
+
     // 1. Direct match
+    if (_dbTeamToId.containsKey(clean)) {
+      return _dbTeamToId[clean];
+    }
     if (_teamToId.containsKey(clean)) {
       return _teamToId[clean];
     }
-    
+
     // 2. Substring match
+    for (var entry in _dbTeamToId.entries) {
+      if (clean.contains(entry.key) || entry.key.contains(clean)) {
+        return entry.value;
+      }
+    }
     for (var entry in _teamToId.entries) {
       if (clean.contains(entry.key) || entry.key.contains(clean)) {
         return entry.value;
       }
     }
-    
+
     // 3. Significant word token match
-    final words = clean.split(RegExp(r'\s+')).where((w) => w.length > 3).toList();
+    final words = clean
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 3)
+        .toList();
     for (var word in words) {
+      for (var entry in _dbTeamToId.entries) {
+        if (entry.key.contains(word)) {
+          return entry.value;
+        }
+      }
       for (var entry in _teamToId.entries) {
         if (entry.key.contains(word)) {
           return entry.value;

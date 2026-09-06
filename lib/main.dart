@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'config/supabase_config.dart';
 import 'services/supabase_service.dart';
@@ -11,13 +12,28 @@ void main() async {
   await AppTheme.initTheme();
 
   // Initialize Supabase client
-  const String envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  const String envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  const String envUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: '',
+  );
+  const String envAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  );
 
-  final String supabaseUrl = envUrl.isNotEmpty ? envUrl : SupabaseConfig.fallbackUrl;
-  final String supabaseAnonKey = envAnonKey.isNotEmpty ? envAnonKey : SupabaseConfig.fallbackAnonKey;
+  final String supabaseUrl = envUrl.isNotEmpty
+      ? envUrl
+      : SupabaseConfig.fallbackUrl;
+  final String supabaseAnonKey = envAnonKey.isNotEmpty
+      ? envAnonKey
+      : SupabaseConfig.fallbackAnonKey;
 
   await SupabaseService.init(url: supabaseUrl, anonKey: supabaseAnonKey);
+
+  // Fire-and-forget: loads the full team ID registry from Supabase in the
+  // background so it's ready well before any dialog needs it, without
+  // delaying first paint.
+  unawaited(SupabaseService.loadTeamIdRegistry());
 
   runApp(const RFUHubApp());
 }

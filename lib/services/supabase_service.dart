@@ -628,6 +628,32 @@ class SupabaseService {
     }
   }
 
+  /// Loads the full team_name -> rfu_team_id map from the `teams` table and
+  /// hands it to [RfuTeamRegistry], which is the authoritative source for ID
+  /// lookups used throughout the app (display brackets, custom fixture IDs,
+  /// team matching). Meant to be called once at startup; safe to call again
+  /// (e.g. after a resync) since it just replaces the registry's cached map.
+  static Future<void> loadTeamIdRegistry() async {
+    final client = _client;
+    if (client == null) return;
+    try {
+      final response = await client
+          .from('teams')
+          .select('team_name, rfu_team_id');
+      final map = <String, int>{};
+      for (final row in (response as List)) {
+        final name = row['team_name']?.toString().trim().toLowerCase();
+        final id = row['rfu_team_id'];
+        if (name != null && name.isNotEmpty && id is int) {
+          map[name] = id;
+        }
+      }
+      RfuTeamRegistry.loadDatabaseTeams(map);
+    } catch (e) {
+      debugPrint('Error loading team ID registry from Supabase: $e');
+    }
+  }
+
   static List<String> _cachedDistinctTeams = [];
 
   static Future<List<String>> fetchAllDistinctTeams() async {

@@ -181,8 +181,21 @@ class _HomeViewState extends State<HomeView> {
       season: _selectedSeason,
     );
 
-    // 2. Secondary: Crawl live RFU web data if not cached in Supabase
-    if (data == null || data.standings.isEmpty) {
+    // A cached division is treated as stale - and worth a live re-crawl - once
+    // its standings haven't been refreshed in a while, so results for recent
+    // matches (e.g. a Friday-night fixture) don't sit unrefreshed indefinitely
+    // just because *some* standings row already exists for that division.
+    const staleAfter = Duration(hours: 3);
+    final isStale =
+        data != null &&
+        data.standings.isNotEmpty &&
+        (data.lastSyncedAt == null ||
+            DateTime.now().difference(data.lastSyncedAt!) > staleAfter);
+
+    // 2. Secondary: Crawl live RFU web data if not cached in Supabase, or if
+    // the cached copy is stale (falls back to the stale data below if this
+    // live crawl fails, rather than losing it).
+    if (data == null || data.standings.isEmpty || isStale) {
       final crawledData = await ApiService.crawlAndSyncLiveRFUData(
         division: targetTeam == null ? targetDivision : null,
         team: targetTeam,

@@ -27,7 +27,10 @@ class SupabaseService {
     await _loadFromLocalCache();
 
     const envUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-    const envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+    const envAnonKey = String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
+      defaultValue: '',
+    );
 
     final resolvedUrl = (url != null && url.isNotEmpty)
         ? url
@@ -45,12 +48,16 @@ class SupabaseService {
         );
         _client = Supabase.instance.client;
         _initialized = true;
-        debugPrint('Supabase successfully initialized with project: $resolvedUrl');
+        debugPrint(
+          'Supabase successfully initialized with project: $resolvedUrl',
+        );
       } catch (e) {
         debugPrint('Supabase init error (using offline fallback): $e');
       }
     } else {
-      debugPrint('Supabase credentials not configured. Operating in offline/local persistence mode.');
+      debugPrint(
+        'Supabase credentials not configured. Operating in offline/local persistence mode.',
+      );
     }
   }
 
@@ -62,13 +69,15 @@ class SupabaseService {
   static Future<void> _loadFromLocalCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final fixturesJson = prefs.getString(_kLocalFixturesKey);
       if (fixturesJson != null && fixturesJson.isNotEmpty) {
         final List decoded = json.decode(fixturesJson);
         _localCustomFixtures.clear();
         for (var item in decoded) {
-          _localCustomFixtures.add(Fixture.fromJson(Map<String, dynamic>.from(item)));
+          _localCustomFixtures.add(
+            Fixture.fromJson(Map<String, dynamic>.from(item)),
+          );
         }
       }
 
@@ -114,7 +123,9 @@ class SupabaseService {
           .from('competitions')
           .select()
           .order('rfu_competition_id', ascending: true);
-      return (response as List).map((row) => Competition.fromJson(row)).toList();
+      return (response as List)
+          .map((row) => Competition.fromJson(row))
+          .toList();
     } catch (e) {
       debugPrint('Error fetching competitions from Supabase: $e');
       return [];
@@ -129,15 +140,23 @@ class SupabaseService {
     final client = _client;
     if (client == null) return [];
     try {
-      dynamic filter = client.from('divisions').select('id, division_name, rfu_competition_id, rfu_division_id, tier_level, region, season');
+      dynamic filter = client
+          .from('divisions')
+          .select(
+            'id, division_name, rfu_competition_id, rfu_division_id, tier_level, region, season',
+          );
       if (competitionId != null) {
         filter = filter.eq('rfu_competition_id', competitionId);
       }
       if (tierLevel != null) {
         filter = filter.eq('tier_level', tierLevel);
       }
-      final response = await filter.eq('season', season).order('division_name', ascending: true);
-      return (response as List).map((r) => Map<String, dynamic>.from(r)).toList();
+      final response = await filter
+          .eq('season', season)
+          .order('division_name', ascending: true);
+      return (response as List)
+          .map((r) => Map<String, dynamic>.from(r))
+          .toList();
     } catch (e) {
       debugPrint('Error fetching divisions catalog from Supabase: $e');
       return [];
@@ -153,7 +172,9 @@ class SupabaseService {
         filter = filter.eq('county', county);
       }
       final response = await filter.order('team_name', ascending: true);
-      return (response as List).map((r) => Map<String, dynamic>.from(r)).toList();
+      return (response as List)
+          .map((r) => Map<String, dynamic>.from(r))
+          .toList();
     } catch (e) {
       debugPrint('Error fetching teams from Supabase: $e');
       return [];
@@ -162,7 +183,11 @@ class SupabaseService {
 
   // --- Custom Fixtures CRUD ---
 
-  static Future<List<Fixture>> fetchCustomFixtures({String? division, String? team, String? season}) async {
+  static Future<List<Fixture>> fetchCustomFixtures({
+    String? division,
+    String? team,
+    String? season,
+  }) async {
     if (_localCustomFixtures.isEmpty) {
       await _loadFromLocalCache();
     }
@@ -175,8 +200,10 @@ class SupabaseService {
             .from('custom_fixtures')
             .select()
             .order('created_at', ascending: true);
-        
-        final remote = (response as List).map((row) => Fixture.fromJson(row)).toList();
+
+        final remote = (response as List)
+            .map((row) => Fixture.fromJson(row))
+            .toList();
         _localCustomFixtures.clear();
         _localCustomFixtures.addAll(remote);
         await _saveLocalFixturesCache();
@@ -212,7 +239,7 @@ class SupabaseService {
 
         // 3. Fallback: Check home/away team with strict squad matching
         return FixtureList.isExactTeamMatch(f.homeTeam, cleanTeam) ||
-               FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
+            FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
       }();
       if (!matchesTeam) return false;
 
@@ -221,14 +248,21 @@ class SupabaseService {
       // up regardless of which season is currently selected. Bucket them by
       // their own match date instead.
       if (cleanSeason != null && cleanSeason.isNotEmpty) {
-        return fixtures_util.isDateInSeason(fixtures_util.parseFixtureDate(f), cleanSeason);
+        return fixtures_util.isDateInSeason(
+          fixtures_util.parseFixtureDate(f),
+          cleanSeason,
+        );
       }
       return true;
     }).toList();
   }
 
-  static Future<Fixture?> addCustomFixture(Fixture fixture, String division) async {
-    final generatedId = fixture.id ?? 'cust_${DateTime.now().millisecondsSinceEpoch}';
+  static Future<Fixture?> addCustomFixture(
+    Fixture fixture,
+    String division,
+  ) async {
+    final generatedId =
+        fixture.id ?? 'cust_${DateTime.now().millisecondsSinceEpoch}';
     final customFix = Fixture(
       id: generatedId,
       date: fixture.date,
@@ -272,9 +306,17 @@ class SupabaseService {
     final client = _client;
     if (client != null) {
       try {
-        final hId = fixture.homeTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.homeTeam);
-        final aId = fixture.awayTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.awayTeam);
-        final ctxId = fixture.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(fixture.contextTeam ?? fixture.homeTeam);
+        final hId =
+            fixture.homeTeamId ??
+            RfuTeamRegistry.lookupTeamId(fixture.homeTeam);
+        final aId =
+            fixture.awayTeamId ??
+            RfuTeamRegistry.lookupTeamId(fixture.awayTeam);
+        final ctxId =
+            fixture.rfuTeamId ??
+            RfuTeamRegistry.lookupTeamId(
+              fixture.contextTeam ?? fixture.homeTeam,
+            );
 
         final payload = {
           'division': division,
@@ -297,9 +339,15 @@ class SupabaseService {
 
         dynamic response;
         try {
-          response = await client.from('custom_fixtures').insert(payload).select().single();
+          response = await client
+              .from('custom_fixtures')
+              .insert(payload)
+              .select()
+              .single();
         } catch (insertErr) {
-          debugPrint('Primary insert failed, retrying with safe fields: $insertErr');
+          debugPrint(
+            'Primary insert failed, retrying with safe fields: $insertErr',
+          );
           final safePayload = {
             'division': division,
             'date': fixture.date,
@@ -315,7 +363,11 @@ class SupabaseService {
             'context_team': fixture.contextTeam ?? fixture.homeTeam,
             'created_at': DateTime.now().toIso8601String(),
           };
-          response = await client.from('custom_fixtures').insert(safePayload).select().single();
+          response = await client
+              .from('custom_fixtures')
+              .insert(safePayload)
+              .select()
+              .single();
         }
 
         final remoteFixture = Fixture.fromJson(response);
@@ -347,7 +399,10 @@ class SupabaseService {
       fixtureId = arg1;
       final idx = _localCustomFixtures.indexWhere((f) => f.id == fixtureId);
       if (idx != -1) {
-        final merged = Fixture.fromJson({..._localCustomFixtures[idx].toJson(), ...arg2});
+        final merged = Fixture.fromJson({
+          ..._localCustomFixtures[idx].toJson(),
+          ...arg2,
+        });
         _localCustomFixtures[idx] = merged;
         updatedFixture = merged;
         await _saveLocalFixturesCache();
@@ -367,10 +422,20 @@ class SupabaseService {
     if (fixtureId != null && updatedFixture != null) {
       final hScore = updatedFixture.homeScore;
       final aScore = updatedFixture.awayScore;
-      final scoreStr = (hScore != null && aScore != null) ? '$hScore - $aScore' : 'v';
-      final hId = updatedFixture.homeTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.homeTeam);
-      final aId = updatedFixture.awayTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.awayTeam);
-      final ctxId = updatedFixture.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(updatedFixture.contextTeam ?? updatedFixture.homeTeam);
+      final scoreStr = (hScore != null && aScore != null)
+          ? '$hScore - $aScore'
+          : 'v';
+      final hId =
+          updatedFixture.homeTeamId ??
+          RfuTeamRegistry.lookupTeamId(updatedFixture.homeTeam);
+      final aId =
+          updatedFixture.awayTeamId ??
+          RfuTeamRegistry.lookupTeamId(updatedFixture.awayTeam);
+      final ctxId =
+          updatedFixture.rfuTeamId ??
+          RfuTeamRegistry.lookupTeamId(
+            updatedFixture.contextTeam ?? updatedFixture.homeTeam,
+          );
 
       final dbPayload = <String, dynamic>{
         'date': updatedFixture.date,
@@ -380,7 +445,8 @@ class SupabaseService {
         'score': scoreStr,
         'status': updatedFixture.status,
         'notes': updatedFixture.venue,
-        if (updatedFixture.contextTeam != null) 'context_team': updatedFixture.contextTeam,
+        if (updatedFixture.contextTeam != null)
+          'context_team': updatedFixture.contextTeam,
         if (ctxId != null) 'rfu_team_id': ctxId,
         if (hId != null) 'home_team_id': hId,
         if (aId != null) 'away_team_id': aId,
@@ -395,10 +461,15 @@ class SupabaseService {
       final client = _client;
       if (client != null) {
         try {
-          await client.from('custom_fixtures').update(dbPayload).eq('id', fixtureId);
+          await client
+              .from('custom_fixtures')
+              .update(dbPayload)
+              .eq('id', fixtureId);
           return true;
         } catch (updateErr) {
-          debugPrint('Primary update failed, retrying with safe fields: $updateErr');
+          debugPrint(
+            'Primary update failed, retrying with safe fields: $updateErr',
+          );
           final safePayload = {
             'date': updatedFixture.date,
             'time': updatedFixture.time,
@@ -407,10 +478,14 @@ class SupabaseService {
             'score': scoreStr,
             'status': updatedFixture.status,
             'notes': updatedFixture.venue,
-            if (updatedFixture.contextTeam != null) 'context_team': updatedFixture.contextTeam,
+            if (updatedFixture.contextTeam != null)
+              'context_team': updatedFixture.contextTeam,
           };
           try {
-            await client.from('custom_fixtures').update(safePayload).eq('id', fixtureId);
+            await client
+                .from('custom_fixtures')
+                .update(safePayload)
+                .eq('id', fixtureId);
             return true;
           } catch (e) {
             debugPrint('Supabase safe update custom fixture error: $e');
@@ -447,12 +522,18 @@ class SupabaseService {
 
   // --- Team Logos Storage & Table Management ---
 
-  static Future<String?> uploadTeamLogo(String teamName, Uint8List fileBytes, String fileExtension) async {
+  static Future<String?> uploadTeamLogo(
+    String teamName,
+    Uint8List fileBytes,
+    String fileExtension,
+  ) async {
     final cleanExt = fileExtension.replaceAll('.', '').toLowerCase();
     final cleanTeamKey = teamName.trim().toLowerCase();
-    final sanitizedSlug = cleanTeamKey.replaceAll(RegExp(r'[^a-z0-9]+'), '_').replaceAll(RegExp(r'^_+|_+$'), '');
+    final sanitizedSlug = cleanTeamKey
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
     final fileName = '$sanitizedSlug.$cleanExt';
-    
+
     final client = _client;
     String chosenLogoUrl = '';
 
@@ -473,25 +554,32 @@ class SupabaseService {
         String? activeBucket;
         for (var b in bucketCandidates) {
           try {
-            await client.storage.from(b).uploadBinary(
-              fileName,
-              fileBytes,
-              fileOptions: FileOptions(
-                upsert: true,
-                contentType: cleanExt == 'svg' ? 'image/svg+xml' : 'image/$cleanExt',
-              ),
-            );
+            await client.storage
+                .from(b)
+                .uploadBinary(
+                  fileName,
+                  fileBytes,
+                  fileOptions: FileOptions(
+                    upsert: true,
+                    contentType: cleanExt == 'svg'
+                        ? 'image/svg+xml'
+                        : 'image/$cleanExt',
+                  ),
+                );
             activeBucket = b;
             break;
           } catch (_) {}
         }
 
         if (activeBucket != null) {
-          chosenLogoUrl = client.storage.from(activeBucket).getPublicUrl(fileName);
+          chosenLogoUrl = client.storage
+              .from(activeBucket)
+              .getPublicUrl(fileName);
         }
 
         if (chosenLogoUrl.isEmpty) {
-          chosenLogoUrl = 'https://tgexkxrhcyxvnqafbdff.supabase.co/storage/v1/object/public/rfu-parcer-team-logos/$fileName';
+          chosenLogoUrl =
+              'https://tgexkxrhcyxvnqafbdff.supabase.co/storage/v1/object/public/rfu-parcer-team-logos/$fileName';
         }
 
         await client.from('team_logos').upsert({
@@ -523,7 +611,9 @@ class SupabaseService {
     final client = _client;
     if (client == null) return logoMap;
     try {
-      final response = await client.from('team_logos').select('team_name, logo_url');
+      final response = await client
+          .from('team_logos')
+          .select('team_name, logo_url');
       for (var row in (response as List)) {
         final k = row['team_name'].toString().toLowerCase();
         final v = row['logo_url'].toString();
@@ -563,27 +653,36 @@ class SupabaseService {
       } catch (_) {}
 
       try {
-        final fixRes = await client.from('fixtures').select('home_team, away_team');
+        final fixRes = await client
+            .from('fixtures')
+            .select('home_team, away_team');
         for (var row in (fixRes as List)) {
           final h = row['home_team']?.toString().trim();
           final a = row['away_team']?.toString().trim();
-          if (h != null && h.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
-          if (a != null && a.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
+          if (h != null && h.isNotEmpty)
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
+          if (a != null && a.isNotEmpty)
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
         }
       } catch (_) {}
 
       try {
-        final custRes = await client.from('custom_fixtures').select('home_team, away_team');
+        final custRes = await client
+            .from('custom_fixtures')
+            .select('home_team, away_team');
         for (var row in (custRes as List)) {
           final h = row['home_team']?.toString().trim();
           final a = row['away_team']?.toString().trim();
-          if (h != null && h.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
-          if (a != null && a.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
+          if (h != null && h.isNotEmpty)
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
+          if (a != null && a.isNotEmpty)
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
         }
       } catch (_) {}
     }
 
-    final sorted = teamsSet.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final sorted = teamsSet.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     _cachedDistinctTeams = sorted;
     return sorted;
   }
@@ -607,16 +706,20 @@ class SupabaseService {
       final reg = divisionData.region as String?;
 
       // 1. Upsert Division
-      final divResponse = await client.from('divisions').upsert({
-        'division_name': divisionName,
-        'season': season,
-        'source_url': sourceUrl,
-        if (compId != null) 'rfu_competition_id': compId,
-        if (divIdNum != null) 'rfu_division_id': divIdNum,
-        if (tier != null) 'tier_level': tier,
-        if (reg != null) 'region': reg,
-        'updated_at': DateTime.now().toIso8601String(),
-      }, onConflict: 'division_name,season').select('id').single();
+      final divResponse = await client
+          .from('divisions')
+          .upsert({
+            'division_name': divisionName,
+            'season': season,
+            'source_url': sourceUrl,
+            if (compId != null) 'rfu_competition_id': compId,
+            if (divIdNum != null) 'rfu_division_id': divIdNum,
+            if (tier != null) 'tier_level': tier,
+            if (reg != null) 'region': reg,
+            'updated_at': DateTime.now().toIso8601String(),
+          }, onConflict: 'division_name,season')
+          .select('id')
+          .single();
 
       final divisionId = divResponse['id'] as String?;
       if (divisionId == null) return false;
@@ -625,7 +728,9 @@ class SupabaseService {
       final standings = divisionData.standings as List;
       if (standings.isNotEmpty) {
         final standingsPayload = standings.map((s) {
-          final tId = s.rfuTeamId ?? RfuTeamRegistry.lookupTeamId(s.teamName.toString());
+          final tId =
+              s.rfuTeamId ??
+              RfuTeamRegistry.lookupTeamId(s.teamName.toString());
           return {
             'division_id': divisionId,
             'position': s.pos,
@@ -645,14 +750,15 @@ class SupabaseService {
           };
         }).toList();
 
-        await client.from('standings').upsert(
-          standingsPayload,
-          onConflict: 'division_id,team_name',
-        );
+        await client
+            .from('standings')
+            .upsert(standingsPayload, onConflict: 'division_id,team_name');
       }
 
       // 3. Upsert Fixtures
-      final fixtures = (divisionData.fixtures as List).where((f) => f.isCustom != true).toList();
+      final fixtures = (divisionData.fixtures as List)
+          .where((f) => f.isCustom != true)
+          .toList();
       if (fixtures.isNotEmpty) {
         final fixturesPayload = fixtures.map((f) {
           final hId = f.homeTeamId ?? RfuTeamRegistry.lookupTeamId(f.homeTeam);
@@ -675,10 +781,12 @@ class SupabaseService {
           };
         }).toList();
 
-        await client.from('fixtures').upsert(
-          fixturesPayload,
-          onConflict: 'division_id,home_team,away_team,round_num',
-        );
+        await client
+            .from('fixtures')
+            .upsert(
+              fixturesPayload,
+              onConflict: 'division_id,home_team,away_team,round_num',
+            );
       }
 
       // 4. Auto-Sync discovered Team Logos into team_logos table
@@ -702,7 +810,9 @@ class SupabaseService {
         }
       }
 
-      debugPrint('Successfully synced $divisionName ($season) to Supabase tables.');
+      debugPrint(
+        'Successfully synced $divisionName ($season) to Supabase tables.',
+      );
       return true;
     } catch (e) {
       debugPrint('Error syncing division data to Supabase: $e');
@@ -732,7 +842,9 @@ class SupabaseService {
         final cleanTeam = team.trim();
         final standingsMatches = await client
             .from('standings')
-            .select('division_id, team_name, divisions!inner(id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region)')
+            .select(
+              'division_id, team_name, divisions!inner(id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region)',
+            )
             .eq('divisions.season', season)
             .ilike('team_name', '%$cleanTeam%');
 
@@ -740,7 +852,8 @@ class SupabaseService {
           dynamic bestMatch;
           // 1st Priority: Strict exact string match (e.g. "Brixham" == "Brixham", NOT "Brixham II")
           for (var match in standingsMatches) {
-            final tName = match['team_name']?.toString().trim().toLowerCase() ?? '';
+            final tName =
+                match['team_name']?.toString().trim().toLowerCase() ?? '';
             if (tName == cleanTeam.toLowerCase()) {
               bestMatch = match;
               break;
@@ -773,16 +886,23 @@ class SupabaseService {
       }
 
       // 2. If no team specified or not found in standings, resolve by division name
-      if (divId == null && division != null && division.trim().isNotEmpty && division != 'ALL / Select Division') {
+      if (divId == null &&
+          division != null &&
+          division.trim().isNotEmpty &&
+          division != 'ALL / Select Division') {
         // Use limit(1) instead of maybeSingle() to handle cases where multiple rows match
         final divRespList = await client
             .from('divisions')
-            .select('id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region')
+            .select(
+              'id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region',
+            )
             .ilike('division_name', '%${division.trim()}%')
             .eq('season', season)
             .limit(1);
 
-        final divResp = (divRespList as List).isNotEmpty ? divRespList.first : null;
+        final divResp = (divRespList as List).isNotEmpty
+            ? divRespList.first
+            : null;
 
         if (divResp != null) {
           divId = divResp['id'] as String?;
@@ -795,8 +915,11 @@ class SupabaseService {
 
           // STRICT SEASON GUARD: if the resolved division is from a different season, discard it
           final resolvedSeason = divResp['season'] as String?;
-          if (resolvedSeason != null && resolvedSeason.trim() != season.trim()) {
-            debugPrint('Season mismatch: found "$resolvedSeason" but want "$season" – discarding');
+          if (resolvedSeason != null &&
+              resolvedSeason.trim() != season.trim()) {
+            debugPrint(
+              'Season mismatch: found "$resolvedSeason" but want "$season" – discarding',
+            );
             divId = null;
           }
         }
@@ -815,14 +938,19 @@ class SupabaseService {
             .eq('division_id', divId)
             .order('date', ascending: true);
 
-        final standings = (standingsResp as List).map((row) => StandingEntry.fromJson(row)).toList();
-        final fixtures = (fixturesResp as List).map((row) => Fixture.fromJson(row)).toList();
+        final standings = (standingsResp as List)
+            .map((row) => StandingEntry.fromJson(row))
+            .toList();
+        final fixtures = (fixturesResp as List)
+            .map((row) => Fixture.fromJson(row))
+            .toList();
 
         fixtures.sort((a, b) {
           int extractRound(String r) {
             final m = RegExp(r'(\d+)').firstMatch(r);
             return m != null ? (int.tryParse(m.group(1)!) ?? 999) : 999;
           }
+
           final rA = extractRound(a.roundNum);
           final rB = extractRound(b.roundNum);
           if (rA != rB) return rA.compareTo(rB);
@@ -831,17 +959,31 @@ class SupabaseService {
 
         // CRITICAL: If source_url is null or empty, this division row was created by the offline
         // generator (not from a real RFU crawl). Discard it so we fall through to a live fetch.
-        final isValidSource = resolvedSourceUrl != null && 
-                              resolvedSourceUrl.trim().isNotEmpty && 
-                              resolvedSourceUrl.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+        final isValidSource =
+            resolvedSourceUrl != null &&
+            resolvedSourceUrl.trim().isNotEmpty &&
+            resolvedSourceUrl.trim() !=
+                'https://www.englandrugby.com/fixtures-and-results';
         if (!isValidSource) {
-          debugPrint('Discarding Supabase division "$resolvedDivisionName" ($season): source_url is invalid (offline-generated cache).');
+          debugPrint(
+            'Discarding Supabase division "$resolvedDivisionName" ($season): source_url is invalid (offline-generated cache).',
+          );
           return null;
         }
 
         if (standings.isNotEmpty || fixtures.isNotEmpty) {
+          DateTime? lastSyncedAt;
+          for (final row in standingsResp as List) {
+            final dt = DateTime.tryParse(row['updated_at']?.toString() ?? '');
+            if (dt != null &&
+                (lastSyncedAt == null || dt.isAfter(lastSyncedAt))) {
+              lastSyncedAt = dt;
+            }
+          }
+
           return DivisionData(
-            divisionName: resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),
+            divisionName:
+                resolvedDivisionName ?? (division ?? team ?? 'RFU Division'),
             season: season,
             rfuCompetitionId: resolvedCompId,
             rfuDivisionId: resolvedDivIdNum,
@@ -850,6 +992,7 @@ class SupabaseService {
             sourceUrl: resolvedSourceUrl,
             standings: standings,
             fixtures: fixtures,
+            lastSyncedAt: lastSyncedAt,
           );
         }
       }
@@ -865,11 +1008,36 @@ class SupabaseService {
     if (client == null) return [];
 
     final tables = [
-      {'name': 'divisions', 'display': 'Divisions & Leagues', 'timeCol': 'updated_at', 'icon': Icons.emoji_events},
-      {'name': 'standings', 'display': 'League Table Standings', 'timeCol': 'updated_at', 'icon': Icons.format_list_numbered},
-      {'name': 'fixtures', 'display': 'League Fixtures & Results', 'timeCol': 'updated_at', 'icon': Icons.sports_rugby},
-      {'name': 'custom_fixtures', 'display': 'Custom & Friendly Matches', 'timeCol': 'created_at', 'icon': Icons.edit_calendar},
-      {'name': 'team_logos', 'display': 'Club Badges & Logos', 'timeCol': 'updated_at', 'icon': Icons.shield},
+      {
+        'name': 'divisions',
+        'display': 'Divisions & Leagues',
+        'timeCol': 'updated_at',
+        'icon': Icons.emoji_events,
+      },
+      {
+        'name': 'standings',
+        'display': 'League Table Standings',
+        'timeCol': 'updated_at',
+        'icon': Icons.format_list_numbered,
+      },
+      {
+        'name': 'fixtures',
+        'display': 'League Fixtures & Results',
+        'timeCol': 'updated_at',
+        'icon': Icons.sports_rugby,
+      },
+      {
+        'name': 'custom_fixtures',
+        'display': 'Custom & Friendly Matches',
+        'timeCol': 'created_at',
+        'icon': Icons.edit_calendar,
+      },
+      {
+        'name': 'team_logos',
+        'display': 'Club Badges & Logos',
+        'timeCol': 'updated_at',
+        'icon': Icons.shield,
+      },
     ];
 
     List<TableMetric> metrics = [];
@@ -882,9 +1050,7 @@ class SupabaseService {
         final icon = t['icon'] as IconData;
 
         // 1. Exact record count
-        final int count = await client
-            .from(tName)
-            .count(CountOption.exact);
+        final int count = await client.from(tName).count(CountOption.exact);
 
         // 2. Latest updated_at or created_at timestamp
         final latestResp = await client
@@ -901,13 +1067,15 @@ class SupabaseService {
           }
         }
 
-        metrics.add(TableMetric(
-          tableName: tName,
-          displayName: tDisplay,
-          recordCount: count,
-          lastUpdated: lastUpdated,
-          icon: icon,
-        ));
+        metrics.add(
+          TableMetric(
+            tableName: tName,
+            displayName: tDisplay,
+            recordCount: count,
+            lastUpdated: lastUpdated,
+            icon: icon,
+          ),
+        );
       } catch (e) {
         debugPrint('Error fetching metric for ${t['name']}: $e');
       }
@@ -932,4 +1100,3 @@ class TableMetric {
     required this.icon,
   });
 }
-

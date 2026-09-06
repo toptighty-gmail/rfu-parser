@@ -11,9 +11,15 @@ class DivisionData {
   final List<StandingEntry> standings;
   final List<Fixture> fixtures;
   final String? sourceUrl;
+
   /// True when data was generated offline (not from Supabase or live RFU crawl).
   /// Offline-generated data must NEVER be persisted to Supabase.
   final bool isOfflineGenerated;
+
+  /// When this data was last synced from the RFU site into Supabase (the
+  /// most recent `updated_at` across its standings rows). Null when unknown
+  /// (e.g. offline-generated or freshly crawled data not yet round-tripped).
+  final DateTime? lastSyncedAt;
 
   DivisionData({
     required this.divisionName,
@@ -26,15 +32,18 @@ class DivisionData {
     required this.fixtures,
     this.sourceUrl,
     this.isOfflineGenerated = false,
+    this.lastSyncedAt,
   });
 
   factory DivisionData.fromJson(Map<String, dynamic> json) {
-    var standingsList = (json['standings'] as List<dynamic>?)
+    var standingsList =
+        (json['standings'] as List<dynamic>?)
             ?.map((e) => StandingEntry.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];
 
-    var fixturesList = (json['fixtures'] as List<dynamic>?)
+    var fixturesList =
+        (json['fixtures'] as List<dynamic>?)
             ?.map((e) => Fixture.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];
@@ -42,9 +51,15 @@ class DivisionData {
     return DivisionData(
       divisionName: json['division_name'] ?? json['division'] ?? 'RFU Division',
       season: json['season'] ?? '2025-2026',
-      rfuCompetitionId: json['rfu_competition_id'] != null ? int.tryParse(json['rfu_competition_id'].toString()) : null,
-      rfuDivisionId: json['rfu_division_id'] != null ? int.tryParse(json['rfu_division_id'].toString()) : null,
-      tierLevel: json['tier_level'] != null ? int.tryParse(json['tier_level'].toString()) : null,
+      rfuCompetitionId: json['rfu_competition_id'] != null
+          ? int.tryParse(json['rfu_competition_id'].toString())
+          : null,
+      rfuDivisionId: json['rfu_division_id'] != null
+          ? int.tryParse(json['rfu_division_id'].toString())
+          : null,
+      tierLevel: json['tier_level'] != null
+          ? int.tryParse(json['tier_level'].toString())
+          : null,
       region: json['region']?.toString(),
       standings: standingsList,
       fixtures: fixturesList,

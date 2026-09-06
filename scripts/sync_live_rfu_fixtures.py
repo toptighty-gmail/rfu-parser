@@ -43,11 +43,15 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
     soup = BeautifulSoup(r.text, 'html.parser')
 
     wrappers = soup.find_all(class_='resultWrapper')
-    fixtures_payload = []
+    raw_fixtures = []
 
-    for round_idx, w in enumerate(wrappers, start=1):
+    for w in wrappers:
         date_t = w.find(class_='coh-style-card-left-date')
         date_str = date_t.get_text(strip=True) if date_t else ''
+        try:
+            date_dt = datetime.strptime(date_str.split(',', 1)[-1].strip(), '%d %b %Y')
+        except Exception:
+            date_dt = datetime.min
 
         for card in w.find_all(class_='coh-style-card-scores'):
             h = card.find(class_='coh-style-hometeam')
@@ -107,7 +111,8 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
             hid = team_lookup.get(home_team.lower().strip())
             aid = team_lookup.get(away_team.lower().strip())
 
-            fixtures_payload.append({
+            raw_fixtures.append({
+                'date_dt': date_dt,
                 'division_id': db_div_id,
                 'home_team': home_team,
                 'away_team': away_team,
@@ -119,10 +124,40 @@ def sync_live_rfu_fixtures(comp_id=1699, div_id=75799, season='2026-2027', divis
                 'time': ko_time,
                 'status': status,
                 'venue': venue,
-                'round_num': f"Round {round_idx}",
                 'is_custom': False,
                 'updated_at': 'now()'
             })
+
+    # Assign round numbers by clustering match dates rather than by each
+    # fixture's page position - the RFU page can split one round's fixtures
+    # across multiple date-blocks (e.g. a lone Friday-night match separate
+    # from the rest of that round's Saturday fixtures), which would
+    # otherwise get miscounted as two different rounds and shift every
+    # later round number by one.
+    unique_dates = sorted({f['date_dt'] for f in raw_fixtures})
+    rounds = []
+    current_round_dates = []
+    for d in unique_dates:
+        if not current_round_dates:
+            current_round_dates.append(d)
+        elif (d - current_round_dates[0]).days <= 3:
+            current_round_dates.append(d)
+        else:
+            rounds.append(list(current_round_dates))
+            current_round_dates = [d]
+    if current_round_dates:
+        rounds.append(current_round_dates)
+
+    date_to_round = {}
+    for round_idx, round_dates in enumerate(rounds, start=1):
+        for rd in round_dates:
+            date_to_round[rd] = round_idx
+
+    fixtures_payload = []
+    for f in raw_fixtures:
+        round_idx = date_to_round.get(f.pop('date_dt'), 1)
+        f['round_num'] = f'Round {round_idx}'
+        fixtures_payload.append(f)
 
     if fixtures_payload:
         resp = requests.post(f'{SUPABASE_URL}/rest/v1/fixtures', headers=headers, json=fixtures_payload)

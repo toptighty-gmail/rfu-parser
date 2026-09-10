@@ -675,6 +675,22 @@ class SupabaseService {
 
     final client = _client;
     if (client != null) {
+      // The `teams` table (1500+ rows) is the canonical source used for
+      // rfu_team_id resolution (see loadTeamIdRegistry) - it carries every
+      // club's "II"/"III" sides explicitly, regardless of whether that side
+      // has appeared yet in a synced division's standings/fixtures. Query it
+      // directly so a team is selectable here as soon as it exists in
+      // `teams`, not only once some other table happens to reference it.
+      try {
+        final teamsRes = await client.from('teams').select('team_name');
+        for (var row in (teamsRes as List)) {
+          final name = row['team_name']?.toString().trim();
+          if (name != null && name.isNotEmpty) {
+            teamsSet.add(RfuTeamRegistry.normalizeTeamName(name));
+          }
+        }
+      } catch (_) {}
+
       try {
         final standingsRes = await client.from('standings').select('team_name');
         for (var row in (standingsRes as List)) {

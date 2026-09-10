@@ -386,28 +386,28 @@ class BookletPrintView extends StatelessWidget {
               borderRadius: pw.BorderRadius.circular(6),
               border: pw.Border.all(color: accentPdf, width: 1.2),
             ),
-            child: pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
               children: [
-                pw.Expanded(
-                  child: pw.Row(
-                    children: [
-                      if (isTeamFiltered) ...[
-                        pw.Container(
-                          margin: const pw.EdgeInsets.only(right: 10),
-                          child:
-                              (logoCache[filterTeam!.trim().toLowerCase()] ??
-                                      const PdfLogoItem())
-                                  .buildWidget(
-                                    filterTeam!,
-                                    size: 28,
-                                    fallbackBg: primaryPdf,
-                                    accentColor: accentPdf,
-                                  ),
-                        ),
-                      ],
-                      pw.Column(
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    if (isTeamFiltered) ...[
+                      pw.Container(
+                        margin: const pw.EdgeInsets.only(right: 10),
+                        child:
+                            (logoCache[filterTeam!.trim().toLowerCase()] ??
+                                    const PdfLogoItem())
+                                .buildWidget(
+                                  filterTeam!,
+                                  size: 28,
+                                  fallbackBg: primaryPdf,
+                                  accentColor: accentPdf,
+                                ),
+                      ),
+                    ],
+                    pw.Expanded(
+                      child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           pw.Text(
@@ -431,25 +431,29 @@ class BookletPrintView extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: pw.BoxDecoration(
-                    color: primaryPdf,
-                    borderRadius: pw.BorderRadius.circular(4),
-                    border: pw.Border.all(color: accentPdf),
-                  ),
-                  child: pw.Text(
-                    'Developed by Sean Cook 2026 use by permission only',
-                    style: pw.TextStyle(
-                      color: accentPdf,
-                      fontWeight: pw.FontWeight.bold,
-                      fontSize: 8.5,
+                pw.SizedBox(height: 6),
+                pw.Center(
+                  child: pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: pw.BoxDecoration(
+                      color: primaryPdf,
+                      borderRadius: pw.BorderRadius.circular(4),
+                      border: pw.Border.all(color: accentPdf),
+                    ),
+                    child: pw.Text(
+                      'Developed by Sean Cook 2026 use by permission only',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                        color: accentPdf,
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 8.5,
+                      ),
                     ),
                   ),
                 ),
@@ -1476,59 +1480,75 @@ class BookletPrintView extends StatelessWidget {
                                 width: 1.5,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (isTeamFiltered) ...[
-                                  _buildTeamLogo(filterTeam!, null, size: 36),
-                                  const SizedBox(width: 14),
-                                ],
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        divisionData.divisionName.toUpperCase(),
-                                        style: TextStyle(
-                                          color: theme.goldAccent,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 16,
-                                          letterSpacing: 0.5,
-                                        ),
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    if (isTeamFiltered) ...[
+                                      _buildTeamLogo(
+                                        filterTeam!,
+                                        null,
+                                        size: 36,
                                       ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        isTeamFiltered
-                                            ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
-                                            : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
-                                        style: TextStyle(
-                                          color: theme.textPrimary,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                      const SizedBox(width: 14),
                                     ],
-                                  ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            divisionData.divisionName
+                                                .toUpperCase(),
+                                            style: TextStyle(
+                                              color: theme.goldAccent,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 16,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            isTeamFiltered
+                                                ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
+                                                : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
+                                            style: TextStyle(
+                                              color: theme.textPrimary,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: theme.darkBg,
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: theme.goldAccent),
-                                  ),
-                                  child: Text(
-                                    'Developed by Sean Cook 2026 use by permission only',
-                                    style: TextStyle(
-                                      color: theme.goldAccent,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 10,
-                                      letterSpacing: 0.5,
+                                const SizedBox(height: 10),
+                                Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: theme.darkBg,
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                        color: theme.goldAccent,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Developed by Sean Cook 2026 use by permission only',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: theme.goldAccent,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 10,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
                                   ),
                                 ),

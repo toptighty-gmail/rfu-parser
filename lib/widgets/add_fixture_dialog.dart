@@ -598,6 +598,17 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
     );
   }
 
+  /// Rewrites ordinal-word team suffixes ("seconds", "2nd", "thirds"...) to
+  /// their roman-numeral equivalent ("ii", "iii"...) so a search for
+  /// "Club Seconds" also matches a database entry named "Club II".
+  static String _ordinalToRoman(String s) {
+    return s
+        .replaceAll(RegExp(r'\b(1st|firsts?)\b'), 'i')
+        .replaceAll(RegExp(r'\b(2nd|seconds?)\b'), 'ii')
+        .replaceAll(RegExp(r'\b(3rd|thirds?)\b'), 'iii')
+        .replaceAll(RegExp(r'\b(4th|fourths?)\b'), 'iv');
+  }
+
   Widget _buildTeamDropdownField({
     required String label,
     required TextEditingController controller,
@@ -613,8 +624,17 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           // If empty, suggest top 25 clubs in database
           return _databaseTeams.take(25);
         }
+        // Club 2nd/3rd teams are stored as "Club II"/"Club III" (per
+        // RfuTeamRegistry.normalizeTeamName), but people naturally search for
+        // "Club Seconds"/"Club 2nd" - normalize both sides so that still finds
+        // the "II" entry rather than coming back empty.
+        final normalizedQuery = _ordinalToRoman(query);
         return _databaseTeams
-            .where((team) => team.toLowerCase().contains(query))
+            .where(
+              (team) =>
+                  team.toLowerCase().contains(query) ||
+                  _ordinalToRoman(team.toLowerCase()).contains(normalizedQuery),
+            )
             .take(30);
       },
       optionsViewBuilder: (context, onSelected, options) {

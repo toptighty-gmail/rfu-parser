@@ -83,23 +83,31 @@ class RfuTeamRegistry {
   }
 
   /// Normalizes any team name variation to its canonical user-facing display name.
-  /// Converts "Old Plymothian & Mannamedian" -> "OPMs", and 2nd team -> "OPMs II".
+  /// The RFU site itself renders this club two different ways across its own
+  /// pages - "Old Plymothian & Mannamedian" on the standings table, "OPMs" on
+  /// fixture cards - which previously left "OPMs" and the full name as two
+  /// distinct team_name strings on the same fixture/standings row, since
+  /// nothing canonicalized the name before it reached the upsert conflict key.
+  /// The `teams` table (the authoritative 1500+ club registry) only has the
+  /// full name, so that's the canonical form both directions normalize to.
   static String normalizeTeamName(String teamName) {
     final clean = teamName.trim();
     if (clean.isEmpty) return clean;
     final lower = clean.toLowerCase();
 
-    if (lower.contains('old plymothian') || lower.contains('old plymothians')) {
+    if (lower.contains('old plymothian') ||
+        lower.contains('old plymothians') ||
+        lower == 'opm' ||
+        lower == 'opms' ||
+        lower.startsWith('opm ') ||
+        lower.startsWith('opms ')) {
       if (lower.contains('ii') ||
           lower.contains('2nd') ||
           lower.contains('seconds')) {
-        return 'OPMs II';
+        return 'Old Plymothian & Mannamedian II';
       }
-      return 'OPMs';
+      return 'Old Plymothian & Mannamedian';
     }
-    if (lower == 'opm') return 'OPMs';
-    if (lower == 'opm ii' || lower == 'opm 2nd' || lower == 'opms 2nd')
-      return 'OPMs II';
     return clean;
   }
 

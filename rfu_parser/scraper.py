@@ -13,6 +13,28 @@ DEFAULT_USER_AGENT = (
 )
 
 
+def _normalize_team_name(name: str) -> str:
+    """Canonicalizes team name spellings the RFU site itself renders
+    inconsistently across its own pages, so the same club always lands on the
+    same standings/fixtures row instead of splitting into duplicates keyed on
+    literal team_name text. Mirrors RfuTeamRegistry.normalizeTeamName on the
+    Dart side - keep the two in sync.
+    """
+    clean = (name or "").strip()
+    if not clean:
+        return clean
+    lower = clean.lower()
+
+    if ("old plymothian" in lower or "old plymothians" in lower
+            or lower == "opm" or lower == "opms"
+            or lower.startswith("opm ") or lower.startswith("opms ")):
+        if "ii" in lower or "2nd" in lower or "seconds" in lower:
+            return "Old Plymothian & Mannamedian II"
+        return "Old Plymothian & Mannamedian"
+
+    return clean
+
+
 def _team_suffix_signature(name: str) -> tuple:
     """Which numeral/qualifier suffix a (lowercased) team name carries.
 
@@ -969,7 +991,7 @@ class RFUParser:
                     standings_payload.append({
                         "division_id": division_id,
                         "position": s.position,
-                        "team_name": s.team_name,
+                        "team_name": _normalize_team_name(s.team_name),
                         "played": s.played,
                         "won": s.won,
                         "drawn": s.drawn,
@@ -997,8 +1019,8 @@ class RFUParser:
                         "division_id": division_id,
                         "date": f.date,
                         "time": f.time or "15:00",
-                        "home_team": f.home_team,
-                        "away_team": f.away_team,
+                        "home_team": _normalize_team_name(f.home_team),
+                        "away_team": _normalize_team_name(f.away_team),
                         "home_score": f.home_score,
                         "away_score": f.away_score,
                         "status": f.status or "Scheduled",

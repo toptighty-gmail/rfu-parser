@@ -312,20 +312,23 @@ def api_crawl():
 
     safe_print(f"Executing Live Web Crawl for Division: '{division}', Team: '{team}', Season: '{season}'")
 
+    supabase_url = os.environ.get("SUPABASE_URL", "")
+    supabase_key = os.environ.get("SUPABASE_ANON_KEY", os.environ.get("SUPABASE_KEY", ""))
+
     try:
         if team:
             crawled_data = rfu_parser.crawl_team_season(team, season)
         else:
-            crawled_data = rfu_parser.fetch_live_rfu_web_data(division_name=division, season=season)
+            crawled_data = rfu_parser.fetch_live_rfu_web_data(
+                division_name=division, season=season,
+                supabase_url=supabase_url, supabase_key=supabase_key
+            )
     except Exception as e:
         safe_print(f"Crawl Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
     if not crawled_data:
         return jsonify({"success": False, "error": "Failed to fetch live RFU data due to Cloudflare block."}), 500
-
-    supabase_url = os.environ.get("SUPABASE_URL", "")
-    supabase_key = os.environ.get("SUPABASE_ANON_KEY", os.environ.get("SUPABASE_KEY", ""))
 
     if crawled_data and crawled_data.source_url and supabase_url and supabase_key:
         try:
@@ -365,7 +368,12 @@ def api_parse():
                 crawled = None
         data = crawled or rfu_parser.get_sample_data(team_query=team, season_query=season)
     elif division:
-        data = rfu_parser.fetch_live_rfu_web_data(division_name=division, season=season)
+        supabase_url = os.environ.get("SUPABASE_URL", "")
+        supabase_key = os.environ.get("SUPABASE_ANON_KEY", os.environ.get("SUPABASE_KEY", ""))
+        data = rfu_parser.fetch_live_rfu_web_data(
+            division_name=division, season=season,
+            supabase_url=supabase_url, supabase_key=supabase_key
+        )
     else:
         data = rfu_parser.fetch_live_rfu_web_data(season=season)
 

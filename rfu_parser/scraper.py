@@ -820,40 +820,71 @@ class RFUParser:
                             form_chars.append("D")
                 entry.form = "".join(form_chars)
 
-    def fetch_live_rfu_web_data(self, division_name: Optional[str] = None, season: Optional[str] = None) -> RFUDataResult:
+    def fetch_live_rfu_web_data(self, division_name: Optional[str] = None, season: Optional[str] = None,
+                                 supabase_url: Optional[str] = None, supabase_key: Optional[str] = None) -> RFUDataResult:
         """Crawl live RFU website directly from England Rugby servers for live standings and fixtures."""
         div_clean = (division_name or "").strip().lower()
         season_str = (season or "2026-2027").strip().replace("/", "-")
 
-        # Map known division IDs on RFU site
-        rfu_division_ids = {
-            "counties 2": "75799",
-            "counties 2 tribute ale devon": "75799",
-            "counties 2 devon": "75799",
-            "counties 1": "66453",
-            "counties 1 tribute ale western west": "66453",
-            "counties 1 western west": "66453",
-            "regional 1": "66440",
-            "regional 1 south east": "66440",
-            "regional 2": "66445",
-            "regional 2 tribute south west": "66445",
-            "national 1": "66430",
-            "premiership": "68225",
-            "gallagher premiership": "68225"
-        }
-
+        comp_id = None
         div_id = None
-        for key, id_val in rfu_division_ids.items():
-            if key in div_clean:
-                div_id = id_val
-                break
 
-        if not div_id:
-            # Fallback map lookup by tier
-            tier = self.get_tier_key(div_clean)
-            div_id = rfu_division_ids.get(tier, "75799")
+        # 1. Preferred: re-use the competition/division ids already discovered
+        # for this exact division+season and stored on its `divisions` row
+        # (populated by the discovery/sync scripts, which resolve real
+        # division= links off the RFU competition listing page rather than
+        # guessing). This guarantees a "refresh" crawl re-fetches the same
+        # competition the division was originally discovered under, instead
+        # of silently falling back to an unrelated division below.
+        if division_name and supabase_url and supabase_key:
+            try:
+                headers = {"apikey": supabase_key, "Authorization": f"Bearer {supabase_key}"}
+                resp = requests.get(
+                    f"{supabase_url.rstrip('/')}/rest/v1/divisions"
+                    f"?division_name=eq.{quote(division_name.strip())}&season=eq.{quote(season_str)}"
+                    f"&select=rfu_competition_id,rfu_division_id&limit=1",
+                    headers=headers,
+                    timeout=8
+                )
+                if resp.status_code == 200:
+                    rows = resp.json()
+                    if rows and rows[0].get("rfu_competition_id") and rows[0].get("rfu_division_id"):
+                        comp_id = str(rows[0]["rfu_competition_id"])
+                        div_id = str(rows[0]["rfu_division_id"])
+            except Exception as e:
+                print(f"Supabase division id lookup failed for '{division_name}' ({season_str}): {e}")
 
-        comp_id = "1699"
+        # 2. Fallback: heuristic name map, each division paired with its own
+        # competition id (they are NOT all the same competition - e.g.
+        # National Leagues is competition 1605, South West is 1699). Only
+        # used when a division has never been discovered/synced before.
+        if not (comp_id and div_id):
+            rfu_division_ids = {
+                "counties 2 tribute ale devon": ("1699", "75799"),
+                "counties 2 devon": ("1699", "75799"),
+                "counties 1 tribute ale western west": ("1699", "66453"),
+                "counties 1 western west": ("1699", "66453"),
+                "regional 1 south east": ("261", "66440"),
+                "regional 2 tribute south west": ("1699", "66445"),
+                "national league 1": ("1605", "66415"),
+                "national league 2 west": ("1605", "66418"),
+                "national league 2 east": ("1605", "66417"),
+                "national league 2 north": ("1605", "66416"),
+                "gallagher prem": ("5", "68225"),
+                "premiership": ("5", "68225"),
+                "gallagher premiership": ("5", "68225"),
+            }
+
+            for key, (c_id, d_id) in rfu_division_ids.items():
+                if key in div_clean:
+                    comp_id, div_id = c_id, d_id
+                    break
+
+            if not div_id:
+                # Last-resort default only reached for a division name this
+                # map has genuinely never seen before.
+                comp_id, div_id = "1699", "75799"
+
         url = f"https://www.englandrugby.com/fixtures-and-results/search-results?competition={comp_id}&season={season_str}&division={div_id}"
 
         try:

@@ -18,6 +18,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
   final FocusNode _searchFocusNode = FocusNode();
 
   List<String> _filteredTeams = [];
+  List<String> _dbTeams = [];
   bool _isLoading = false;
 
   final List<String> _indexedTeams = [
@@ -74,6 +75,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     try {
       final dbTeams = await SupabaseService.fetchAllDistinctTeams();
       if (mounted && dbTeams.isNotEmpty) {
+        _dbTeams = dbTeams;
         final combined = {..._indexedTeams, ...dbTeams}.toList()
           ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
         setState(() {
@@ -90,9 +92,14 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
       return;
     }
 
+    // Search across the hardcoded shortlist, the legacy registry map, AND the
+    // full `teams` table (1500+ clubs, loaded by _loadDatabaseTeams) - a club
+    // like "Launceston II" only exists in the latter, so dropping it here
+    // made it disappear the instant a search query was typed.
     final allTeams = {
       ..._indexedTeams,
       ...RfuTeamRegistry.allKnownTeamNames,
+      ..._dbTeams,
     }.toList();
     final matches = allTeams.where((t) => t.toLowerCase().contains(q)).toList();
 

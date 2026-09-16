@@ -170,7 +170,28 @@ CREATE POLICY "Allow public read access to team_logos" ON public.team_logos FOR 
 CREATE POLICY "Allow public write access to team_logos" ON public.team_logos FOR ALL USING (true) WITH CHECK (true);
 
 
--- 8. Storage Bucket for Team Logos
+-- 8. App Settings Table (Site-Wide Defaults, e.g. the default color theme)
+CREATE TABLE IF NOT EXISTS public.app_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    default_theme_mode TEXT NOT NULL DEFAULT 'cool_minimalist',
+    custom_primary INT,
+    custom_accent INT,
+    custom_background INT,
+    custom_surface INT,
+    custom_text INT,
+    custom_text_muted INT,
+    custom_border INT,
+    custom_font_family TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT app_settings_single_row CHECK (id = 1)
+);
+
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read access to app_settings" ON public.app_settings FOR SELECT USING (true);
+CREATE POLICY "Allow public write access to app_settings" ON public.app_settings FOR ALL USING (true) WITH CHECK (true);
+
+
+-- 9. Storage Bucket for Team Logos
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('rfu-parcer-team-logos', 'rfu-parcer-team-logos', true)
 ON CONFLICT (id) DO NOTHING;

@@ -8,10 +8,9 @@ import 'views/home_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize saved theme preference
-  await AppTheme.initTheme();
-
-  // Initialize Supabase client
+  // Initialize Supabase client first - AppTheme.initTheme() below needs it
+  // ready in order to fetch the site-wide default theme for a first-time
+  // visitor with no personal theme choice saved yet.
   const String envUrl = String.fromEnvironment(
     'SUPABASE_URL',
     defaultValue: '',
@@ -29,6 +28,9 @@ void main() async {
       : SupabaseConfig.fallbackAnonKey;
 
   await SupabaseService.init(url: supabaseUrl, anonKey: supabaseAnonKey);
+
+  // Initialize saved theme preference (or the site-wide default)
+  await AppTheme.initTheme();
 
   // Fire-and-forget: loads the full team ID registry from Supabase in the
   // background so it's ready well before any dialog needs it, without

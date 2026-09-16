@@ -1265,7 +1265,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _openThemeSelectorDialog() {
-    showDialog(context: context, builder: (_) => const ThemeSelectorDialog());
+    showDialog(context: context, builder: (_) => ThemeSelectorDialog(isAdmin: _isAdmin));
   }
 
   void _toggleAdmin() {

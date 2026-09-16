@@ -117,6 +117,32 @@ class CustomThemeStore {
     } catch (_) {}
   }
 
+  /// Applies the site-wide default colors/font (fetched from Supabase) to
+  /// the live notifiers WITHOUT persisting them to this browser's local
+  /// SharedPreferences. Used on startup for a visitor who hasn't made their
+  /// own theme choice yet, so they keep following the site default (set via
+  /// "Set as Site Default" in the theme editor) rather than getting it
+  /// permanently pinned as if they'd chosen it themselves.
+  static void applySiteDefaults({
+    Color? primary,
+    Color? accent,
+    Color? background,
+    Color? surface,
+    Color? text,
+    Color? textMuted,
+    Color? border,
+    String? fontFamily,
+  }) {
+    if (primary != null) CustomThemeStore.primary.value = primary;
+    if (accent != null) CustomThemeStore.accent.value = accent;
+    if (background != null) CustomThemeStore.background.value = background;
+    if (surface != null) CustomThemeStore.surface.value = surface;
+    if (text != null) CustomThemeStore.text.value = text;
+    if (textMuted != null) CustomThemeStore.textMuted.value = textMuted;
+    if (border != null) CustomThemeStore.border.value = border;
+    if (fontFamily != null) CustomThemeStore.fontFamily.value = fontFamily;
+  }
+
   /// Resets every token back to its default value and persists the reset.
   static Future<void> resetToDefaults() async {
     await setPrimary(defaultPrimary);

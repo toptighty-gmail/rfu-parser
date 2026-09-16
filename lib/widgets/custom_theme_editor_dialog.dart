@@ -3,13 +3,16 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../theme/custom_theme_store.dart';
+import '../services/supabase_service.dart';
 
 /// Lets the user edit the colors and font used by [AppThemeMode.custom].
 ///
 /// Edits are staged locally and only written to [CustomThemeStore] (and
 /// applied to the live app) when "Apply" is pressed; "Cancel" discards them.
 class CustomThemeEditorDialog extends StatefulWidget {
-  const CustomThemeEditorDialog({super.key});
+  final bool isAdmin;
+
+  const CustomThemeEditorDialog({super.key, this.isAdmin = false});
 
   @override
   State<CustomThemeEditorDialog> createState() => _CustomThemeEditorDialogState();
@@ -63,6 +66,48 @@ class _CustomThemeEditorDialogState extends State<CustomThemeEditorDialog> {
     await AppTheme.setTheme(AppThemeMode.custom);
     AppTheme.refreshIfCustom();
     if (mounted) Navigator.of(context).pop();
+  }
+
+  bool _settingDefault = false;
+
+  Future<void> _setAsSiteDefault() async {
+    setState(() => _settingDefault = true);
+    // Apply locally first so the admin's own view matches immediately.
+    await CustomThemeStore.setPrimary(_primary);
+    await CustomThemeStore.setAccent(_accent);
+    await CustomThemeStore.setBackground(_background);
+    await CustomThemeStore.setSurface(_surface);
+    await CustomThemeStore.setText(_text);
+    await CustomThemeStore.setTextMuted(_textMuted);
+    await CustomThemeStore.setBorder(_border);
+    await CustomThemeStore.setFontFamily(_font);
+    await AppTheme.setTheme(AppThemeMode.custom);
+    AppTheme.refreshIfCustom();
+
+    final ok = await SupabaseService.setSiteDefaultTheme(
+      modeId: AppThemeMode.custom.id,
+      customPrimary: _primary.toARGB32(),
+      customAccent: _accent.toARGB32(),
+      customBackground: _background.toARGB32(),
+      customSurface: _surface.toARGB32(),
+      customText: _text.toARGB32(),
+      customTextMuted: _textMuted.toARGB32(),
+      customBorder: _border.toARGB32(),
+      customFontFamily: _font,
+    );
+
+    if (!mounted) return;
+    setState(() => _settingDefault = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? 'Set as the site-wide default theme for every visitor.'
+              : 'Could not save the site default - check the app_settings table exists in Supabase.',
+        ),
+      ),
+    );
+    if (ok) Navigator.of(context).pop();
   }
 
   Future<void> _editColor(String label, Color current, ValueChanged<Color> onChanged) async {
@@ -259,6 +304,18 @@ class _CustomThemeEditorDialogState extends State<CustomThemeEditorDialog> {
           label: const Text('Reset to Defaults'),
           onPressed: _resetToDefaults,
         ),
+        if (widget.isAdmin)
+          TextButton.icon(
+            icon: _settingDefault
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.public, size: 16),
+            label: const Text('Set as Site Default'),
+            onPressed: _settingDefault ? null : _setAsSiteDefault,
+          ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),

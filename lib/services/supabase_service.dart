@@ -1132,6 +1132,67 @@ class SupabaseService {
 
     return metrics;
   }
+
+  // --- Site-Wide Default Theme ---
+
+  /// Fetches the site-wide default theme (the one every visitor with no
+  /// personal theme choice of their own sees) from the `app_settings` table.
+  /// Returns null if the table doesn't exist yet, the row hasn't been set,
+  /// or the client isn't initialized - callers should fall back to the
+  /// built-in default in that case.
+  static Future<Map<String, dynamic>?> fetchSiteDefaultTheme() async {
+    final client = _client;
+    if (client == null) return null;
+    try {
+      final rows = await client
+          .from('app_settings')
+          .select()
+          .eq('id', 1)
+          .limit(1);
+      final list = rows as List;
+      return list.isNotEmpty ? Map<String, dynamic>.from(list.first) : null;
+    } catch (e) {
+      debugPrint('Error fetching site default theme (table may not exist yet): $e');
+      return null;
+    }
+  }
+
+  /// Saves the given theme as the site-wide default. Pass the custom color
+  /// fields only when [modeId] is 'custom' - they're ignored for built-in
+  /// theme modes.
+  static Future<bool> setSiteDefaultTheme({
+    required String modeId,
+    int? customPrimary,
+    int? customAccent,
+    int? customBackground,
+    int? customSurface,
+    int? customText,
+    int? customTextMuted,
+    int? customBorder,
+    String? customFontFamily,
+  }) async {
+    final client = _client;
+    if (client == null) return false;
+    try {
+      await client.from('app_settings').upsert({
+        'id': 1,
+        'default_theme_mode': modeId,
+        'custom_primary': customPrimary,
+        'custom_accent': customAccent,
+        'custom_background': customBackground,
+        'custom_surface': customSurface,
+        'custom_text': customText,
+        'custom_text_muted': customTextMuted,
+        'custom_border': customBorder,
+        'custom_font_family': customFontFamily,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      return true;
+    } catch (e) {
+      debugPrint('Error saving site default theme: $e');
+      return false;
+    }
+  }
 }
 
 class TableMetric {

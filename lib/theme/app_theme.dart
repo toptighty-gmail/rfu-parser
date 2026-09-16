@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_theme_store.dart';
+import '../services/supabase_service.dart';
 
 enum AppThemeMode {
   coolMinimalist(
@@ -143,7 +144,10 @@ class AppTheme {
   static Color get surfaceBg => currentMode.surfaceBg;
 
   /// Load persisted theme preference (and any saved Custom theme colors/font)
-  /// from storage on startup.
+  /// from storage on startup. A visitor who has already made their own theme
+  /// choice on this browser keeps it; a first-time visitor gets whatever the
+  /// site admin set as the site-wide default (via "Set as Site Default" in
+  /// the theme editor), falling back to Cool Minimalist if none was ever set.
   static Future<void> initTheme() async {
     await CustomThemeStore.load();
     try {
@@ -155,7 +159,44 @@ class AppTheme {
           orElse: () => AppThemeMode.coolMinimalist,
         );
         themeNotifier.value = match;
+        return;
       }
+    } catch (_) {}
+
+    await _applySiteDefaultIfAny();
+  }
+
+  static Future<void> _applySiteDefaultIfAny() async {
+    try {
+      final settings = await SupabaseService.fetchSiteDefaultTheme();
+      if (settings == null) return;
+
+      final modeId = settings['default_theme_mode'] as String?;
+      if (modeId == null || modeId.isEmpty) return;
+      final match = AppThemeMode.values.firstWhere(
+        (m) => m.id == modeId,
+        orElse: () => AppThemeMode.coolMinimalist,
+      );
+
+      if (match.isCustom) {
+        Color? colorFrom(String key) {
+          final argb = settings[key];
+          return argb is int ? Color(argb) : null;
+        }
+
+        CustomThemeStore.applySiteDefaults(
+          primary: colorFrom('custom_primary'),
+          accent: colorFrom('custom_accent'),
+          background: colorFrom('custom_background'),
+          surface: colorFrom('custom_surface'),
+          text: colorFrom('custom_text'),
+          textMuted: colorFrom('custom_text_muted'),
+          border: colorFrom('custom_border'),
+          fontFamily: settings['custom_font_family'] as String?,
+        );
+      }
+
+      themeNotifier.value = match;
     } catch (_) {}
   }
 

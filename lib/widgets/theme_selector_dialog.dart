@@ -3,7 +3,9 @@ import '../theme/app_theme.dart';
 import 'custom_theme_editor_dialog.dart';
 
 class ThemeSelectorDialog extends StatefulWidget {
-  const ThemeSelectorDialog({super.key});
+  final bool isAdmin;
+
+  const ThemeSelectorDialog({super.key, this.isAdmin = false});
 
   @override
   State<ThemeSelectorDialog> createState() => _ThemeSelectorDialogState();
@@ -169,7 +171,7 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
                               onPressed: () async {
                                 await showDialog(
                                   context: context,
-                                  builder: (_) => const CustomThemeEditorDialog(),
+                                  builder: (_) => CustomThemeEditorDialog(isAdmin: widget.isAdmin),
                                 );
                                 setState(() {});
                               },

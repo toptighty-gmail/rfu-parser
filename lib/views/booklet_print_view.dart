@@ -4,9 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'package:http/http.dart' as http;
+import '../utils/platform_pdf_export.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -393,70 +392,72 @@ class BookletPrintView extends StatelessWidget {
               border: pw.Border.all(color: headerGreenPdf, width: 1.2),
             ),
             child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  mainAxisAlignment: pw.MainAxisAlignment.start,
                   crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
                     if (isTeamFiltered) ...[
                       pw.Container(
-                        margin: const pw.EdgeInsets.only(right: 10),
+                        margin: const pw.EdgeInsets.only(right: 12),
                         child:
                             (logoCache[filterTeam!.trim().toLowerCase()] ??
                                     const PdfLogoItem())
                                 .buildWidget(
                                   filterTeam!,
-                                  size: 28,
+                                  size: 30,
                                   fallbackBg: primaryPdf,
                                   accentColor: accentPdf,
                                 ),
                       ),
                     ],
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text(
-                          divisionData.divisionName.toUpperCase(),
-                          textAlign: pw.TextAlign.center,
-                          style: pw.TextStyle(
-                            color: headerGreenPdf,
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: 13.5,
-                          ),
-                        ),
-                        pw.SizedBox(height: 2),
-                        if (isTeamFiltered) ...[
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.center,
+                        children: [
                           pw.Text(
-                            filterTeam!.trim().toUpperCase(),
+                            divisionData.divisionName.toUpperCase(),
                             textAlign: pw.TextAlign.center,
                             style: pw.TextStyle(
-                              color: textPrimaryPdf,
+                              color: headerGreenPdf,
                               fontWeight: pw.FontWeight.bold,
-                              fontSize: 13.5,
+                              fontSize: 19,
                             ),
                           ),
                           pw.SizedBox(height: 2),
-                          pw.Text(
-                            'SEASON: ${divisionData.season}',
-                            textAlign: pw.TextAlign.center,
-                            style: pw.TextStyle(
-                              color: textPrimaryPdf,
-                              fontSize: 9,
-                              fontWeight: pw.FontWeight.normal,
+                          if (isTeamFiltered) ...[
+                            pw.Text(
+                              filterTeam!.trim().toUpperCase(),
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                color: textPrimaryPdf,
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 13.5,
+                              ),
                             ),
-                          ),
-                        ] else
-                          pw.Text(
-                            'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
-                            textAlign: pw.TextAlign.center,
-                            style: pw.TextStyle(
-                              color: textPrimaryPdf,
-                              fontSize: 9,
-                              fontWeight: pw.FontWeight.normal,
+                            pw.SizedBox(height: 2),
+                            pw.Text(
+                              'SEASON: ${divisionData.season}',
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                color: textPrimaryPdf,
+                                fontSize: 9,
+                                fontWeight: pw.FontWeight.normal,
+                              ),
                             ),
-                          ),
-                      ],
+                          ] else
+                            pw.Text(
+                              'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                color: textPrimaryPdf,
+                                fontSize: 9,
+                                fontWeight: pw.FontWeight.normal,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -470,13 +471,13 @@ class BookletPrintView extends StatelessWidget {
                     decoration: pw.BoxDecoration(
                       color: primaryPdf,
                       borderRadius: pw.BorderRadius.circular(4),
-                      border: pw.Border.all(color: accentPdf),
+                      border: pw.Border.all(color: headerGreenPdf),
                     ),
                     child: pw.Text(
                       'Developed by Sean Cook 2026 use by permission only',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
-                        color: accentPdf,
+                        color: headerGreenPdf,
                         fontWeight: pw.FontWeight.bold,
                         fontSize: 8.5,
                       ),
@@ -1339,16 +1340,7 @@ class BookletPrintView extends StatelessWidget {
       if (!printed) {
         // Fallback for browsers/platforms where the native print dialog isn't available.
         if (kIsWeb) {
-          final blob = html.Blob([bytes], 'application/pdf');
-          final url = html.Url.createObjectUrlFromBlob(blob);
-          html.window.open(url, '_blank');
-
-          final anchor = html.AnchorElement(href: url)
-            ..setAttribute('download', fileName)
-            ..style.display = 'none';
-          html.document.body?.append(anchor);
-          anchor.click();
-          anchor.remove();
+          await openPdfInBrowser(bytes, fileName);
 
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1591,7 +1583,7 @@ class BookletPrintView extends StatelessWidget {
                                       'Developed by Sean Cook 2026 use by permission only',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: theme.goldAccent,
+                                        color: theme.emeraldAccent,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 10,
                                         letterSpacing: 0.5,
@@ -1610,9 +1602,6 @@ class BookletPrintView extends StatelessWidget {
                             '1. LEAGUE TABLE STANDINGS',
                             Icons.table_chart,
                             theme: theme,
-                            leadingWidget: isTeamFiltered
-                                ? _buildTeamLogo(filterTeam!, null, size: 24)
-                                : null,
                           ),
                           const SizedBox(height: 10),
                           _buildPrintStandingsTable(
@@ -1691,9 +1680,6 @@ class BookletPrintView extends StatelessWidget {
                                 : '2. FIXTURES & RESULTS — ALL ROUNDS (${activeFixtures.length} MATCHES)',
                             Icons.event,
                             theme: theme,
-                            leadingWidget: isTeamFiltered
-                                ? _buildTeamLogo(filterTeam!, null, size: 24)
-                                : null,
                           ),
                           const SizedBox(height: 10),
                           _buildPrintFixtures(

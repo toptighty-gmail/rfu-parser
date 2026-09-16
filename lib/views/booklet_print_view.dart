@@ -116,6 +116,11 @@ class BookletPrintView extends StatelessWidget {
     return PdfColor(c.r, c.g, c.b, c.a);
   }
 
+  // Fixed header outline/title colour for both the on-screen preview and the
+  // generated PDF (matches PdfColors.green800 used in _generatePdfDoc), so
+  // the printed sheet doesn't shift with the app's selected theme.
+  static const Color _headerGreen = Color(0xFF2E7D32);
+
   static bool isMatchForTeam(Fixture f, String? filter) {
     if (filter == null || filter.trim().isEmpty) return true;
     final cleanFilter = filter.trim();
@@ -372,6 +377,7 @@ class BookletPrintView extends StatelessWidget {
     final borderPdf = _toPdfColor(theme.cardBorder);
     final textPrimaryPdf = _toPdfColor(theme.textPrimary);
     final textMutedPdf = _toPdfColor(theme.textMuted);
+    const headerGreenPdf = PdfColors.green800;
 
     doc.addPage(
       pw.MultiPage(
@@ -384,12 +390,13 @@ class BookletPrintView extends StatelessWidget {
             decoration: pw.BoxDecoration(
               color: surfacePdf,
               borderRadius: pw.BorderRadius.circular(6),
-              border: pw.Border.all(color: accentPdf, width: 1.2),
+              border: pw.Border.all(color: headerGreenPdf, width: 1.2),
             ),
             child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
                 pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
                   crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
                     if (isTeamFiltered) ...[
@@ -406,31 +413,50 @@ class BookletPrintView extends StatelessWidget {
                                 ),
                       ),
                     ],
-                    pw.Expanded(
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      children: [
+                        pw.Text(
+                          divisionData.divisionName.toUpperCase(),
+                          textAlign: pw.TextAlign.center,
+                          style: pw.TextStyle(
+                            color: headerGreenPdf,
+                            fontWeight: pw.FontWeight.bold,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                        pw.SizedBox(height: 2),
+                        if (isTeamFiltered) ...[
                           pw.Text(
-                            divisionData.divisionName.toUpperCase(),
+                            filterTeam!.trim().toUpperCase(),
+                            textAlign: pw.TextAlign.center,
                             style: pw.TextStyle(
-                              color: accentPdf,
+                              color: textPrimaryPdf,
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 13.5,
                             ),
                           ),
                           pw.SizedBox(height: 2),
                           pw.Text(
-                            isTeamFiltered
-                                ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
-                                : 'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
+                            'SEASON: ${divisionData.season}',
+                            textAlign: pw.TextAlign.center,
                             style: pw.TextStyle(
                               color: textPrimaryPdf,
                               fontSize: 9,
                               fontWeight: pw.FontWeight.normal,
                             ),
                           ),
-                        ],
-                      ),
+                        ] else
+                          pw.Text(
+                            'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
+                            textAlign: pw.TextAlign.center,
+                            style: pw.TextStyle(
+                              color: textPrimaryPdf,
+                              fontSize: 9,
+                              fontWeight: pw.FontWeight.normal,
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -1476,7 +1502,7 @@ class BookletPrintView extends StatelessWidget {
                               color: theme.surfaceBg,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: theme.goldAccent,
+                                color: _headerGreen,
                                 width: 1.5,
                               ),
                             ),
@@ -1484,6 +1510,7 @@ class BookletPrintView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment:
                                       CrossAxisAlignment.center,
                                   children: [
@@ -1495,34 +1522,54 @@ class BookletPrintView extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 14),
                                     ],
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          divisionData.divisionName
+                                              .toUpperCase(),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: _headerGreen,
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 16,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        if (isTeamFiltered) ...[
                                           Text(
-                                            divisionData.divisionName
-                                                .toUpperCase(),
+                                            filterTeam!.trim().toUpperCase(),
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: theme.goldAccent,
-                                              fontWeight: FontWeight.w900,
+                                              color: theme.textPrimary,
                                               fontSize: 16,
+                                              fontWeight: FontWeight.w900,
                                               letterSpacing: 0.5,
                                             ),
                                           ),
                                           const SizedBox(height: 3),
                                           Text(
-                                            isTeamFiltered
-                                                ? 'TEAM CONTEXT: ${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}'
-                                                : 'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
+                                            'SEASON: ${divisionData.season}',
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: theme.textPrimary,
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                        ] else
+                                          Text(
+                                            'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: theme.textPrimary,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ],
                                 ),

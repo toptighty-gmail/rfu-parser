@@ -165,12 +165,15 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildDivisionButton(AppThemeMode theme, bool hasSelectedDivision) {
+    final textColor = theme.isCustom
+        ? Colors.white
+        : (hasSelectedDivision ? Colors.black : theme.textPrimary);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: hasSelectedDivision
             ? theme.goldAccent
             : theme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSelectedDivision ? Colors.black : theme.textPrimary,
+        foregroundColor: textColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
           color: hasSelectedDivision
@@ -183,7 +186,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.emoji_events,
         size: 16,
-        color: hasSelectedDivision ? Colors.black : theme.textPrimary,
+        color: textColor,
       ),
       label: Text(
         hasSelectedDivision ? 'Div: $selectedDivision' : 'Select Division...',
@@ -191,7 +194,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSelectedDivision ? Colors.black : theme.textPrimary,
+          color: textColor,
         ),
       ),
       onPressed: onOpenDivisionsDirectory,
@@ -199,12 +202,15 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildTeamButton(AppThemeMode theme, bool hasSearchedTeam) {
+    final textColor = theme.isCustom
+        ? Colors.white
+        : (hasSearchedTeam ? Colors.black : theme.textPrimary);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: hasSearchedTeam
             ? theme.goldAccent
             : theme.goldAccent.withValues(alpha: 0.12),
-        foregroundColor: hasSearchedTeam ? Colors.black : theme.textPrimary,
+        foregroundColor: textColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
           color: hasSearchedTeam
@@ -217,7 +223,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       icon: Icon(
         Icons.search,
         size: 16,
-        color: hasSearchedTeam ? Colors.black : theme.textPrimary,
+        color: textColor,
       ),
       label: Text(
         hasSearchedTeam ? 'Team: ${searchedTeam!.trim()}' : 'Search Team...',
@@ -225,7 +231,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: hasSearchedTeam ? Colors.black : theme.textPrimary,
+          color: textColor,
         ),
       ),
       onPressed: onOpenTeamsDirectory,

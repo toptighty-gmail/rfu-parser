@@ -392,75 +392,66 @@ class BookletPrintView extends StatelessWidget {
               border: pw.Border.all(color: headerGreenPdf, width: 1.2),
             ),
             child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.start,
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    if (isTeamFiltered) ...[
+                pw.Text(
+                  divisionData.divisionName.toUpperCase(),
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(
+                    color: headerGreenPdf,
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 19,
+                  ),
+                ),
+                pw.SizedBox(height: 2),
+                if (isTeamFiltered) ...[
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
                       pw.Container(
-                        margin: const pw.EdgeInsets.only(right: 12),
+                        margin: const pw.EdgeInsets.only(right: 8),
                         child:
                             (logoCache[filterTeam!.trim().toLowerCase()] ??
                                     const PdfLogoItem())
                                 .buildWidget(
                                   filterTeam!,
-                                  size: 30,
+                                  size: 24,
                                   fallbackBg: primaryPdf,
                                   accentColor: accentPdf,
                                 ),
                       ),
-                    ],
-                    pw.Expanded(
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.center,
-                        children: [
-                          pw.Text(
-                            divisionData.divisionName.toUpperCase(),
-                            textAlign: pw.TextAlign.center,
-                            style: pw.TextStyle(
-                              color: headerGreenPdf,
-                              fontWeight: pw.FontWeight.bold,
-                              fontSize: 19,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          if (isTeamFiltered) ...[
-                            pw.Text(
-                              filterTeam!.trim().toUpperCase(),
-                              textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                color: textPrimaryPdf,
-                                fontWeight: pw.FontWeight.bold,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                            pw.SizedBox(height: 2),
-                            pw.Text(
-                              'SEASON: ${divisionData.season}',
-                              textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                color: textPrimaryPdf,
-                                fontSize: 9,
-                                fontWeight: pw.FontWeight.normal,
-                              ),
-                            ),
-                          ] else
-                            pw.Text(
-                              'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
-                              textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(
-                                color: textPrimaryPdf,
-                                fontSize: 9,
-                                fontWeight: pw.FontWeight.normal,
-                              ),
-                            ),
-                        ],
+                      pw.Text(
+                        filterTeam!.trim().toUpperCase(),
+                        textAlign: pw.TextAlign.center,
+                        style: pw.TextStyle(
+                          color: textPrimaryPdf,
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 13.5,
+                        ),
                       ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 2),
+                  pw.Text(
+                    'SEASON: ${divisionData.season}',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      color: textPrimaryPdf,
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.normal,
                     ),
-                  ],
-                ),
+                  ),
+                ] else
+                  pw.Text(
+                    'OFFICIAL FIXTURE & LEAGUE SCHEDULE  |  SEASON: ${divisionData.season}',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      color: textPrimaryPdf,
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.normal,
+                    ),
+                  ),
                 pw.SizedBox(height: 6),
                 pw.Center(
                   child: pw.Container(
@@ -1499,72 +1490,64 @@ class BookletPrintView extends StatelessWidget {
                               ),
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                  children: [
-                                    if (isTeamFiltered) ...[
+                                Text(
+                                  divisionData.divisionName.toUpperCase(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: _headerGreen,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                if (isTeamFiltered) ...[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
                                       _buildTeamLogo(
                                         filterTeam!,
                                         null,
-                                        size: 36,
+                                        size: 28,
                                       ),
-                                      const SizedBox(width: 14),
-                                    ],
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          divisionData.divisionName
-                                              .toUpperCase(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: _headerGreen,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 16,
-                                            letterSpacing: 0.5,
-                                          ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        filterTeam!.trim().toUpperCase(),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: theme.textPrimary,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.5,
                                         ),
-                                        const SizedBox(height: 3),
-                                        if (isTeamFiltered) ...[
-                                          Text(
-                                            filterTeam!.trim().toUpperCase(),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: theme.textPrimary,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w900,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 3),
-                                          Text(
-                                            'SEASON: ${divisionData.season}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: theme.textPrimary,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ] else
-                                          Text(
-                                            'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: theme.textPrimary,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    'SEASON: ${divisionData.season}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: theme.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ] else
+                                  Text(
+                                    'OFFICIAL LEAGUE & FIXTURE SCHEDULE  |  SEASON: ${divisionData.season}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: theme.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 const SizedBox(height: 10),
                                 Center(
                                   child: Container(

@@ -400,7 +400,7 @@ class BookletPrintView extends StatelessWidget {
                   style: pw.TextStyle(
                     color: headerGreenPdf,
                     fontWeight: pw.FontWeight.bold,
-                    fontSize: 19,
+                    fontSize: 15,
                   ),
                 ),
                 pw.SizedBox(height: 2),
@@ -422,25 +422,15 @@ class BookletPrintView extends StatelessWidget {
                                 ),
                       ),
                       pw.Text(
-                        filterTeam!.trim().toUpperCase(),
+                        '${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}',
                         textAlign: pw.TextAlign.center,
                         style: pw.TextStyle(
                           color: textPrimaryPdf,
                           fontWeight: pw.FontWeight.bold,
-                          fontSize: 13.5,
+                          fontSize: 12,
                         ),
                       ),
                     ],
-                  ),
-                  pw.SizedBox(height: 2),
-                  pw.Text(
-                    'SEASON: ${divisionData.season}',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
-                      color: textPrimaryPdf,
-                      fontSize: 9,
-                      fontWeight: pw.FontWeight.normal,
-                    ),
                   ),
                 ] else
                   pw.Text(
@@ -452,29 +442,6 @@ class BookletPrintView extends StatelessWidget {
                       fontWeight: pw.FontWeight.normal,
                     ),
                   ),
-                pw.SizedBox(height: 6),
-                pw.Center(
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: pw.BoxDecoration(
-                      color: primaryPdf,
-                      borderRadius: pw.BorderRadius.circular(4),
-                      border: pw.Border.all(color: headerGreenPdf),
-                    ),
-                    child: pw.Text(
-                      'Developed by Sean Cook 2026 use by permission only',
-                      textAlign: pw.TextAlign.center,
-                      style: pw.TextStyle(
-                        color: headerGreenPdf,
-                        fontWeight: pw.FontWeight.bold,
-                        fontSize: 8.5,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           );
@@ -1458,7 +1425,7 @@ class BookletPrintView extends StatelessWidget {
                                   style: TextStyle(
                                     color: _headerGreen,
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 16,
+                                    fontSize: 13,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -1477,26 +1444,16 @@ class BookletPrintView extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 10),
                                       Text(
-                                        filterTeam!.trim().toUpperCase(),
+                                        '${filterTeam!.trim().toUpperCase()}  |  SEASON: ${divisionData.season}',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: theme.textPrimary,
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 0.5,
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    'SEASON: ${divisionData.season}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: theme.textPrimary,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
                                   ),
                                 ] else
                                   Text(
@@ -1508,32 +1465,6 @@ class BookletPrintView extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                const SizedBox(height: 10),
-                                Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: theme.darkBg,
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(
-                                        color: _headerGreen,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Developed by Sean Cook 2026 use by permission only',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: _headerGreen,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 10,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),

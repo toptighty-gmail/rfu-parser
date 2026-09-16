@@ -6,8 +6,9 @@ import '../theme/app_theme.dart';
 
 class TeamsDirectoryDialog extends StatefulWidget {
   final ValueChanged<String> onSelectTeam;
+  final String? season;
 
-  const TeamsDirectoryDialog({super.key, required this.onSelectTeam});
+  const TeamsDirectoryDialog({super.key, required this.onSelectTeam, this.season});
 
   @override
   State<TeamsDirectoryDialog> createState() => _TeamsDirectoryDialogState();
@@ -42,7 +43,6 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     // Plymouth & District / Local Clubs
     'Plymstock Oaks',
     'Plymouth Argaum',
-    'Plymstock Albion Oaks',
     'OPMs',
     'Tamar Saracens',
     'Old Techs', 'Salcombe', 'Totnes', 'Dartmouth', 'Buckfastleigh Ramblers',
@@ -71,9 +71,19 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     super.dispose();
   }
 
+  /// Whether results are restricted to teams that actually played in
+  /// [widget.season] (per synced standings/fixtures), rather than every club
+  /// ever seen across every season. Keeps a club's old, since-renamed
+  /// identity (e.g. "Plymstock Albion Oaks" -> "Plymstock Oaks") out of the
+  /// list once it's no longer in season, instead of both names always
+  /// appearing side by side regardless of which season is in context.
+  bool get _isSeasonScoped => widget.season != null && widget.season!.trim().isNotEmpty;
+
   Future<void> _loadDatabaseTeams() async {
     try {
-      final dbTeams = await SupabaseService.fetchAllDistinctTeams();
+      final dbTeams = _isSeasonScoped
+          ? await SupabaseService.fetchDistinctTeamsForSeason(widget.season!.trim())
+          : await SupabaseService.fetchAllDistinctTeams();
       if (mounted && dbTeams.isNotEmpty) {
         _dbTeams = dbTeams;
         final combined = {..._indexedTeams, ...dbTeams}.toList()
@@ -92,13 +102,15 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
       return;
     }
 
-    // Search across the hardcoded shortlist, the legacy registry map, AND the
-    // full `teams` table (1500+ clubs, loaded by _loadDatabaseTeams) - a club
-    // like "Launceston II" only exists in the latter, so dropping it here
-    // made it disappear the instant a search query was typed.
+    // Search across the hardcoded shortlist, the legacy registry map (only
+    // when not season-scoped - it carries no season info of its own), AND
+    // the `teams` table results loaded by _loadDatabaseTeams (season-scoped
+    // when a season is given) - a club like "Launceston II" only exists in
+    // the latter, so dropping it here made it disappear the instant a
+    // search query was typed.
     final allTeams = {
       ..._indexedTeams,
-      ...RfuTeamRegistry.allKnownTeamNames,
+      if (!_isSeasonScoped) ...RfuTeamRegistry.allKnownTeamNames,
       ..._dbTeams,
     }.toList();
     final matches = allTeams.where((t) => t.toLowerCase().contains(q)).toList();

@@ -1251,6 +1251,7 @@ class _HomeViewState extends State<HomeView> {
     showDialog(
       context: context,
       builder: (_) => TeamsDirectoryDialog(
+        season: _selectedSeason,
         onSelectTeam: (team) {
           setState(() {
             _searchController.text = team;

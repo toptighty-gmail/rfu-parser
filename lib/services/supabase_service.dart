@@ -736,6 +736,84 @@ class SupabaseService {
     return sorted;
   }
 
+  static final Map<String, List<String>> _cachedTeamsBySeason = {};
+
+  /// Distinct team names that actually played in the given season, per the
+  /// synced standings/fixtures for that season's divisions. Unlike
+  /// [fetchAllDistinctTeams] (which also pulls from the season-agnostic
+  /// `teams` table), this only returns names a club was actually known by
+  /// during that season - a club that has since been renamed (e.g.
+  /// "Plymstock Albion Oaks" -> "Plymstock Oaks") won't show its old name
+  /// when searching a season after the rename, or its new name when
+  /// searching a season before it.
+  static Future<List<String>> fetchDistinctTeamsForSeason(String season) async {
+    final cached = _cachedTeamsBySeason[season];
+    if (cached != null) return cached;
+
+    final client = _client;
+    if (client == null) return [];
+
+    final Set<String> teamsSet = {};
+
+    // PostgREST caps an unpaginated response at 1000 rows - a season can
+    // have 1000+ standings rows and 10,000+ fixture rows across every
+    // division, so this must page through with .range() or it silently
+    // drops whole divisions (discovered live: "Plymstock Oaks" vanished
+    // because Devon's rows landed past row 1000).
+    Future<void> fetchAllPages(
+      String table,
+      String select,
+      void Function(Map<String, dynamic> row) onRow,
+    ) async {
+      const pageSize = 1000;
+      int offset = 0;
+      while (true) {
+        final page = await client
+            .from(table)
+            .select(select)
+            .eq('divisions.season', season)
+            .range(offset, offset + pageSize - 1);
+        final rows = page as List;
+        for (final row in rows) {
+          onRow(Map<String, dynamic>.from(row));
+        }
+        if (rows.length < pageSize) break;
+        offset += pageSize;
+      }
+    }
+
+    try {
+      await fetchAllPages('standings', 'team_name, divisions!inner(season)', (row) {
+        final name = row['team_name']?.toString().trim();
+        if (name != null && name.isNotEmpty) {
+          teamsSet.add(RfuTeamRegistry.normalizeTeamName(name));
+        }
+      });
+    } catch (e) {
+      debugPrint('Error fetching season standings teams: $e');
+    }
+
+    try {
+      await fetchAllPages(
+        'fixtures',
+        'home_team, away_team, divisions!inner(season)',
+        (row) {
+          final h = row['home_team']?.toString().trim();
+          final a = row['away_team']?.toString().trim();
+          if (h != null && h.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(h));
+          if (a != null && a.isNotEmpty) teamsSet.add(RfuTeamRegistry.normalizeTeamName(a));
+        },
+      );
+    } catch (e) {
+      debugPrint('Error fetching season fixtures teams: $e');
+    }
+
+    final sorted = teamsSet.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _cachedTeamsBySeason[season] = sorted;
+    return sorted;
+  }
+
   // --- Live Division, Standings & Fixtures Sync ---
 
   static Future<bool> upsertDivisionData(dynamic divisionData) async {

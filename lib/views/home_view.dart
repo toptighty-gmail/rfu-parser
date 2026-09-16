@@ -762,17 +762,11 @@ class _HomeViewState extends State<HomeView> {
                                   width: 1.5,
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 10,
+                                runSpacing: 8,
                                 children: [
-                                  Expanded(
-                                    child: Wrap(
-                                      crossAxisAlignment:
-                                          WrapCrossAlignment.center,
-                                      spacing: 10,
-                                      runSpacing: 8,
-                                      children: [
                                         // Highlighted Club Name Badge
                                         Container(
                                           padding: const EdgeInsets.symmetric(
@@ -927,9 +921,6 @@ class _HomeViewState extends State<HomeView> {
                                             ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppTheme.textPrimary,
@@ -986,16 +977,10 @@ class _HomeViewState extends State<HomeView> {
                                   width: 1.5,
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Wrap(
-                                      crossAxisAlignment:
-                                          WrapCrossAlignment.center,
-                                      spacing: 12,
-                                      runSpacing: 6,
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 12,
+                                runSpacing: 6,
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -1101,9 +1086,6 @@ class _HomeViewState extends State<HomeView> {
                                               ),
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  ),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppTheme.goldAccent,

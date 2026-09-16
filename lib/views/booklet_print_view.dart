@@ -1576,14 +1576,14 @@ class BookletPrintView extends StatelessWidget {
                                       color: theme.darkBg,
                                       borderRadius: BorderRadius.circular(5),
                                       border: Border.all(
-                                        color: theme.goldAccent,
+                                        color: _headerGreen,
                                       ),
                                     ),
                                     child: Text(
                                       'Developed by Sean Cook 2026 use by permission only',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: theme.emeraldAccent,
+                                        color: _headerGreen,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 10,
                                         letterSpacing: 0.5,

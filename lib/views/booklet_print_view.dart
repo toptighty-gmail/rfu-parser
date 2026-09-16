@@ -505,36 +505,17 @@ class BookletPrintView extends StatelessWidget {
         },
         build: (pw.Context context) {
           return [
-            // SECTION 1: STANDINGS TABLE (PAGE 1 WITH CONTEXT TEAM LOGO IN HEADER)
+            // SECTION 1: STANDINGS TABLE (PAGE 1)
             if (divisionData.standings.isNotEmpty) ...[
               pw.Container(
                 margin: const pw.EdgeInsets.only(bottom: 8),
-                child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    if (isTeamFiltered) ...[
-                      pw.Container(
-                        margin: const pw.EdgeInsets.only(right: 8),
-                        child:
-                            (logoCache[filterTeam!.trim().toLowerCase()] ??
-                                    const PdfLogoItem())
-                                .buildWidget(
-                                  filterTeam!,
-                                  size: 18,
-                                  fallbackBg: surfacePdf,
-                                  accentColor: accentPdf,
-                                ),
-                      ),
-                    ],
-                    pw.Text(
-                      '1. LEAGUE TABLE STANDINGS',
-                      style: pw.TextStyle(
-                        fontSize: 13,
-                        fontWeight: pw.FontWeight.bold,
-                        color: surfacePdf,
-                      ),
-                    ),
-                  ],
+                child: pw.Text(
+                  '1. LEAGUE TABLE STANDINGS',
+                  style: pw.TextStyle(
+                    fontSize: 13,
+                    fontWeight: pw.FontWeight.bold,
+                    color: headerGreenPdf,
+                  ),
                 ),
               ),
               pw.Table(
@@ -776,39 +757,18 @@ class BookletPrintView extends StatelessWidget {
               pw.NewPage(),
             ],
 
-            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH FULL DATES, ROUND NAMES & TEAM LOGOS)
+            // SECTION 2: FIXTURES & RESULTS (PAGE 2 WITH FULL DATES & ROUND NAMES)
             pw.Container(
               margin: const pw.EdgeInsets.only(top: 4, bottom: 8),
-              child: pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  if (isTeamFiltered) ...[
-                    pw.Container(
-                      margin: const pw.EdgeInsets.only(right: 8),
-                      child:
-                          (logoCache[filterTeam!.trim().toLowerCase()] ??
-                                  const PdfLogoItem())
-                              .buildWidget(
-                                filterTeam!,
-                                size: 20,
-                                fallbackBg: surfacePdf,
-                                accentColor: accentPdf,
-                              ),
-                    ),
-                  ],
-                  pw.Expanded(
-                    child: pw.Text(
-                      isTeamFiltered
-                          ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${sortedFixtures.length} MATCHES)'
-                          : '2. FIXTURES & RESULTS — ALL ROUNDS (${sortedFixtures.length} MATCHES)',
-                      style: pw.TextStyle(
-                        fontSize: 12,
-                        fontWeight: pw.FontWeight.bold,
-                        color: surfacePdf,
-                      ),
-                    ),
-                  ),
-                ],
+              child: pw.Text(
+                isTeamFiltered
+                    ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${sortedFixtures.length} MATCHES)'
+                    : '2. FIXTURES & RESULTS — ALL ROUNDS (${sortedFixtures.length} MATCHES)',
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                  color: headerGreenPdf,
+                ),
               ),
             ),
             pw.Table(
@@ -1580,7 +1540,7 @@ class BookletPrintView extends StatelessWidget {
 
                           const SizedBox(height: 20),
 
-                          // SECTION 1: LEAGUE TABLE STANDINGS (WITH CONTEXT TEAM LOGO IN HEADER)
+                          // SECTION 1: LEAGUE TABLE STANDINGS
                           _buildSectionHeader(
                             '1. LEAGUE TABLE STANDINGS',
                             Icons.table_chart,
@@ -1656,7 +1616,7 @@ class BookletPrintView extends StatelessWidget {
 
                           const SizedBox(height: 20),
 
-                          // SECTION 2: FIXTURES & RESULTS (WITH CONTEXT TEAM LOGO)
+                          // SECTION 2: FIXTURES & RESULTS
                           _buildSectionHeader(
                             isTeamFiltered
                                 ? '2. FIXTURES & RESULTS — ${filterTeam!.trim().toUpperCase()} (${activeFixtures.length} MATCHES)'

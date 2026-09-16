@@ -174,13 +174,16 @@ CREATE POLICY "Allow public write access to team_logos" ON public.team_logos FOR
 CREATE TABLE IF NOT EXISTS public.app_settings (
     id INT PRIMARY KEY DEFAULT 1,
     default_theme_mode TEXT NOT NULL DEFAULT 'cool_minimalist',
-    custom_primary INT,
-    custom_accent INT,
-    custom_background INT,
-    custom_surface INT,
-    custom_text INT,
-    custom_text_muted INT,
-    custom_border INT,
+    -- BIGINT, not INT: Color.toARGB32() is unsigned 32-bit (up to ~4.29
+    -- billion for a fully-opaque color), which overflows Postgres INT's
+    -- signed 32-bit range (max ~2.15 billion).
+    custom_primary BIGINT,
+    custom_accent BIGINT,
+    custom_background BIGINT,
+    custom_surface BIGINT,
+    custom_text BIGINT,
+    custom_text_muted BIGINT,
+    custom_border BIGINT,
     custom_font_family TEXT,
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT app_settings_single_row CHECK (id = 1)

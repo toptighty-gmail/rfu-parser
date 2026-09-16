@@ -1470,7 +1470,7 @@ class _HomeViewState extends State<HomeView> {
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.goldAccent,
-                    foregroundColor: Colors.black,
+                    foregroundColor: theme.isCustom ? Colors.white : Colors.black,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
@@ -1479,17 +1479,24 @@ class _HomeViewState extends State<HomeView> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  icon: const Icon(Icons.search, size: 18),
-                  label: const Text(
+                  icon: Icon(
+                    Icons.search,
+                    size: 18,
+                    color: theme.isCustom ? Colors.white : Colors.black,
+                  ),
+                  label: Text(
                     'Search RFU Team',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: theme.isCustom ? Colors.white : Colors.black,
+                    ),
                   ),
                   onPressed: _openTeamsDirectory,
                 ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.goldAccent,
-                    foregroundColor: Colors.black,
+                    foregroundColor: theme.isCustom ? Colors.white : Colors.black,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
@@ -1498,14 +1505,17 @@ class _HomeViewState extends State<HomeView> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.emoji_events,
                     size: 18,
-                    color: Colors.black,
+                    color: theme.isCustom ? Colors.white : Colors.black,
                   ),
-                  label: const Text(
+                  label: Text(
                     'Browse Divisions',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: theme.isCustom ? Colors.white : Colors.black,
+                    ),
                   ),
                   onPressed: _openDivisionsDirectory,
                 ),

@@ -168,15 +168,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     final textColor = theme.isCustom
         ? Colors.white
         : (hasSelectedDivision ? Colors.black : theme.textPrimary);
+    final backgroundColor = theme.isCustom || hasSelectedDivision
+        ? theme.goldAccent
+        : theme.goldAccent.withValues(alpha: 0.12);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSelectedDivision
-            ? theme.goldAccent
-            : theme.goldAccent.withValues(alpha: 0.12),
+        backgroundColor: backgroundColor,
         foregroundColor: textColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSelectedDivision
+          color: theme.isCustom || hasSelectedDivision
               ? theme.goldAccent
               : theme.goldAccent.withValues(alpha: 0.5),
           width: 1,
@@ -205,15 +206,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     final textColor = theme.isCustom
         ? Colors.white
         : (hasSearchedTeam ? Colors.black : theme.textPrimary);
+    final backgroundColor = theme.isCustom || hasSearchedTeam
+        ? theme.goldAccent
+        : theme.goldAccent.withValues(alpha: 0.12);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: hasSearchedTeam
-            ? theme.goldAccent
-            : theme.goldAccent.withValues(alpha: 0.12),
+        backgroundColor: backgroundColor,
         foregroundColor: textColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
-          color: hasSearchedTeam
+          color: theme.isCustom || hasSearchedTeam
               ? theme.goldAccent
               : theme.goldAccent.withValues(alpha: 0.5),
           width: 1,

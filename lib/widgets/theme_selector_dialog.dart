@@ -206,7 +206,7 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: _selected.goldAccent,
-            foregroundColor: Colors.black,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),

@@ -502,25 +502,21 @@ class _HomeViewState extends State<HomeView> {
                                     children: [
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFF0F172A),
-                                          foregroundColor:
-                                              AppTheme.emeraldAccent,
-                                          side: BorderSide(
-                                            color: AppTheme.emeraldAccent,
-                                            width: 1.2,
-                                          ),
+                                          backgroundColor:
+                                              currentTheme.goldAccent,
+                                          foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
                                           ),
                                         ),
-                                        icon: Icon(
+                                        icon: const Icon(
                                           Icons.analytics_outlined,
                                           size: 18,
-                                          color: AppTheme.emeraldAccent,
+                                          color: Colors.white,
                                         ),
-                                        label: Text(
+                                        label: const Text(
                                           'Database Metrics',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -531,8 +527,8 @@ class _HomeViewState extends State<HomeView> {
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              AppTheme.emeraldAccent,
-                                          foregroundColor: Colors.black,
+                                              currentTheme.goldAccent,
+                                          foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                               8,
@@ -556,7 +552,7 @@ class _HomeViewState extends State<HomeView> {
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
                                               currentTheme.goldAccent,
-                                          foregroundColor: Colors.black,
+                                          foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                               8,
@@ -578,28 +574,24 @@ class _HomeViewState extends State<HomeView> {
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              currentTheme.surfaceBg,
-                                          foregroundColor:
                                               currentTheme.goldAccent,
-                                          side: BorderSide(
-                                            color: currentTheme.goldAccent,
-                                            width: 1.2,
-                                          ),
+                                          foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
                                           ),
                                         ),
-                                        icon: Icon(
+                                        icon: const Icon(
                                           Icons.palette_outlined,
                                           size: 18,
-                                          color: currentTheme.goldAccent,
+                                          color: Colors.white,
                                         ),
                                         label: Text(
                                           'Theme: ${currentTheme.title}',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.bold,
+                                            color: Colors.white,
                                           ),
                                         ),
                                         onPressed: _openThemeSelectorDialog,

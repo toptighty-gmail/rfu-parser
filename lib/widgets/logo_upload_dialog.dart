@@ -279,7 +279,7 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.goldAccent,
-            foregroundColor: Colors.black,
+            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -291,7 +291,7 @@ class _LogoUploadDialogState extends State<LogoUploadDialog> {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                 )
               : const Text(

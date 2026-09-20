@@ -416,15 +416,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                   children: [
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: theme.goldAccent
-                                            .withValues(alpha: 0.12),
-                                        foregroundColor: theme.textPrimary,
-                                        side: BorderSide(
-                                          color: theme.goldAccent.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                          width: 1,
-                                        ),
+                                        backgroundColor: theme.goldAccent,
+                                        foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
                                           vertical: 7,
@@ -435,17 +428,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                           ),
                                         ),
                                       ),
-                                      icon: Icon(
+                                      icon: const Icon(
                                         Icons.picture_as_pdf,
                                         size: 16,
-                                        color: theme.textPrimary,
+                                        color: Colors.white,
                                       ),
-                                      label: Text(
+                                      label: const Text(
                                         'Print A4 Booklet',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
-                                          color: theme.textPrimary,
+                                          color: Colors.white,
                                         ),
                                       ),
                                       onPressed: onOpenBookletPrint,
@@ -453,13 +446,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                     const SizedBox(width: 6),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: theme.goldAccent
-                                            .withValues(alpha: 0.15),
-                                        foregroundColor: theme.textPrimary,
-                                        side: BorderSide(
-                                          color: theme.goldAccent,
-                                          width: 1.2,
-                                        ),
+                                        backgroundColor: theme.goldAccent,
+                                        foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
                                           vertical: 7,
@@ -470,17 +458,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                           ),
                                         ),
                                       ),
-                                      icon: Icon(
+                                      icon: const Icon(
                                         Icons.palette_outlined,
                                         size: 16,
-                                        color: theme.textPrimary,
+                                        color: Colors.white,
                                       ),
                                       label: Text(
                                         theme.title,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
-                                          color: theme.textPrimary,
+                                          color: Colors.white,
                                         ),
                                       ),
                                       onPressed: onOpenThemeSelector,
@@ -489,12 +477,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                     if (isAdmin) ...[
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: theme.darkBg,
-                                          foregroundColor: theme.textPrimary,
-                                          side: BorderSide(
-                                            color: theme.emeraldAccent,
-                                            width: 1.1,
-                                          ),
+                                          backgroundColor: theme.goldAccent,
+                                          foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 9,
                                             vertical: 7,
@@ -505,17 +489,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                             ),
                                           ),
                                         ),
-                                        icon: Icon(
+                                        icon: const Icon(
                                           Icons.analytics_outlined,
                                           size: 16,
-                                          color: theme.textPrimary,
+                                          color: Colors.white,
                                         ),
-                                        label: Text(
+                                        label: const Text(
                                           'DB Metrics',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
-                                            color: theme.textPrimary,
+                                            color: Colors.white,
                                           ),
                                         ),
                                         onPressed: onOpenDatabaseMetrics,
@@ -523,8 +507,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                       const SizedBox(width: 6),
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: theme.emeraldAccent,
-                                          foregroundColor: Colors.black,
+                                          backgroundColor: theme.goldAccent,
+                                          foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 10,
                                             vertical: 7,
@@ -549,7 +533,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: theme.goldAccent,
-                                          foregroundColor: Colors.black,
+                                          foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 10,
                                             vertical: 7,
@@ -563,7 +547,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                         icon: const Icon(
                                           Icons.cloud_upload,
                                           size: 16,
-                                          color: Colors.black,
+                                          color: Colors.white,
                                         ),
                                         label: const Text(
                                           'Upload Logo',

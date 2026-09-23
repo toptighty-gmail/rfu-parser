@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Successful report instances</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#687386; --line:#e2e7ef; --blue:#2458d3; --pale:#f5f7fb; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--pale); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1120px, calc(100% - 32px)); margin:48px auto; }
+    h1 { margin:0; font-size:clamp(26px,4vw,36px); letter-spacing:-.03em; }
+    .intro { color:var(--muted); margin:8px 0 24px; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:0 6px 24px #1624470a; }
+    label { display:block; font-weight:650; margin-bottom:8px; }
+    textarea { width:100%; min-height:148px; resize:vertical; border:1px solid #cbd3e0; border-radius:9px; padding:12px; font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    textarea:focus,input:focus { outline:3px solid #2458d326; border-color:var(--blue); }
+    .hint { color:var(--muted); font-size:13px; margin:7px 0 12px; }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    button { border:0; border-radius:8px; padding:10px 15px; background:var(--blue); color:#fff; font-weight:650; cursor:pointer; }
+    button.secondary { color:var(--ink); background:#edf1f7; }
+    button:hover { filter:brightness(.95); }
+    #message { min-height:22px; color:#a33b27; font-size:13px; margin-top:7px; }
+    .results { margin-top:20px; }
+    .summary { color:var(--muted); margin:0 0 10px; }
+    input[type="search"] { width:min(360px,100%); border:1px solid #cbd3e0; border-radius:8px; padding:10px 12px; margin-bottom:12px; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; }
+    table { width:100%; border-collapse:collapse; background:#fff; text-align:left; }
+    th,td { padding:11px 14px; border-bottom:1px solid var(--line); }
+    th { background:#f8f9fc; color:#485368; font-size:12px; text-transform:uppercase; letter-spacing:.045em; white-space:nowrap; }
+    th button { background:none; color:inherit; padding:0; font:inherit; text-transform:inherit; letter-spacing:inherit; }
+    tbody tr:last-child td { border-bottom:0; }
+    td.count, th.count { text-align:right; font-variant-numeric:tabular-nums; }
+    .empty { padding:24px; text-align:center; color:var(--muted); }
+    @media (max-width:600px) { main { margin:24px auto; } .panel { padding:14px; } th,td { padding:9px 10px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Successful report instances</h1>
+  <p class="intro">View successful Crystal Report instance counts by report and folder.</p>
+  <section class="panel" aria-label="Load report data">
+    <label for="data">Paste exported results</label>
+    <textarea id="data" spellcheck="false" placeholder="CSV: Folder_Path,Report_Name,Successful_Instance_Count&#10;/Finance,Monthly Summary,12&#10;&#10;or JSON: [{&quot;Folder_Path&quot;:&quot;/Finance&quot;,&quot;Report_Name&quot;:&quot;Monthly Summary&quot;,&quot;Successful_Instance_Count&quot;:12}]"></textarea>
+    <p class="hint">Accepts CSV with headers or a JSON array. Expected fields: Folder_Path, Report_Name, Successful_Instance_Count.</p>
+    <div class="controls">
+      <button id="load">Display results</button>
+      <button id="sample" class="secondary">Load sample</button>
+      <button id="clear" class="secondary">Clear</button>
+    </div>
+    <div id="message" role="status" aria-live="polite"></div>
+  </section>
+  <section class="results" aria-label="Instance results">
+    <p class="summary" id="summary">No results loaded.</p>
+    <input type="search" id="filter" placeholder="Filter by folder or report" aria-label="Filter results" hidden>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th><button data-key="folder">Folder path <span></span></button></th>
+          <th><button data-key="report">Report name <span></span></button></th>
+          <th class="count"><button data-key="count">Successful instances <span></span></button></th>
+        </tr></thead>
+        <tbody id="rows"><tr><td colspan="3" class="empty">Paste exported data above to display results.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let records = [], sortKey = 'count', sortDirection = -1;
+  const sample = [
+    {Folder_Path:'/Finance', Report_Name:'Monthly Summary', Successful_Instance_Count:12},
+    {Folder_Path:'/Operations/Weekly', Report_Name:'Weekly Activity', Successful_Instance_Count:8},
+    {Folder_Path:'/Finance', Report_Name:'Budget Overview', Successful_Instance_Count:5}
+  ];
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/).filter(line => line.trim());
+    if (lines.length < 2) throw new Error('CSV needs a header row and at least one data row.');
+    const parseLine = line => {
+      const values = []; let value = '', quoted = false;
+      for (let i=0; i<line.length; i++) {
+        const c = line[i];
+        if (c === '"' && quoted && line[i+1] === '"') { value += '"'; i++; }
+        else if (c === '"') quoted = !quoted;
+        else if (c === ',' && !quoted) { values.push(value); value = ''; }
+        else value += c;
+      }
+      values.push(value); return values;
+    };
+    const headers = parseLine(lines.shift()).map(h => h.trim().toLowerCase().replace(/[\s-]+/g,'_'));
+    return lines.map(line => Object.fromEntries(parseLine(line).map((v,i) => [headers[i], v.trim()])));
+  }
+  function normalize(row) {
+    const entries = Object.fromEntries(Object.entries(row).map(([k,v]) => [k.toLowerCase().replace(/[\s-]+/g,'_'), v]));
+    const folder = entries.folder_path ?? entries.object_folder_path ?? entries.folder ?? '';
+    const report = entries.report_name ?? entries.object_name ?? entries.si_name ?? entries.report ?? '';
+    const count = Number(entries.successful_instance_count ?? entries.instance_count ?? entries.count);
+    if (!report || !Number.isFinite(count) || count < 0) throw new Error('Each row needs a report name and a non-negative instance count.');
+    return {folder:String(folder), report:String(report), count};
+  }
+  function render() {
+    const query = $('filter').value.toLowerCase();
+    const visible = records.filter(r => `${r.folder} ${r.report}`.toLowerCase().includes(query));
+    visible.sort((a,b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      return (typeof av === 'number' ? av-bv : av.localeCompare(bv)) * sortDirection;
+    });
+    $('summary').textContent = `${visible.length} report${visible.length === 1 ? '' : 's'} shown · ${records.reduce((n,r) => n+r.count,0).toLocaleString()} successful instances total`;
+    $('rows').replaceChildren();
+    if (!visible.length) { const tr=document.createElement('tr'), td=document.createElement('td'); td.colSpan=3; td.className='empty'; td.textContent='No matching results.'; tr.append(td); $('rows').append(tr); return; }
+    for (const r of visible) {
+      const tr=document.createElement('tr');
+      for (const [value, cls] of [[r.folder || '—',''],[r.report,''],[r.count.toLocaleString(),'count']]) { const td=document.createElement('td'); td.textContent=value; if(cls) td.className=cls; tr.append(td); }
+      $('rows').append(tr);
+    }
+  }
+  $('load').addEventListener('click', () => {
+    try {
+      const raw=$('data').value.trim(); if(!raw) throw new Error('Paste CSV or JSON data first.');
+      const parsed=raw.startsWith('[') ? JSON.parse(raw) : parseCSV(raw);
+      if(!Array.isArray(parsed)) throw new Error('JSON input must be an array of rows.');
+      records=parsed.map(normalize); $('filter').hidden=false; $('message').textContent=''; render();
+    } catch (e) { $('message').textContent=e.message || 'Could not read the supplied data.'; }
+  });
+  $('sample').addEventListener('click', () => { $('data').value=JSON.stringify(sample,null,2); $('load').click(); });
+  $('clear').addEventListener('click', () => { $('data').value=''; $('filter').value=''; $('filter').hidden=true; records=[]; $('message').textContent=''; $('summary').textContent='No results loaded.'; $('rows').innerHTML='<tr><td colspan="3" class="empty">Paste exported data above to display results.</td></tr>'; });
+  $('filter').addEventListener('input', render);
+  document.querySelectorAll('th button').forEach(button => button.addEventListener('click', () => {
+    const key=button.dataset.key; if(sortKey===key) sortDirection*=-1; else { sortKey=key; sortDirection=key==='count'?-1:1; }
+    document.querySelectorAll('th button span').forEach(span => span.textContent=''); button.querySelector('span').textContent=sortDirection===1?' ↑':' ↓'; render();
+  }));
+</script>
+</body>
+</html>

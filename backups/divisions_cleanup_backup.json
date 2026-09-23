@@ -1,0 +1,50 @@
+[
+  {
+    "id": "e7e6bd16-429e-4786-8a44-cbae30019e6e",
+    "division_name": "Counties 3 Tribute Ale Devon South & West",
+    "season": "2026-2027",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75801",
+    "updated_at": "2026-08-31T18:43:38.31+00:00",
+    "rfu_competition_id": 1699,
+    "rfu_division_id": 75799,
+    "tier_level": 9,
+    "region": "South West",
+    "backup_at": "2026-08-31T20:20:48.122674+00:00"
+  },
+  {
+    "id": "aface5d1-7f63-478b-b723-79500eda3067",
+    "division_name": "Counties 2 Tribute Devon",
+    "season": "2026-2027",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75799",
+    "updated_at": "2026-08-31T20:46:47.5+00:00",
+    "rfu_competition_id": 1699,
+    "rfu_division_id": 75799,
+    "tier_level": 8,
+    "region": "South West",
+    "backup_at": "2026-08-31T20:20:48.122674+00:00"
+  },
+  {
+    "id": "ee4af88a-5c5d-4774-b1a4-c01f17c160a7",
+    "division_name": "Counties 2 Tribute Cornwall",
+    "season": "2026-2027",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75799",
+    "updated_at": "2026-08-31T14:26:06.194+00:00",
+    "rfu_competition_id": 1699,
+    "rfu_division_id": 75799,
+    "tier_level": 8,
+    "region": "South West",
+    "backup_at": "2026-08-31T20:20:48.122674+00:00"
+  },
+  {
+    "id": "592aed21-58f3-4e16-98b6-f3d08084ed58",
+    "division_name": "RFU Championship",
+    "season": "2026-2027",
+    "source_url": "https://www.englandrugby.com/fixtures-and-results/search-results?competition=1699&season=2026-2027&division=75799",
+    "updated_at": "2026-08-31T20:47:18.402+00:00",
+    "rfu_competition_id": 1699,
+    "rfu_division_id": 75799,
+    "tier_level": 8,
+    "region": "South West",
+    "backup_at": "2026-08-31T20:20:48.122674+00:00"
+  }
+]

@@ -1,0 +1,30 @@
+2026-09-03 14:59:25 | === Starting stale-fixture resync ===
+2026-09-03 14:59:26 | 670 divisions loaded
+2026-09-03 14:59:54 | 66246 fixtures loaded
+2026-09-03 14:59:55 | 405 divisions have at least one stale fixture (3319 rows total)
+2026-09-03 15:00:02 | [1/405] Counties 3 Tribute Gloucestershire South (2022-2023) -> updated=4/19
+2026-09-03 15:00:09 | [2/405] Midlands 4 West (North) (2021-2022) -> updated=1/14
+2026-09-03 15:00:15 | [3/405] Counties 4 Midlands West (South) (2022-2023) -> updated=1/10
+2026-09-03 15:00:21 | [4/405] Tribute Southern Counties South (2021-2022) -> updated=1/8
+2026-09-03 15:00:27 | [5/405] Counties 3 Midlands East (Central) (2023-2024) -> updated=1/6
+2026-09-03 15:00:40 | [7/405] Counties 3 Tribute Somerset North (2022-2023) -> updated=5/25
+2026-09-03 15:00:59 | [10/405] Counties 4 Yorkshire (2022-2023) -> updated=2/18
+2026-09-03 15:01:06 | [11/405] Counties 4 Midlands West (South) (2023-2024) -> updated=2/9
+2026-09-03 15:01:18 | [13/405] Counties 2 Tribute Berks/Bucks & Oxon North (2024-2025) -> updated=2/7
+2026-09-03 15:01:30 | [15/405] Counties 4 Tribute Gloucestershire North (2022-2023) -> updated=2/14
+2026-09-03 15:01:37 | [16/405] Counties 1 Midlands West (North) (2022-2023) -> updated=3/7
+2026-09-03 15:01:42 | [17/405] Counties 4 Tribute Somerset North (2022-2023) -> updated=2/11
+2026-09-03 15:01:55 | [19/405] Counties 3 adm Lancashire & Cheshire (2024-2025) -> updated=2/45
+2026-09-03 15:02:01 | [20/405] Tribute Southern Counties North (2021-2022) -> updated=1/4
+2026-09-03 15:02:08 | [21/405] Counties 1 Tribute Western West (2024-2025) -> updated=1/4
+2026-09-03 15:02:13 | [22/405] Counties 3 Tribute Ale Dorset & Wilts Central (2025-2026) -> updated=1/5
+2026-09-03 15:02:26 | [24/405] Tribute Cornwall/Devon (2021-2022) -> updated=2/12
+2026-09-03 15:02:32 | [25/405] Counties 2 Tribute Ale Somerset (2025-2026) -> updated=1/8
+2026-09-03 15:02:37 | [26/405] Tribute Cornwall 2 (2021-2022) -> updated=1/6
+2026-09-03 15:03:00 | [30/405] Tribute Devon 1 (2021-2022) -> updated=5/14
+2026-09-03 15:03:06 | [31/405] Tribute Gloucester Premier (2021-2022) -> updated=1/12
+2026-09-03 15:03:13 | [32/405] Tribute Somerset Premier (2021-2022) -> updated=1/21
+2026-09-03 15:03:19 | [33/405] Counties 2 Kent (2025-2026) -> updated=1/2
+2026-09-03 15:03:35 | [36/405] Counties 3 Tribute Berks Bucks & Oxon South (2022-2023) -> updated=1/17
+2026-09-03 15:03:52 | [39/405] Tribute Gloucestershire 1 South (2021-2022) -> updated=3/17
+2026-09-03 15:03:58 | [40/405] Counties 4 Tribute Berks Bucks & Oxon North (2022-2023) -> updated=1/12

@@ -558,6 +558,7 @@ class FixtureCard extends StatelessWidget {
                           child: Text(
                             fixture.homeTeam,
                             textAlign: TextAlign.end,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
@@ -618,6 +619,7 @@ class FixtureCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             fixture.awayTeam,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,

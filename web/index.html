@@ -57,5 +57,31 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Viewport diagnostics overlay, only shown with ?diag in the URL.
+    if (location.search.indexOf('diag') !== -1) {
+      setInterval(function () {
+        var vv = window.visualViewport || {};
+        var de = document.documentElement;
+        var fv = document.querySelector('flutter-view');
+        var r = fv ? fv.getBoundingClientRect() : null;
+        var el = document.getElementById('vp-diag');
+        if (!el) {
+          el = document.createElement('pre');
+          el.id = 'vp-diag';
+          el.style.cssText = 'position:fixed;left:0;bottom:0;z-index:99999;margin:0;padding:6px;' +
+            'background:#000;color:#0f0;font:12px monospace;pointer-events:none;';
+          document.body.appendChild(el);
+        }
+        el.textContent =
+          'innerW ' + innerWidth + '  innerH ' + innerHeight + '\n' +
+          'clientW ' + de.clientWidth + '  clientH ' + de.clientHeight + '\n' +
+          'vvW ' + Math.round(vv.width) + '  vvScale ' + vv.scale + '  vvLeft ' + Math.round(vv.offsetLeft) + '\n' +
+          'dpr ' + devicePixelRatio + '  screenW ' + screen.width + '  scrollX ' + scrollX + '\n' +
+          'docScrollW ' + de.scrollWidth + '\n' +
+          (r ? 'flutterView L ' + Math.round(r.left) + ' W ' + Math.round(r.width) : 'no flutter-view');
+      }, 1000);
+    }
+  </script>
 </body>
 </html>

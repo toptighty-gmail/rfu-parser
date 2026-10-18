@@ -18,6 +18,7 @@ Examples:
     python scripts/sync_lineups.py --season 2025-2026 --competition 1699
     python scripts/sync_lineups.py --season 2026-2027            # weekly top-up
     python scripts/sync_lineups.py --season 2025-2026 --team "Plymstock Oaks" --team "Plymstock Oaks II"
+    python scripts/sync_lineups.py --player "Aiden Taylor"        # whole career, every season and club
     python scripts/sync_lineups.py --season 2025-2026 --division 66453 --limit 3 --dry-run
 """
 import argparse
@@ -34,7 +35,13 @@ from urllib.parse import quote
 import cloudscraper
 import requests
 
-from rfu_parser.lineups import match_centre_url, parse_lineup
+from rfu_parser.lineups import (
+    match_centre_url,
+    parse_lineup,
+    parse_match_info,
+    parse_player_match_ids,
+    player_stats_url,
+)
 from rfu_parser.scraper import RFUParser, _normalize_team_name
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,6 +129,7 @@ class LineupSync:
         self.rfu = cloudscraper.create_scraper()
         self.parser = RFUParser()
         self.last_request = 0.0
+        self._divisions = None
         self.stats = {"divisions": 0, "fetched": 0, "with_lineup": 0, "appearances": 0, "skipped": 0, "errors": 0}
 
     def fetch(self, url):
@@ -179,9 +187,83 @@ class LineupSync:
                 print(f"      ! match {f.rfu_match_id} ({f.home_team} v {f.away_team}): {e}", flush=True)
 
     def sync_match(self, div, fixture, match_date):
+        """Fetch and store one match found on a division's fixtures page."""
         match_id = fixture.rfu_match_id
         lineups = parse_lineup(self.fetch(match_centre_url(match_id)))
         self.stats["fetched"] += 1
+        self.store_match(
+            match_id,
+            lineups,
+            season=div["season"],
+            division_id=div["id"],
+            rfu_competition_id=div.get("rfu_competition_id") or query_param(div.get("source_url"), "competition"),
+            rfu_division_id=div.get("rfu_division_id") or query_param(div.get("source_url"), "division"),
+            match_date=match_date,
+            home_team=fixture.home_team,
+            away_team=fixture.away_team,
+            home_score=fixture.home_score,
+            away_score=fixture.away_score,
+        )
+
+    def sync_player(self, player_id):
+        """Fetch every match on a player's RFU stats page (all seasons, any
+        club), storing each match's full lineups."""
+        match_ids = parse_player_match_ids(self.fetch(player_stats_url(player_id)))
+        existing = {}
+        for i in range(0, len(match_ids), 100):
+            chunk = ",".join(str(m) for m in match_ids[i:i + 100])
+            for m in self.db.get(f"matches?rfu_match_id=in.({chunk})&select=rfu_match_id,match_date"):
+                existing[m["rfu_match_id"]] = m
+        todo = []
+        for match_id in match_ids:
+            known = existing.get(match_id)
+            known_date = date.fromisoformat(known["match_date"]) if known and known.get("match_date") else None
+            if self.needs_fetch(known, known_date):
+                todo.append(match_id)
+            else:
+                self.stats["skipped"] += 1
+        print(f"  - player {player_id}: {len(match_ids)} matches on RFU, {len(todo)} to fetch", flush=True)
+
+        for match_id in todo:
+            if self.limit is not None and self.stats["fetched"] >= self.limit:
+                return
+            try:
+                html = self.fetch(match_centre_url(match_id))
+                self.stats["fetched"] += 1
+                info = parse_match_info(html)
+                if info is None or not info.season:
+                    raise RuntimeError("no match header on page")
+                self.store_match(
+                    match_id,
+                    parse_lineup(html),
+                    season=info.season,
+                    division_id=self.division_uuid(info.season, info.rfu_division_id),
+                    rfu_competition_id=info.rfu_competition_id,
+                    rfu_division_id=info.rfu_division_id,
+                    match_date=info.match_date,
+                    home_team=info.home_team,
+                    away_team=info.away_team,
+                    home_score=info.home_score,
+                    away_score=info.away_score,
+                )
+            except Exception as e:  # keep going; the match is retried on the next run
+                self.stats["errors"] += 1
+                print(f"      ! match {match_id}: {e}", flush=True)
+
+    def division_uuid(self, season, rfu_division_id):
+        """Our divisions.id for an RFU division in a season, if we track it."""
+        if rfu_division_id is None:
+            return None
+        if self._divisions is None:
+            self._divisions = {}
+            for d in self.db.get("divisions?select=id,season,source_url,rfu_division_id"):
+                rfu_id = d.get("rfu_division_id") or query_param(d.get("source_url"), "division")
+                if rfu_id:
+                    self._divisions[(d["season"], rfu_id)] = d["id"]
+        return self._divisions.get((season, rfu_division_id))
+
+    def store_match(self, match_id, lineups, *, season, division_id, rfu_competition_id, rfu_division_id,
+                    match_date, home_team, away_team, home_score, away_score):
         iso_date = match_date.isoformat() if match_date else None
         now = datetime.now(timezone.utc).isoformat()
         home = lineups[0] if len(lineups) > 0 else None
@@ -189,17 +271,17 @@ class LineupSync:
 
         self.db.upsert("matches", [{
             "rfu_match_id": match_id,
-            "division_id": div["id"],
-            "rfu_competition_id": div.get("rfu_competition_id") or query_param(div.get("source_url"), "competition"),
-            "rfu_division_id": div.get("rfu_division_id") or query_param(div.get("source_url"), "division"),
-            "season": div["season"],
+            "division_id": division_id,
+            "rfu_competition_id": rfu_competition_id,
+            "rfu_division_id": rfu_division_id,
+            "season": season,
             "match_date": iso_date,
-            "home_team": _normalize_team_name(fixture.home_team),
-            "away_team": _normalize_team_name(fixture.away_team),
+            "home_team": _normalize_team_name(home_team),
+            "away_team": _normalize_team_name(away_team),
             "home_team_id": home.rfu_team_id if home else None,
             "away_team_id": away.rfu_team_id if away else None,
-            "home_score": fixture.home_score,
-            "away_score": fixture.away_score,
+            "home_score": home_score,
+            "away_score": away_score,
             "lineup_status": "ok" if lineups else "none",
             "lineup_checked_at": now,
             "updated_at": now,
@@ -220,8 +302,8 @@ class LineupSync:
                     "rfu_player_id": p.rfu_player_id,
                     "rfu_team_id": team.rfu_team_id,
                     "team_name": team_name,
-                    "season": div["season"],
-                    "division_id": div["id"],
+                    "season": season,
+                    "division_id": division_id,
                     "match_date": iso_date,
                     "shirt": p.shirt,
                     "shirt_number": p.shirt_number,
@@ -239,7 +321,7 @@ class LineupSync:
             self.stats["with_lineup"] += 1
             self.stats["appearances"] += len(appearances)
         summary = ", ".join(f"{t.team_name} {len(t.players)}" for t in lineups) or "no lineup"
-        print(f"      {iso_date} {fixture.home_team} v {fixture.away_team} [{match_id}]: {summary}", flush=True)
+        print(f"      {iso_date} {home_team} v {away_team} [{match_id}]: {summary}", flush=True)
 
 
 def main():
@@ -249,6 +331,9 @@ def main():
     ap.add_argument("--division", type=int, help="only this RFU division id, e.g. 66453")
     ap.add_argument("--team", action="append",
                     help="only matches involving this team (exact name, repeatable), e.g. --team \"Plymstock Oaks\"")
+    ap.add_argument("--player", action="append",
+                    help="sync a player's whole RFU history (every season and club) instead of divisions; "
+                         "an RFU playerId, or a name already in the players table (repeatable)")
     ap.add_argument("--delay", type=float, default=1.5, help="seconds between RFU requests (default 1.5)")
     ap.add_argument("--recheck-days", type=int, default=14,
                     help="re-fetch matches played within this many days (default 14)")
@@ -264,6 +349,10 @@ def main():
         sys.exit("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (in the environment or .env).")
 
     db = SupabaseRest(url, key, dry_run=args.dry_run)
+    if args.player:
+        sync_players(db, args)
+        return
+
     divisions = db.get(
         f"divisions?season=eq.{args.season}"
         "&select=id,division_name,season,source_url,rfu_competition_id,rfu_division_id&order=division_name"
@@ -297,10 +386,45 @@ def main():
     except KeyboardInterrupt:
         print("\nInterrupted - progress so far is saved; re-run to continue.", flush=True)
 
+    print_summary(sync)
+
+
+def print_summary(sync):
     s = sync.stats
     print(f"Done: {s['divisions']} divisions, {s['fetched']} match pages fetched "
           f"({s['with_lineup']} with lineups, {s['appearances']} appearances), "
           f"{s['skipped']} already stored, {s['errors']} errors.", flush=True)
+
+
+def resolve_player_id(db, value):
+    """An RFU playerId as given, or looked up by exact name in our players table."""
+    if value.strip().isdigit():
+        return int(value)
+    rows = db.get(f"players?display_name=ilike.{quote(value.strip())}&select=rfu_player_id,display_name")
+    if len(rows) == 1:
+        return rows[0]["rfu_player_id"]
+    if not rows:
+        sys.exit(f'No player called "{value}" in the database yet. Pass their RFU playerId instead '
+                 f'(the number in their England Rugby player-stats link).')
+    ids = ", ".join(str(r["rfu_player_id"]) for r in rows)
+    sys.exit(f'Several players are called "{value}" (playerIds {ids}); pass the playerId instead.')
+
+
+def sync_players(db, args):
+    player_ids = [resolve_player_id(db, p) for p in args.player]
+    print(f"Lineup sync for {len(player_ids)} player(s), all seasons"
+          f"{' (dry run)' if args.dry_run else ''}", flush=True)
+    sync = LineupSync(db, args.delay, args.recheck_days, args.refresh, args.limit)
+    try:
+        for player_id in player_ids:
+            try:
+                sync.sync_player(player_id)
+            except Exception as e:
+                sync.stats["errors"] += 1
+                print(f"  ! player {player_id} failed: {e}", flush=True)
+    except KeyboardInterrupt:
+        print("\nInterrupted - progress so far is saved; re-run to continue.", flush=True)
+    print_summary(sync)
 
 
 if __name__ == "__main__":

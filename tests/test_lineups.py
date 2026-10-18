@@ -1,6 +1,6 @@
 import os
 
-from rfu_parser.lineups import clean_player_name, parse_lineup
+from rfu_parser.lineups import clean_player_name, parse_lineup, parse_match_info, parse_player_match_ids
 from rfu_parser.scraper import RFUParser
 
 SAMPLE_DIR = os.path.join(os.path.dirname(__file__), "sample_data")
@@ -113,3 +113,48 @@ def test_parse_fixtures_captures_match_id_for_unplayed_match():
     assert all(f.rfu_match_id for f in fixtures)
     assert 1280118 in {f.rfu_match_id for f in fixtures}
     assert len({f.rfu_match_id for f in fixtures}) == len(fixtures)
+
+
+MATCH_HEADER_HTML = """
+<div class="c042-team"><span class="c042-team-name">Home RFC</span></div>
+<div class="c042-score"><span class="c042-match-score">27 - 12</span> Full time</div>
+<div class="c042-team"><span class="c042-team-name">Away II</span></div>
+<div id="c042-event"><div id="c042-event-date"> Saturday 6 September 2025 00:00 </div></div>
+"""
+
+
+def test_parse_match_info_derives_season_from_date():
+    info = parse_match_info(MATCH_HEADER_HTML)
+    assert (info.home_team, info.away_team) == ("Home RFC", "Away II")
+    assert (info.home_score, info.away_score) == (27, 12)
+    assert info.match_date.isoformat() == "2025-09-06"
+    assert info.season == "2025-2026"
+    assert info.rfu_division_id is None
+
+
+def test_parse_match_info_reads_season_and_division_from_links():
+    html = MATCH_HEADER_HTML + (
+        '<a href="/fixtures-and-results/search-results?competition=1699&amp;season=2024-2025'
+        '&amp;division=66453&amp;matchId=9&amp;team=111">Home RFC</a>'
+    )
+    info = parse_match_info(html)
+    assert (info.rfu_competition_id, info.season, info.rfu_division_id) == (1699, "2024-2025", 66453)
+
+
+def test_parse_match_info_spring_date_belongs_to_previous_season():
+    info = parse_match_info(MATCH_HEADER_HTML.replace("6 September 2025", "14 March 2026"))
+    assert info.season == "2025-2026"
+
+
+def test_parse_match_info_without_header():
+    assert parse_match_info("<html><body>Page not found</body></html>") is None
+
+
+def test_parse_player_match_ids_dedupes_in_page_order():
+    html = """
+    <a href="/fixtures-and-results/match-centre-community?playerId=5&amp;matchId=300">Home v Away</a>
+    <a href="/fixtures-and-results/match-centre-community?playerId=5&amp;matchId=300">27 - 12</a>
+    <a href="/fixtures-and-results/match-centre-community?playerId=5&amp;matchId=200">Away v Home</a>
+    <a href="/fixtures-and-results/search-results?team=111">Home RFC</a>
+    """
+    assert parse_player_match_ids(html) == [300, 200]

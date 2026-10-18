@@ -1241,11 +1241,18 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  /// Seasons offered in the player search: RFU electronic match card lineups
+  /// go back to 2016-2017, further than the league tables the app covers.
+  List<String> get _lineupSeasons {
+    final latest = int.parse(_seasons.first.substring(0, 4));
+    return [for (var y = latest; y >= 2016; y--) '$y-${y + 1}'];
+  }
+
   void _openPlayerSearch() {
     showDialog(
       context: context,
       builder: (_) => PlayerSearchDialog(
-        seasons: _seasons,
+        seasons: _lineupSeasons,
         initialSeason: _selectedSeason,
         initialTeam: _searchController.text.trim(),
       ),

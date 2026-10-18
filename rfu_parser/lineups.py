@@ -15,11 +15,13 @@ carry no lineup in the HTML and parse to an empty list.
 """
 import re
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from typing import List, Optional
 
 from bs4 import BeautifulSoup
 
 MATCH_CENTRE_URL = "https://www.englandrugby.com/fixtures-and-results/match-centre-community?matchId={match_id}"
+PLAYER_STATS_URL = "https://www.englandrugby.com/fixtures-and-results/player-stats?playerId={player_id}"
 WITHHELD_NAME = "Name withheld"
 
 
@@ -40,8 +42,86 @@ class TeamLineup:
     players: List[LineupPlayer] = field(default_factory=list)
 
 
+@dataclass
+class MatchInfo:
+    """Header details of a match-centre page (the c042 block)."""
+    home_team: str
+    away_team: str
+    match_date: Optional[date]
+    home_score: Optional[int]
+    away_score: Optional[int]
+    season: Optional[str]  # "2025-2026"
+    rfu_competition_id: Optional[int]
+    rfu_division_id: Optional[int]
+
+
 def match_centre_url(match_id: int) -> str:
     return MATCH_CENTRE_URL.format(match_id=match_id)
+
+
+def player_stats_url(player_id: int) -> str:
+    return PLAYER_STATS_URL.format(player_id=player_id)
+
+
+def parse_match_info(html_content: str) -> Optional[MatchInfo]:
+    """Teams, date, score and competition/season/division of a match page.
+
+    Returns None if the page has no match header (e.g. an error page).
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    names = [" ".join(t.get_text().split()) for t in soup.find_all(class_="c042-team-name")]
+    if len(names) < 2:
+        return None
+
+    match_date = None
+    date_el = soup.find(id="c042-event-date")
+    if date_el:
+        m = re.search(r"(\d{1,2}) ([A-Za-z]+) (\d{4})", date_el.get_text(" "))
+        if m:
+            try:
+                match_date = datetime.strptime(" ".join(m.groups()), "%d %B %Y").date()
+            except ValueError:
+                pass
+
+    home_score = away_score = None
+    score_el = soup.find(class_="c042-match-score")
+    if score_el:
+        m = re.match(r"\s*(\d+)\s*-\s*(\d+)", score_el.get_text())
+        if m:
+            home_score, away_score = int(m.group(1)), int(m.group(2))
+
+    # The lineup team links (and other in-page links) carry the match's own
+    # competition, season and division.
+    # Only present when the page was opened with those query params, so fall
+    # back to the season the date falls in (seasons run August to July).
+    season = competition = division = None
+    m = re.search(r"competition=(\d+)&(?:amp;)?season=(\d{4}-\d{4})&(?:amp;)?division=(\d+)", html_content)
+    if m:
+        competition, season, division = int(m.group(1)), m.group(2), int(m.group(3))
+    elif match_date:
+        start = match_date.year if match_date.month >= 8 else match_date.year - 1
+        season = f"{start}-{start + 1}"
+
+    return MatchInfo(
+        home_team=names[0],
+        away_team=names[1],
+        match_date=match_date,
+        home_score=home_score,
+        away_score=away_score,
+        season=season,
+        rfu_competition_id=competition,
+        rfu_division_id=division,
+    )
+
+
+def parse_player_match_ids(html_content: str) -> List[int]:
+    """Every matchId on a player-stats page (all seasons), oldest last."""
+    seen = []
+    for m in re.finditer(r"match-centre-community\?[^\"']*?matchId=(\d+)", html_content):
+        mid = int(m.group(1))
+        if mid not in seen:
+            seen.append(mid)
+    return seen
 
 
 def clean_player_name(raw: str) -> str:

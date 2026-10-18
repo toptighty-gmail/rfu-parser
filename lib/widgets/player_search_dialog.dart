@@ -975,6 +975,8 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                     )
                   : ListView(
                       children: [
+                        if (playedForSeveralTeams || _multiSeason)
+                          _buildTeamTotals(theme, matches),
                         for (final season in seasons) ...[
                           Container(
                             margin: const EdgeInsets.only(top: 4, bottom: 2),
@@ -1008,6 +1010,115 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                       ],
                     ),
         ),
+      ],
+    );
+  }
+
+  /// Appearances per team over the selected seasons ("all time" when every
+  /// season is ticked). Teams are keyed by RFU team id, so a renamed club
+  /// (e.g. Plymstock Albion Oaks -> Plymstock Oaks) counts as one team under
+  /// its most recent name.
+  Widget _buildTeamTotals(AppThemeMode theme, List<PlayerMatchAppearance> matches) {
+    final byTeam = <Object, List<PlayerMatchAppearance>>{};
+    for (final m in matches) {
+      byTeam.putIfAbsent(m.teamId ?? m.teamName, () => []).add(m);
+    }
+    final teams = byTeam.values.toList()
+      ..sort((a, b) {
+        final apps = b.length.compareTo(a.length);
+        return apps != 0 ? apps : a.first.teamName.compareTo(b.first.teamName);
+      });
+
+    // The player's own matches may only go up to a team's old name (e.g. one
+    // game for "Plymstock Albion Oaks II" in 2022-23); the team dropdown data
+    // carries each team's latest name in the selected seasons.
+    final latestNames = {for (final t in _teams) t.teamId: t.teamName};
+    String teamName(List<PlayerMatchAppearance> rows) =>
+        latestNames[rows.first.teamId] ?? rows.first.teamName;
+
+    final headerStyle = TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.bold);
+    final numberStyle = TextStyle(color: theme.textPrimary, fontSize: 13);
+    Widget cell(String text, TextStyle style, {double width = 48}) =>
+        SizedBox(width: width, child: Text(text, textAlign: TextAlign.center, style: style));
+
+    Widget line(String name, String seasonsText, int apps, int starts, int bench, {bool bold = false}) {
+      final weight = bold ? FontWeight.bold : FontWeight.normal;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                  if (seasonsText.isNotEmpty)
+                    Text(seasonsText, style: TextStyle(color: theme.textMuted, fontSize: 11)),
+                ],
+              ),
+            ),
+            cell('$apps', numberStyle.copyWith(fontWeight: FontWeight.bold)),
+            cell('$starts', numberStyle.copyWith(fontWeight: weight)),
+            cell('$bench', numberStyle.copyWith(fontWeight: weight)),
+          ],
+        ),
+      );
+    }
+
+    String seasonSpan(List<PlayerMatchAppearance> rows) {
+      final seasons = rows.map((m) => m.season).toSet().toList()..sort();
+      final span = seasons.length == 1
+          ? _shortSeason(seasons.first)
+          : '${_shortSeason(seasons.first)} to ${_shortSeason(seasons.last)}';
+      return '$span · ${_plural(seasons.length, 'season')}';
+    }
+
+    int startsOf(List<PlayerMatchAppearance> rows) => rows.where((m) => !m.isSubstitute).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 4, bottom: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.goldAccent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            _allSeasons ? 'All-time totals by team' : 'Totals by team $_seasonsPhrase',
+            style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: Row(
+            children: [
+              Expanded(child: Text('TEAM', style: headerStyle)),
+              cell('APPS', headerStyle),
+              cell('START', headerStyle),
+              cell('BENCH', headerStyle),
+            ],
+          ),
+        ),
+        for (final rows in teams)
+          line(
+            teamName(rows),
+            seasonSpan(rows),
+            rows.length,
+            startsOf(rows),
+            rows.length - startsOf(rows),
+          ),
+        if (teams.length > 1)
+          line('Total', '', matches.length, startsOf(matches), matches.length - startsOf(matches), bold: true),
+        const SizedBox(height: 12),
       ],
     );
   }

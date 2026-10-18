@@ -243,6 +243,35 @@ class SupabaseService {
     }
   }
 
+  /// Every match [playerId] was named in during [seasons] (null = every
+  /// season), newest first, with the opponent and score from `matches`.
+  static Future<List<PlayerMatchAppearance>> fetchPlayerMatches({
+    required int playerId,
+    List<String>? seasons,
+  }) async {
+    final client = _client;
+    if (client == null) return [];
+    try {
+      dynamic filter = client
+          .from('appearances')
+          .select(
+            'season,match_date,rfu_team_id,team_name,shirt,is_substitute,'
+            'matches(home_team,away_team,home_team_id,away_team_id,home_score,away_score)',
+          )
+          .eq('rfu_player_id', playerId);
+      if (seasons != null) {
+        filter = filter.inFilter('season', seasons);
+      }
+      final response = await filter.order('match_date', ascending: false);
+      return (response as List)
+          .map((r) => PlayerMatchAppearance.fromJson(Map<String, dynamic>.from(r)))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching player matches: $e');
+      return [];
+    }
+  }
+
   /// Teams with synced lineups in [seasons] (null = every season), one entry
   /// per RFU team id, named as in its most recent season. Feeds the team
   /// dropdown in the player search.

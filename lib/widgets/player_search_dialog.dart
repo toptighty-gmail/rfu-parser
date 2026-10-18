@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/player_appearance.dart';
 import '../services/supabase_service.dart';
@@ -51,6 +52,13 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
   /// Bumped per request so a slow earlier response can't overwrite a newer one.
   int _searchGeneration = 0;
   int _teamsGeneration = 0;
+
+  /// Player whose match-by-match appearances are shown in place of the
+  /// search results (null = showing results).
+  PlayerSeasonAppearance? _detailPlayer;
+  List<PlayerMatchAppearance> _detailMatches = [];
+  bool _detailLoading = false;
+  int _detailGeneration = 0;
 
   bool get _allSeasons => _selectedSeasons.length == widget.seasons.length;
 
@@ -159,8 +167,12 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
   }
 
   void _setMode(PlayerSearchMode mode) {
-    if (_mode == mode) return;
+    if (_mode == mode) {
+      if (_detailPlayer != null) setState(() => _detailPlayer = null);
+      return;
+    }
     setState(() {
+      _detailPlayer = null;
       _mode = mode;
       _results = [];
       _hasSearched = false;
@@ -176,6 +188,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     _debounce = Timer(const Duration(milliseconds: 350), () {
       _loadTeams();
       if (_mode == PlayerSearchMode.player) _search();
+      if (_detailPlayer != null) _loadPlayerMatches();
     });
   }
 
@@ -188,6 +201,32 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
   Future<void> _openRfuProfile(PlayerSeasonAppearance row) async {
     if (row.nameWithheld) return;
     await launchUrl(Uri.parse(row.rfuProfileUrl), mode: LaunchMode.externalApplication);
+  }
+
+  void _openPlayerDetail(PlayerSeasonAppearance player) {
+    setState(() {
+      _detailPlayer = player;
+      _detailMatches = [];
+    });
+    _loadPlayerMatches();
+  }
+
+  void _closePlayerDetail() => setState(() => _detailPlayer = null);
+
+  Future<void> _loadPlayerMatches() async {
+    final player = _detailPlayer;
+    if (player == null) return;
+    final generation = ++_detailGeneration;
+    setState(() => _detailLoading = true);
+    final matches = await SupabaseService.fetchPlayerMatches(
+      playerId: player.playerId,
+      seasons: _seasonFilter,
+    );
+    if (!mounted || generation != _detailGeneration) return;
+    setState(() {
+      _detailMatches = matches;
+      _detailLoading = false;
+    });
   }
 
   // --- Text helpers -------------------------------------------------------
@@ -285,11 +324,15 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
               ],
             ),
             const SizedBox(height: 10),
-            _mode == PlayerSearchMode.player
-                ? _buildPlayerField(theme)
-                : _buildTeamField(theme),
-            const SizedBox(height: 10),
-            Expanded(child: _buildResults(theme)),
+            if (_detailPlayer != null)
+              Expanded(child: _buildPlayerDetail(theme, _detailPlayer!))
+            else ...[
+              _mode == PlayerSearchMode.player
+                  ? _buildPlayerField(theme)
+                  : _buildTeamField(theme),
+              const SizedBox(height: 10),
+              Expanded(child: _buildResults(theme)),
+            ],
             const SizedBox(height: 8),
             Text(
               'From RFU electronic match cards. Bench = named as a replacement; '
@@ -663,7 +706,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
-            onTap: () => _openRfuProfile(player),
+            onTap: () => _openPlayerDetail(player),
             child: Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               decoration: BoxDecoration(
@@ -690,7 +733,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                       ),
                       _countBadge(theme, _plural(_total(rows), 'app')),
                       const SizedBox(width: 4),
-                      Icon(Icons.open_in_new, size: 14, color: theme.textMuted),
+                      Icon(Icons.chevron_right, size: 18, color: theme.textMuted),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -814,12 +857,13 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                       statCell('APPS', headerStyle),
                       statCell('START', headerStyle),
                       statCell('BENCH', headerStyle),
+                      const SizedBox(width: 16),
                     ],
                   ),
                 ),
                 for (final line in squad)
                   InkWell(
-                    onTap: line.player.nameWithheld ? null : () => _openRfuProfile(line.player),
+                    onTap: () => _openPlayerDetail(line.player),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                       decoration: BoxDecoration(
@@ -843,6 +887,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                           statCell('${line.appearances}', numberStyle.copyWith(fontWeight: FontWeight.bold)),
                           statCell('${line.starts}', numberStyle),
                           statCell('${line.bench}', numberStyle),
+                          Icon(Icons.chevron_right, size: 16, color: theme.textMuted),
                         ],
                       ),
                     ),
@@ -853,6 +898,208 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
           }),
         ],
       ],
+    );
+  }
+
+  /// Match-by-match appearances for one player in the selected seasons,
+  /// newest first, grouped by season.
+  Widget _buildPlayerDetail(AppThemeMode theme, PlayerSeasonAppearance player) {
+    final matches = _detailMatches;
+    final starts = matches.where((m) => !m.isSubstitute).length;
+    final results = matches.map((m) => m.result).where((r) => r.isNotEmpty).toList();
+    String count(String r) => '${results.where((x) => x == r).length}$r';
+
+    final bySeason = <String, List<PlayerMatchAppearance>>{};
+    for (final m in matches) {
+      bySeason.putIfAbsent(m.season, () => []).add(m);
+    }
+    final seasons = bySeason.keys.toList()..sort((a, b) => b.compareTo(a));
+    final playedForSeveralTeams = matches.map((m) => m.teamId ?? m.teamName).toSet().length > 1;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              tooltip: 'Back to results',
+              icon: Icon(Icons.arrow_back, color: theme.goldAccent),
+              onPressed: _closePlayerDetail,
+            ),
+            Expanded(
+              child: Text(
+                player.displayName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: player.nameWithheld ? theme.textMuted : theme.textPrimary,
+                  fontStyle: player.nameWithheld ? FontStyle.italic : FontStyle.normal,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (!player.nameWithheld)
+              TextButton.icon(
+                onPressed: () => _openRfuProfile(player),
+                icon: Icon(Icons.open_in_new, size: 14, color: theme.goldAccent),
+                label: Text(
+                  'RFU stats',
+                  style: TextStyle(color: theme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+          ],
+        ),
+        if (!_detailLoading && matches.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _countBadge(theme, _plural(matches.length, 'app')),
+                _countBadge(theme, '${_plural(starts, 'start')} · ${matches.length - starts} bench'),
+                if (results.isNotEmpty)
+                  _countBadge(theme, '${count('W')} ${count('D')} ${count('L')}'),
+              ],
+            ),
+          ),
+        Expanded(
+          child: _detailLoading
+              ? Center(child: CircularProgressIndicator(color: theme.goldAccent))
+              : matches.isEmpty
+                  ? _buildMessage(
+                      theme,
+                      Icons.search_off,
+                      'No appearances $_seasonsPhrase',
+                      'Try ticking more seasons.',
+                    )
+                  : ListView(
+                      children: [
+                        for (final season in seasons) ...[
+                          Container(
+                            margin: const EdgeInsets.only(top: 4, bottom: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: theme.goldAccent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Season $season',
+                                    style: TextStyle(
+                                      color: theme.textPrimary,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  _plural(bySeason[season]!.length, 'app'),
+                                  style: TextStyle(color: theme.textMuted, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          for (final m in bySeason[season]!)
+                            _buildMatchRow(theme, m, showTeam: playedForSeveralTeams),
+                        ],
+                      ],
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMatchRow(AppThemeMode theme, PlayerMatchAppearance m, {required bool showTeam}) {
+    final resultColor = switch (m.result) {
+      'W' => theme.emeraldAccent,
+      'L' => theme.rubyAccent,
+      _ => theme.textMuted,
+    };
+    final score = m.teamScore != null && m.opponentScore != null
+        ? '${m.teamScore}-${m.opponentScore}'
+        : '';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 74,
+            child: Text(
+              m.matchDate == null ? '' : DateFormat('EEE d MMM').format(m.matchDate!),
+              style: TextStyle(color: theme.textMuted, fontSize: 12),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${m.isHome ? 'v' : '@'} ${m.opponent}',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: theme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (showTeam)
+                  Text(
+                    'for ${m.teamName}',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: theme.textMuted, fontSize: 11),
+                  ),
+              ],
+            ),
+          ),
+          if (score.isNotEmpty) ...[
+            Text(score, style: TextStyle(color: theme.textPrimary, fontSize: 12)),
+            const SizedBox(width: 6),
+            Container(
+              width: 20,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              decoration: BoxDecoration(
+                color: resultColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                m.result,
+                style: TextStyle(color: resultColor, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+          const SizedBox(width: 8),
+          Tooltip(
+            message: m.isSubstitute ? 'Named on the bench' : 'Started, shirt ${m.shirt}',
+            child: Container(
+              width: 34,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              decoration: BoxDecoration(
+                color: m.isSubstitute ? null : theme.goldAccent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: m.isSubstitute ? theme.cardBorder : theme.goldAccent.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Text(
+                m.shirt,
+                style: TextStyle(
+                  color: m.isSubstitute ? theme.textMuted : theme.goldAccent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

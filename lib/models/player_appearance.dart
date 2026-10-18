@@ -58,3 +58,21 @@ class PlayerSeasonAppearance {
   String get rfuProfileUrl =>
       'https://www.englandrugby.com/fixtures-and-results/player-stats?playerId=$playerId';
 }
+
+/// A team that has synced lineups, from the `player_appearance_teams` view,
+/// merged across the selected seasons.
+class AppearanceTeam {
+  final int teamId;
+  final String teamName;
+
+  /// Matches with a synced lineup, across [seasons].
+  final int matches;
+  final List<String> seasons;
+
+  const AppearanceTeam({
+    required this.teamId,
+    required this.teamName,
+    required this.matches,
+    required this.seasons,
+  });
+}

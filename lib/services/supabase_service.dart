@@ -184,15 +184,17 @@ class SupabaseService {
 
   // --- Player Appearances (lineups) ---
 
-  /// Season appearance totals per player per team, matching [playerQuery]
-  /// against player names or [teamQuery] against team names. Words are
+  /// Season appearance totals per player per team per season, for [seasons]
+  /// (null = every season), matching [playerQuery] against player names, or
+  /// a team by exact [teamId] or by [teamQuery] against team names. Words are
   /// matched in order, so "harry tog" finds "Harry Toghill". Players whose
   /// names are withheld are only returned for team searches (as
   /// "Name withheld"), never for name searches.
   static Future<List<PlayerSeasonAppearance>> searchPlayerAppearances({
-    required String season,
+    List<String>? seasons,
     String? playerQuery,
     String? teamQuery,
+    int? teamId,
   }) async {
     final client = _client;
     if (client == null) return [];
@@ -208,31 +210,81 @@ class SupabaseService {
     }
 
     final playerPattern = pattern(playerQuery);
-    final teamPattern = pattern(teamQuery);
-    if (playerPattern == null && teamPattern == null) return [];
+    final teamPattern = teamId == null ? pattern(teamQuery) : null;
+    if (playerPattern == null && teamPattern == null && teamId == null) {
+      return [];
+    }
 
     try {
-      dynamic filter = client
-          .from('player_season_appearances')
-          .select()
-          .eq('season', season);
+      dynamic filter = client.from('player_season_appearances').select();
+      if (seasons != null) {
+        filter = filter.inFilter('season', seasons);
+      }
       if (playerPattern != null) {
         filter = filter
             .ilike('display_name', playerPattern)
             .eq('name_withheld', false);
       }
-      if (teamPattern != null) {
+      if (teamId != null) {
+        filter = filter.eq('rfu_team_id', teamId);
+      } else if (teamPattern != null) {
         filter = filter.ilike('team_name', teamPattern);
       }
       final response = await filter
           .order('appearances', ascending: false)
           .order('display_name', ascending: true)
-          .limit(1000);
+          .limit(2000);
       return (response as List)
           .map((r) => PlayerSeasonAppearance.fromJson(Map<String, dynamic>.from(r)))
           .toList();
     } catch (e) {
       debugPrint('Error searching player appearances: $e');
+      return [];
+    }
+  }
+
+  /// Teams with synced lineups in [seasons] (null = every season), one entry
+  /// per RFU team id, named as in its most recent season. Feeds the team
+  /// dropdown in the player search.
+  static Future<List<AppearanceTeam>> fetchAppearanceTeams({
+    List<String>? seasons,
+  }) async {
+    final client = _client;
+    if (client == null) return [];
+    try {
+      dynamic filter = client.from('player_appearance_teams').select();
+      if (seasons != null) {
+        filter = filter.inFilter('season', seasons);
+      }
+      final response = await filter.order('season', ascending: false).limit(10000);
+
+      final byTeam = <int, AppearanceTeam>{};
+      for (final r in (response as List)) {
+        final row = Map<String, dynamic>.from(r);
+        final id = int.tryParse(row['rfu_team_id'].toString());
+        if (id == null) continue;
+        final matches = int.tryParse(row['matches'].toString()) ?? 0;
+        final season = row['season']?.toString() ?? '';
+        final existing = byTeam[id];
+        // Rows arrive newest season first, so the first name seen is current
+        byTeam[id] = existing == null
+            ? AppearanceTeam(
+                teamId: id,
+                teamName: row['team_name']?.toString() ?? '',
+                matches: matches,
+                seasons: [season],
+              )
+            : AppearanceTeam(
+                teamId: id,
+                teamName: existing.teamName,
+                matches: existing.matches + matches,
+                seasons: [...existing.seasons, season],
+              );
+      }
+      return byTeam.values.toList()
+        ..sort((a, b) => a.teamName.toLowerCase().compareTo(b.teamName.toLowerCase()));
+    } catch (e) {
+      debugPrint('Error fetching teams with lineups: $e');
       return [];
     }
   }

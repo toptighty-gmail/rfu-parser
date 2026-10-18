@@ -324,3 +324,23 @@ SELECT
 FROM public.appearances a
 JOIN public.players p ON p.rfu_player_id = a.rfu_player_id
 GROUP BY a.season, a.rfu_player_id, p.display_name, p.name_withheld, a.rfu_team_id;
+
+
+-- 14. Teams with synced lineups (see migrations/2026-10-18b_player_appearance_teams.sql)
+CREATE OR REPLACE VIEW public.player_appearance_teams
+WITH (security_invoker = true) AS
+SELECT
+    t.season,
+    t.rfu_team_id,
+    MAX(t.team_name) AS team_name,
+    COUNT(*) AS matches
+FROM (
+    SELECT season, home_team_id AS rfu_team_id, home_team AS team_name
+    FROM public.matches
+    WHERE lineup_status = 'ok' AND home_team_id IS NOT NULL
+    UNION ALL
+    SELECT season, away_team_id, away_team
+    FROM public.matches
+    WHERE lineup_status = 'ok' AND away_team_id IS NOT NULL
+) t
+GROUP BY t.season, t.rfu_team_id;

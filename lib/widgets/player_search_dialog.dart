@@ -8,9 +8,10 @@ import '../theme/app_theme.dart';
 
 enum PlayerSearchMode { player, team }
 
-/// Search player appearances for a season, either by player name (one card
-/// per player listing every team they turned out for) or by team (that
-/// team's squad, most appearances first).
+/// Search player appearances for one or more seasons, either by player name
+/// (one card per player listing every team and season they turned out for)
+/// or by team (picked from a dropdown of teams with synced lineups, showing
+/// that team's squad, most appearances first).
 class PlayerSearchDialog extends StatefulWidget {
   final List<String> seasons;
   final String initialSeason;
@@ -30,54 +31,109 @@ class PlayerSearchDialog extends StatefulWidget {
 }
 
 class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
-  final TextEditingController _queryController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
+  final TextEditingController _playerController = TextEditingController();
+  final TextEditingController _teamController = TextEditingController();
+  final FocusNode _playerFocusNode = FocusNode();
+  final FocusNode _teamFocusNode = FocusNode();
   Timer? _debounce;
 
-  late String _season;
+  late Set<String> _selectedSeasons;
   PlayerSearchMode _mode = PlayerSearchMode.player;
   List<PlayerSeasonAppearance> _results = [];
   bool _isLoading = false;
   bool _hasSearched = false;
 
-  /// Bumped per search so a slow earlier response can't overwrite a newer one.
+  /// Teams with synced lineups in the selected seasons (team dropdown).
+  List<AppearanceTeam> _teams = [];
+  bool _teamsLoading = false;
+  AppearanceTeam? _selectedTeam;
+
+  /// Bumped per request so a slow earlier response can't overwrite a newer one.
   int _searchGeneration = 0;
+  int _teamsGeneration = 0;
+
+  bool get _allSeasons => _selectedSeasons.length == widget.seasons.length;
+
+  /// Season filter for queries; null means every season (including any not
+  /// in [PlayerSearchDialog.seasons]).
+  List<String>? get _seasonFilter => _allSeasons ? null : _selectedSeasons.toList();
+
+  bool get _multiSeason => _allSeasons || _selectedSeasons.length > 1;
 
   @override
   void initState() {
     super.initState();
-    _season = widget.seasons.contains(widget.initialSeason)
+    final initial = widget.seasons.contains(widget.initialSeason)
         ? widget.initialSeason
         : (widget.seasons.isNotEmpty ? widget.seasons.first : widget.initialSeason);
+    _selectedSeasons = {initial};
+
     final team = widget.initialTeam?.trim() ?? '';
     if (team.isNotEmpty) {
       _mode = PlayerSearchMode.team;
-      _queryController.text = team;
-      _search();
+      _teamController.text = team;
     }
+    _loadTeams(selectByName: team.isNotEmpty ? team : null);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _searchFocusNode.requestFocus();
+      (_mode == PlayerSearchMode.player ? _playerFocusNode : _teamFocusNode).requestFocus();
     });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
-    _searchFocusNode.dispose();
-    _queryController.dispose();
+    _playerFocusNode.dispose();
+    _teamFocusNode.dispose();
+    _playerController.dispose();
+    _teamController.dispose();
     super.dispose();
   }
 
-  void _onQueryChanged(String _) {
+  // --- Data ---------------------------------------------------------------
+
+  /// Reloads the team dropdown for the selected seasons. [selectByName]
+  /// picks a team by exact name once loaded (e.g. the main screen's team).
+  Future<void> _loadTeams({String? selectByName}) async {
+    final generation = ++_teamsGeneration;
+    setState(() => _teamsLoading = true);
+    final teams = await SupabaseService.fetchAppearanceTeams(seasons: _seasonFilter);
+    if (!mounted || generation != _teamsGeneration) return;
+
+    AppearanceTeam? selected;
+    final wantedId = _selectedTeam?.teamId;
+    final wantedName = selectByName?.toLowerCase();
+    for (final t in teams) {
+      if ((wantedId != null && t.teamId == wantedId) ||
+          (wantedName != null && t.teamName.toLowerCase() == wantedName)) {
+        selected = t;
+        break;
+      }
+    }
+    setState(() {
+      _teams = teams;
+      _teamsLoading = false;
+      // Keep the current team selected if it still has lineups in these seasons
+      _selectedTeam = selected ?? (wantedId != null ? _selectedTeam : null);
+      if (selected != null) _teamController.text = selected.teamName;
+    });
+    if (_mode == PlayerSearchMode.team) {
+      if (_selectedTeam != null || selectByName != null) _search();
+    }
+  }
+
+  void _scheduleSearch() {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), _search);
   }
 
   Future<void> _search() async {
     _debounce?.cancel();
-    final query = _queryController.text.trim();
+    final isPlayer = _mode == PlayerSearchMode.player;
+    final query = (isPlayer ? _playerController : _teamController).text.trim();
+    final teamId = isPlayer ? null : _selectedTeam?.teamId;
     final generation = ++_searchGeneration;
-    if (query.length < 2) {
+    if (teamId == null && query.length < 2) {
       setState(() {
         _results = [];
         _isLoading = false;
@@ -88,9 +144,11 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
 
     setState(() => _isLoading = true);
     final results = await SupabaseService.searchPlayerAppearances(
-      season: _season,
-      playerQuery: _mode == PlayerSearchMode.player ? query : null,
-      teamQuery: _mode == PlayerSearchMode.team ? query : null,
+      seasons: _seasonFilter,
+      playerQuery: isPlayer ? query : null,
+      teamId: teamId,
+      // Typed text that wasn't picked from the dropdown: match by name
+      teamQuery: !isPlayer && teamId == null ? query : null,
     );
     if (!mounted || generation != _searchGeneration) return;
     setState(() {
@@ -100,10 +158,75 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     });
   }
 
+  void _setMode(PlayerSearchMode mode) {
+    if (_mode == mode) return;
+    setState(() {
+      _mode = mode;
+      _results = [];
+      _hasSearched = false;
+    });
+    _search();
+    (mode == PlayerSearchMode.player ? _playerFocusNode : _teamFocusNode).requestFocus();
+  }
+
+  void _setSeasons(Set<String> seasons) {
+    if (seasons.isEmpty) return; // at least one season stays selected
+    setState(() => _selectedSeasons = seasons);
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      _loadTeams();
+      if (_mode == PlayerSearchMode.player) _search();
+    });
+  }
+
+  void _selectTeam(AppearanceTeam team) {
+    setState(() => _selectedTeam = team);
+    _teamFocusNode.unfocus();
+    _search();
+  }
+
   Future<void> _openRfuProfile(PlayerSeasonAppearance row) async {
     if (row.nameWithheld) return;
     await launchUrl(Uri.parse(row.rfuProfileUrl), mode: LaunchMode.externalApplication);
   }
+
+  // --- Text helpers -------------------------------------------------------
+
+  /// "2025-2026" -> "2025-26"
+  static String _shortSeason(String season) {
+    final m = RegExp(r'^(\d{4})-\d{2}(\d{2})$').firstMatch(season);
+    return m == null ? season : '${m.group(1)}-${m.group(2)}';
+  }
+
+  String get _seasonsLabel {
+    if (_allSeasons) return 'All seasons';
+    if (_selectedSeasons.length == 1) return 'Season ${_selectedSeasons.first}';
+    return '${_selectedSeasons.length} seasons';
+  }
+
+  String get _seasonsPhrase {
+    if (_allSeasons) return 'across all seasons';
+    if (_selectedSeasons.length == 1) return 'for ${_selectedSeasons.first}';
+    final ordered = widget.seasons.where(_selectedSeasons.contains).map(_shortSeason);
+    return 'for ${ordered.join(', ')}';
+  }
+
+  static String _plural(int n, String one, [String? many]) =>
+      '$n ${n == 1 ? one : (many ?? '${one}s')}';
+
+  static bool _matchesWords(String text, String query) {
+    final words = query.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    var from = 0;
+    final lower = text.toLowerCase();
+    for (final w in words) {
+      final at = lower.indexOf(w, from);
+      if (at < 0) return false;
+      from = at + w.length;
+    }
+    return true;
+  }
+
+  // --- Layout -------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -158,11 +281,13 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
               children: [
                 _buildModeChip(theme, PlayerSearchMode.player, Icons.person, 'By player'),
                 _buildModeChip(theme, PlayerSearchMode.team, Icons.shield, 'By team'),
-                _buildSeasonSelector(theme),
+                _buildSeasonPicker(theme),
               ],
             ),
             const SizedBox(height: 10),
-            _buildSearchField(theme),
+            _mode == PlayerSearchMode.player
+                ? _buildPlayerField(theme)
+                : _buildTeamField(theme),
             const SizedBox(height: 10),
             Expanded(child: _buildResults(theme)),
             const SizedBox(height: 8),
@@ -197,90 +322,260 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
       backgroundColor: theme.goldAccent.withValues(alpha: 0.12),
       side: BorderSide(color: theme.goldAccent.withValues(alpha: selected ? 1 : 0.5)),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      onSelected: (_) {
-        if (selected) return;
-        setState(() => _mode = mode);
-        _search();
-        _searchFocusNode.requestFocus();
+      onSelected: (_) => _setMode(mode),
+    );
+  }
+
+  /// Button opening a checklist of seasons (plus "All seasons") that stays
+  /// open while ticking, so several seasons can be picked in one go.
+  Widget _buildSeasonPicker(AppThemeMode theme) {
+    final textStyle = TextStyle(
+      color: theme.textPrimary,
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    );
+    return MenuAnchor(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(theme.surfaceBg),
+        side: WidgetStatePropertyAll(BorderSide(color: theme.cardBorder)),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
+      menuChildren: [
+        CheckboxMenuButton(
+          value: _allSeasons,
+          closeOnActivate: false,
+          onChanged: (checked) => _setSeasons(
+            checked == true ? widget.seasons.toSet() : {widget.seasons.first},
+          ),
+          child: Text('All seasons', style: textStyle),
+        ),
+        Divider(height: 1, color: theme.cardBorder),
+        for (final season in widget.seasons)
+          CheckboxMenuButton(
+            value: _selectedSeasons.contains(season),
+            closeOnActivate: false,
+            onChanged: (checked) {
+              final next = {..._selectedSeasons};
+              checked == true ? next.add(season) : next.remove(season);
+              _setSeasons(next);
+            },
+            child: Text(
+              season,
+              style: textStyle.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ),
+      ],
+      builder: (context, controller, _) {
+        return InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => controller.isOpen ? controller.close() : controller.open(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: theme.goldAccent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: theme.goldAccent.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_month, color: theme.textPrimary, size: 15),
+                const SizedBox(width: 6),
+                Text(_seasonsLabel, style: textStyle),
+                const SizedBox(width: 2),
+                Icon(Icons.arrow_drop_down, color: theme.textPrimary, size: 18),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
 
-  Widget _buildSeasonSelector(AppThemeMode theme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.goldAccent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.goldAccent.withValues(alpha: 0.5)),
+  InputDecoration _fieldDecoration(
+    AppThemeMode theme, {
+    required String hint,
+    required bool loading,
+    required TextEditingController controller,
+    required VoidCallback onClear,
+    Widget? trailing,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: theme.textMuted, fontSize: 13),
+      prefixIcon: Icon(Icons.search, color: theme.goldAccent, size: 20),
+      suffixIcon: loading
+          ? Padding(
+              padding: const EdgeInsets.all(12),
+              child: SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2, color: theme.goldAccent),
+              ),
+            )
+          : (controller.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear, color: theme.textMuted, size: 18),
+                  onPressed: onClear,
+                )
+              : trailing),
+      filled: true,
+      fillColor: theme.darkBg,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: theme.cardBorder),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _season,
-          dropdownColor: theme.surfaceBg,
-          isDense: true,
-          icon: Icon(Icons.calendar_month, color: theme.textPrimary, size: 15),
-          style: TextStyle(
-            color: theme.textPrimary,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-          items: widget.seasons
-              .map((s) => DropdownMenuItem(value: s, child: Text('Season $s')))
-              .toList(),
-          onChanged: (s) {
-            if (s == null || s == _season) return;
-            setState(() => _season = s);
-            _search();
-          },
-        ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: theme.goldAccent, width: 1.5),
       ),
     );
   }
 
-  Widget _buildSearchField(AppThemeMode theme) {
+  Widget _buildPlayerField(AppThemeMode theme) {
     return TextField(
-      controller: _queryController,
-      focusNode: _searchFocusNode,
+      controller: _playerController,
+      focusNode: _playerFocusNode,
       style: TextStyle(color: theme.textPrimary, fontSize: 14),
-      onChanged: _onQueryChanged,
+      onChanged: (_) => _scheduleSearch(),
       onSubmitted: (_) => _search(),
       textInputAction: TextInputAction.search,
-      decoration: InputDecoration(
-        hintText: _mode == PlayerSearchMode.player
-            ? 'Player name (e.g. Harry Toghill)...'
-            : 'Team name (e.g. Plymstock Oaks)...',
-        hintStyle: TextStyle(color: theme.textMuted, fontSize: 13),
-        prefixIcon: Icon(Icons.search, color: theme.goldAccent, size: 20),
-        suffixIcon: _isLoading
-            ? Padding(
-                padding: const EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: theme.goldAccent),
-                ),
-              )
-            : (_queryController.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(Icons.clear, color: theme.textMuted, size: 18),
-                    onPressed: () {
-                      _queryController.clear();
-                      _search();
-                    },
-                  )
-                : null),
-        filled: true,
-        fillColor: theme.darkBg,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: theme.cardBorder),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: theme.goldAccent, width: 1.5),
-        ),
+      decoration: _fieldDecoration(
+        theme,
+        hint: 'Player name (e.g. Harry Toghill)...',
+        loading: _isLoading,
+        controller: _playerController,
+        onClear: () {
+          _playerController.clear();
+          _search();
+        },
       ),
+    );
+  }
+
+  /// Team name field with a dropdown of teams that have synced lineups,
+  /// filtered as you type (like the main screen's team search).
+  Widget _buildTeamField(AppThemeMode theme) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fieldWidth = constraints.maxWidth;
+        return RawAutocomplete<AppearanceTeam>(
+          textEditingController: _teamController,
+          focusNode: _teamFocusNode,
+          displayStringForOption: (t) => t.teamName,
+          optionsBuilder: (value) {
+            final q = value.text.trim();
+            // Showing the picked team's name: offer the full list again
+            if (q.isEmpty || q == _selectedTeam?.teamName) return _teams;
+            return _teams.where((t) => _matchesWords(t.teamName, q));
+          },
+          onSelected: _selectTeam,
+          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              style: TextStyle(color: theme.textPrimary, fontSize: 14),
+              textInputAction: TextInputAction.search,
+              onChanged: (text) {
+                if (_selectedTeam != null && text != _selectedTeam!.teamName) {
+                  setState(() => _selectedTeam = null);
+                } else {
+                  setState(() {}); // refresh the clear button
+                }
+              },
+              onSubmitted: (text) {
+                // Enter picks the highlighted dropdown entry if there is one;
+                // otherwise fall back to a name search for the typed text.
+                onFieldSubmitted();
+                if (_selectedTeam == null) _search();
+              },
+              decoration: _fieldDecoration(
+                theme,
+                hint: _teamsLoading
+                    ? 'Loading teams...'
+                    : 'Pick or type a team (${_plural(_teams.length, 'team')} with lineups)',
+                loading: _isLoading || _teamsLoading,
+                controller: controller,
+                onClear: () {
+                  controller.clear();
+                  setState(() {
+                    _selectedTeam = null;
+                    _results = [];
+                    _hasSearched = false;
+                  });
+                  focusNode.requestFocus();
+                },
+                trailing: Icon(Icons.arrow_drop_down, color: theme.textMuted),
+              ),
+            );
+          },
+          optionsViewBuilder: (context, onSelected, options) {
+            final highlighted = AutocompleteHighlightedOption.of(context);
+            final list = options.toList();
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                color: theme.surfaceBg,
+                elevation: 8,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: fieldWidth,
+                  constraints: const BoxConstraints(maxHeight: 280),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: theme.goldAccent, width: 1.2),
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    itemCount: list.length,
+                    separatorBuilder: (_, _) => Divider(height: 1, color: theme.cardBorder),
+                    itemBuilder: (context, index) {
+                      final team = list[index];
+                      final details = [
+                        _plural(team.matches, 'match', 'matches'),
+                        if (_multiSeason) _plural(team.seasons.length, 'season'),
+                      ].join(' · ');
+                      return InkWell(
+                        onTap: () => onSelected(team),
+                        child: Container(
+                          color: index == highlighted
+                              ? theme.goldAccent.withValues(alpha: 0.12)
+                              : null,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.shield, size: 16, color: theme.goldAccent),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  team.teamName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: theme.textPrimary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                details,
+                                style: TextStyle(color: theme.textMuted, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -320,15 +615,15 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
         Icons.groups_outlined,
         _mode == PlayerSearchMode.player
             ? 'Search for a player by name'
-            : 'Search for a team to see its squad',
-        'Shows starts and bench appearances for the $_season season.',
+            : 'Pick a team to see its squad',
+        'Shows starts and bench appearances $_seasonsPhrase.',
       );
     }
     if (_results.isEmpty) {
       return _buildMessage(
         theme,
         Icons.search_off,
-        'No appearances found for $_season',
+        'No appearances found $_seasonsPhrase',
         'Lineups are synced club by club, so this team or player may not '
             'have been synced yet.',
       );
@@ -338,7 +633,8 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
         : _buildTeamResults(theme);
   }
 
-  /// One card per player, listing each team they appeared for.
+  /// One card per player, listing each team (and season, when several are
+  /// selected) they appeared for.
   Widget _buildPlayerResults(AppThemeMode theme) {
     final byPlayer = <int, List<PlayerSeasonAppearance>>{};
     for (final row in _results) {
@@ -349,6 +645,12 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
         final total = _total(b).compareTo(_total(a));
         return total != 0 ? total : a.first.displayName.compareTo(b.first.displayName);
       });
+    for (final rows in players) {
+      rows.sort((a, b) {
+        final bySeason = b.season.compareTo(a.season);
+        return bySeason != 0 ? bySeason : b.appearances.compareTo(a.appearances);
+      });
+    }
 
     return ListView.separated(
       itemCount: players.length,
@@ -386,7 +688,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                           ),
                         ),
                       ),
-                      _countBadge(theme, '${_total(rows)} ${_total(rows) == 1 ? 'app' : 'apps'}'),
+                      _countBadge(theme, _plural(_total(rows), 'app')),
                       const SizedBox(width: 4),
                       Icon(Icons.open_in_new, size: 14, color: theme.textMuted),
                     ],
@@ -397,6 +699,18 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                       padding: const EdgeInsets.only(left: 26, top: 3),
                       child: Row(
                         children: [
+                          if (_multiSeason)
+                            SizedBox(
+                              width: 58,
+                              child: Text(
+                                _shortSeason(row.season),
+                                style: TextStyle(
+                                  color: theme.goldAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           Icon(Icons.shield, size: 13, color: theme.textMuted),
                           const SizedBox(width: 6),
                           Expanded(
@@ -407,7 +721,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                             ),
                           ),
                           Text(
-                            '${row.starts} ${row.starts == 1 ? 'start' : 'starts'} · ${row.bench} bench',
+                            '${_plural(row.starts, 'start')} · ${row.bench} bench',
                             style: TextStyle(color: theme.textMuted, fontSize: 12),
                           ),
                         ],
@@ -422,14 +736,23 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     );
   }
 
-  /// A squad table per matching team, most appearances first.
+  /// A squad table per team, most appearances first. With several seasons
+  /// selected, each player's totals are summed across them.
   Widget _buildTeamResults(AppThemeMode theme) {
-    final byTeam = <String, List<PlayerSeasonAppearance>>{};
+    final byTeam = <String, Map<int, _SquadLine>>{};
+    // Each team is named as in its most recent selected season
+    final latestName = <String, ({String season, String name})>{};
     for (final row in _results) {
-      byTeam.putIfAbsent(row.teamId?.toString() ?? row.teamName, () => []).add(row);
+      final key = row.teamId?.toString() ?? row.teamName;
+      final current = latestName[key];
+      if (current == null || row.season.compareTo(current.season) > 0) {
+        latestName[key] = (season: row.season, name: row.teamName);
+      }
+      byTeam.putIfAbsent(key, () => {}).putIfAbsent(row.playerId, () => _SquadLine(row)).add(row);
     }
-    final teams = byTeam.values.toList()
-      ..sort((a, b) => a.first.teamName.compareTo(b.first.teamName));
+    String teamName(String key) => latestName[key]!.name;
+    final teams = byTeam.entries.toList()
+      ..sort((a, b) => teamName(a.key).compareTo(teamName(b.key)));
 
     final numberStyle = TextStyle(color: theme.textPrimary, fontSize: 13);
     final headerStyle = TextStyle(
@@ -438,82 +761,96 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
       fontWeight: FontWeight.bold,
     );
 
-    Widget statCell(String text, TextStyle style) =>
-        SizedBox(width: 48, child: Text(text, textAlign: TextAlign.center, style: style));
+    Widget statCell(String text, TextStyle style, {double width = 48}) =>
+        SizedBox(width: width, child: Text(text, textAlign: TextAlign.center, style: style));
 
     return ListView(
       children: [
-        for (final squad in teams) ...[
-          Container(
-            margin: const EdgeInsets.only(top: 4, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: theme.goldAccent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
+        for (final team in teams) ...[
+          Builder(builder: (_) {
+            final squad = team.value.values.toList()
+              ..sort((a, b) {
+                final apps = b.appearances.compareTo(a.appearances);
+                return apps != 0 ? apps : a.player.displayName.compareTo(b.player.displayName);
+              });
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.shield, color: theme.goldAccent, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    squad.first.teamName,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: theme.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Container(
+                  margin: const EdgeInsets.only(top: 4, bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: theme.goldAccent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                Text(
-                  '${squad.length} players',
-                  style: TextStyle(color: theme.textMuted, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: Row(
-              children: [
-                Expanded(child: Text('PLAYER', style: headerStyle)),
-                statCell('APPS', headerStyle),
-                statCell('START', headerStyle),
-                statCell('BENCH', headerStyle),
-              ],
-            ),
-          ),
-          for (final row in squad)
-            InkWell(
-              onTap: row.nameWithheld ? null : () => _openRfuProfile(row),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        row.displayName,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: row.nameWithheld ? theme.textMuted : theme.textPrimary,
-                          fontSize: 13,
-                          fontStyle: row.nameWithheld ? FontStyle.italic : FontStyle.normal,
-                          fontWeight: FontWeight.w600,
+                  child: Row(
+                    children: [
+                      Icon(Icons.shield, color: theme.goldAccent, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          teamName(team.key),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: theme.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    statCell('${row.appearances}', numberStyle.copyWith(fontWeight: FontWeight.bold)),
-                    statCell('${row.starts}', numberStyle),
-                    statCell('${row.bench}', numberStyle),
-                  ],
+                      Text(
+                        _plural(squad.length, 'player'),
+                        style: TextStyle(color: theme.textMuted, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('PLAYER', style: headerStyle)),
+                      if (_multiSeason) statCell('SEASONS', headerStyle, width: 64),
+                      statCell('APPS', headerStyle),
+                      statCell('START', headerStyle),
+                      statCell('BENCH', headerStyle),
+                    ],
+                  ),
+                ),
+                for (final line in squad)
+                  InkWell(
+                    onTap: line.player.nameWithheld ? null : () => _openRfuProfile(line.player),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              line.player.displayName,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: line.player.nameWithheld ? theme.textMuted : theme.textPrimary,
+                                fontSize: 13,
+                                fontStyle: line.player.nameWithheld ? FontStyle.italic : FontStyle.normal,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          if (_multiSeason) statCell('${line.seasons.length}', numberStyle, width: 64),
+                          statCell('${line.appearances}', numberStyle.copyWith(fontWeight: FontWeight.bold)),
+                          statCell('${line.starts}', numberStyle),
+                          statCell('${line.bench}', numberStyle),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 10),
+              ],
+            );
+          }),
         ],
       ],
     );
@@ -536,4 +873,22 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
 
   static int _total(List<PlayerSeasonAppearance> rows) =>
       rows.fold(0, (sum, r) => sum + r.appearances);
+}
+
+/// One player's totals for one team, summed over the selected seasons.
+class _SquadLine {
+  final PlayerSeasonAppearance player;
+  final Set<String> seasons = {};
+  int appearances = 0;
+  int starts = 0;
+  int bench = 0;
+
+  _SquadLine(this.player);
+
+  void add(PlayerSeasonAppearance row) {
+    seasons.add(row.season);
+    appearances += row.appearances;
+    starts += row.starts;
+    bench += row.bench;
+  }
 }

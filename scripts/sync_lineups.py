@@ -17,6 +17,7 @@ Examples:
     python scripts/sync_lineups.py --season 2025-2026 --division 66453
     python scripts/sync_lineups.py --season 2025-2026 --competition 1699
     python scripts/sync_lineups.py --season 2026-2027            # weekly top-up
+    python scripts/sync_lineups.py --season 2025-2026 --team "Plymstock Oaks" --team "Plymstock Oaks II"
     python scripts/sync_lineups.py --season 2025-2026 --division 66453 --limit 3 --dry-run
 """
 import argparse
@@ -27,6 +28,8 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from urllib.parse import quote
 
 import cloudscraper
 import requests
@@ -108,8 +111,10 @@ class SupabaseRest:
 
 
 class LineupSync:
-    def __init__(self, db, delay, recheck_days, refresh, limit):
+    def __init__(self, db, delay, recheck_days, refresh, limit, teams=None):
         self.db = db
+        # Lower-cased canonical team names; when set, only their matches are fetched
+        self.teams = {_normalize_team_name(t).lower() for t in teams} if teams else None
         self.delay = delay
         self.recheck_cutoff = date.today() - timedelta(days=recheck_days)
         self.refresh = refresh
@@ -145,6 +150,9 @@ class LineupSync:
         self.stats["divisions"] += 1
 
         played = [f for f in self.parser.parse_fixtures(html) if f.rfu_match_id and f.status == "Completed"]
+        if self.teams:
+            played = [f for f in played
+                      if {_normalize_team_name(f.home_team).lower(), _normalize_team_name(f.away_team).lower()} & self.teams]
         try:
             known = self.db.get(f"matches?division_id=eq.{div['id']}&select=rfu_match_id,lineup_status")
         except requests.HTTPError:
@@ -239,6 +247,8 @@ def main():
     ap.add_argument("--season", default=current_season(), help="e.g. 2025-2026 (default: current season)")
     ap.add_argument("--competition", type=int, help="only this RFU competition id, e.g. 1699")
     ap.add_argument("--division", type=int, help="only this RFU division id, e.g. 66453")
+    ap.add_argument("--team", action="append",
+                    help="only matches involving this team (exact name, repeatable), e.g. --team \"Plymstock Oaks\"")
     ap.add_argument("--delay", type=float, default=1.5, help="seconds between RFU requests (default 1.5)")
     ap.add_argument("--recheck-days", type=int, default=14,
                     help="re-fetch matches played within this many days (default 14)")
@@ -265,10 +275,15 @@ def main():
     if args.division:
         divisions = [d for d in divisions
                      if (d.get("rfu_division_id") or query_param(d["source_url"], "division")) == args.division]
+    if args.team:
+        # Only the divisions whose league table lists one of the teams
+        names = ",".join('"' + _normalize_team_name(t).replace('"', '') + '"' for t in args.team)
+        team_divs = {s["division_id"] for s in db.get(f"standings?team_name=in.({quote(names)})&select=division_id")}
+        divisions = [d for d in divisions if d["id"] in team_divs]
 
     print(f"Lineup sync {args.season}: {len(divisions)} divisions"
           f"{' (dry run)' if args.dry_run else ''}", flush=True)
-    sync = LineupSync(db, args.delay, args.recheck_days, args.refresh, args.limit)
+    sync = LineupSync(db, args.delay, args.recheck_days, args.refresh, args.limit, teams=args.team)
     try:
         for i, div in enumerate(divisions, start=1):
             if sync.limit is not None and sync.stats["fetched"] >= sync.limit:

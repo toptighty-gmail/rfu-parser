@@ -373,6 +373,15 @@ class RFUParser:
                     time_match = re.search(r'\b([012]?\d:[0-5]\d)\b', card_text)
                     ko_time = time_match.group(1) if time_match else "15:00"
 
+                    # Every card (played or not) sits in its own card-body alongside a
+                    # "Match info" link carrying the RFU matchId; played matches also
+                    # link their scores to it.
+                    rfu_match_id = None
+                    card_body = card.find_parent(class_='coh-style-card-body') or card
+                    match_link = card_body.find('a', href=re.compile(r'matchId=\d+'))
+                    if match_link:
+                        rfu_match_id = int(re.search(r'matchId=(\d+)', match_link['href']).group(1))
+
                     temp_fixtures.append({
                         'date_dt': dt,
                         'date': date_str,
@@ -382,7 +391,8 @@ class RFUParser:
                         'home_score': home_score,
                         'away_score': away_score,
                         'status': status,
-                        'venue': venue
+                        'venue': venue,
+                        'rfu_match_id': rfu_match_id
                     })
 
             # Sort chronologically by date
@@ -420,7 +430,8 @@ class RFUParser:
                     away_score=f_dict['away_score'],
                     status=f_dict['status'],
                     venue=f_dict['venue'],
-                    round_num=f"Round {round_num}"
+                    round_num=f"Round {round_num}",
+                    rfu_match_id=f_dict['rfu_match_id']
                 ))
 
         # Fallback to legacy parser for tests/snapshots

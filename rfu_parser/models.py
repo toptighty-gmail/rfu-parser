@@ -56,6 +56,8 @@ class Fixture:
     id: str = ""
     is_custom: bool = False
     date_iso: str = ""
+    # RFU match-centre id (the ``matchId`` query param), used to fetch lineups
+    rfu_match_id: Optional[int] = None
 
     @property
     def result_str(self) -> str:

@@ -7,6 +7,7 @@ import '../config/supabase_config.dart';
 import '../models/competition.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
+import '../models/player_appearance.dart';
 import '../models/standing_entry.dart';
 import 'api_service.dart';
 import 'team_logo_provider.dart';
@@ -177,6 +178,61 @@ class SupabaseService {
           .toList();
     } catch (e) {
       debugPrint('Error fetching teams from Supabase: $e');
+      return [];
+    }
+  }
+
+  // --- Player Appearances (lineups) ---
+
+  /// Season appearance totals per player per team, matching [playerQuery]
+  /// against player names or [teamQuery] against team names. Words are
+  /// matched in order, so "harry tog" finds "Harry Toghill". Players whose
+  /// names are withheld are only returned for team searches (as
+  /// "Name withheld"), never for name searches.
+  static Future<List<PlayerSeasonAppearance>> searchPlayerAppearances({
+    required String season,
+    String? playerQuery,
+    String? teamQuery,
+  }) async {
+    final client = _client;
+    if (client == null) return [];
+
+    String? pattern(String? q) {
+      // Strip LIKE wildcards and PostgREST filter syntax from user input
+      final words = (q ?? '')
+          .replaceAll(RegExp(r'[%_*,()\\]'), ' ')
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty)
+          .toList();
+      return words.isEmpty ? null : '%${words.join('%')}%';
+    }
+
+    final playerPattern = pattern(playerQuery);
+    final teamPattern = pattern(teamQuery);
+    if (playerPattern == null && teamPattern == null) return [];
+
+    try {
+      dynamic filter = client
+          .from('player_season_appearances')
+          .select()
+          .eq('season', season);
+      if (playerPattern != null) {
+        filter = filter
+            .ilike('display_name', playerPattern)
+            .eq('name_withheld', false);
+      }
+      if (teamPattern != null) {
+        filter = filter.ilike('team_name', teamPattern);
+      }
+      final response = await filter
+          .order('appearances', ascending: false)
+          .order('display_name', ascending: true)
+          .limit(1000);
+      return (response as List)
+          .map((r) => PlayerSeasonAppearance.fromJson(Map<String, dynamic>.from(r)))
+          .toList();
+    } catch (e) {
+      debugPrint('Error searching player appearances: $e');
       return [];
     }
   }

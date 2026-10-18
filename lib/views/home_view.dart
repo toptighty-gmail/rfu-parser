@@ -16,6 +16,7 @@ import '../widgets/admin_dialog.dart';
 import '../widgets/add_fixture_dialog.dart';
 import '../widgets/logo_upload_dialog.dart';
 import '../widgets/teams_directory_dialog.dart';
+import '../widgets/player_search_dialog.dart';
 import '../widgets/divisions_directory_dialog.dart';
 import '../widgets/admin_database_metrics_dialog.dart';
 import '../widgets/theme_selector_dialog.dart';
@@ -413,6 +414,7 @@ class _HomeViewState extends State<HomeView> {
               },
               onOpenDivisionsDirectory: _openDivisionsDirectory,
               onOpenTeamsDirectory: _openTeamsDirectory,
+              onOpenPlayerSearch: _openPlayerSearch,
               isAdmin: _isAdmin,
               onAdminToggle: _toggleAdmin,
               onAddFixture: _openAddFixtureDialog,
@@ -1235,6 +1237,17 @@ class _HomeViewState extends State<HomeView> {
           });
           _loadData(queryTeam: team);
         },
+      ),
+    );
+  }
+
+  void _openPlayerSearch() {
+    showDialog(
+      context: context,
+      builder: (_) => PlayerSearchDialog(
+        seasons: _seasons,
+        initialSeason: _selectedSeason,
+        initialTeam: _searchController.text.trim(),
       ),
     );
   }

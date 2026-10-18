@@ -17,6 +17,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
 
   final VoidCallback onOpenDivisionsDirectory;
   final VoidCallback onOpenTeamsDirectory;
+  final VoidCallback? onOpenPlayerSearch;
   final bool isAdmin;
   final VoidCallback onAdminToggle;
   final VoidCallback onAddFixture;
@@ -37,6 +38,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     required this.onTeamSelected,
     required this.onOpenDivisionsDirectory,
     required this.onOpenTeamsDirectory,
+    this.onOpenPlayerSearch,
     required this.isAdmin,
     required this.onAdminToggle,
     required this.onAddFixture,
@@ -240,6 +242,49 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  Widget _buildPlayersButton(AppThemeMode theme, {bool iconOnly = false}) {
+    final textColor = theme.isCustom ? Colors.white : theme.textPrimary;
+    final style = ElevatedButton.styleFrom(
+      backgroundColor: theme.isCustom
+          ? theme.goldAccent
+          : theme.goldAccent.withValues(alpha: 0.12),
+      foregroundColor: textColor,
+      padding: EdgeInsets.symmetric(horizontal: iconOnly ? 10 : 12, vertical: 8),
+      minimumSize: iconOnly ? const Size(40, 36) : null,
+      side: BorderSide(
+        color: theme.isCustom
+            ? theme.goldAccent
+            : theme.goldAccent.withValues(alpha: 0.5),
+        width: 1,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    );
+    final icon = Icon(Icons.person_search, size: 16, color: textColor);
+    if (iconOnly) {
+      return Tooltip(
+        message: 'Player appearances',
+        child: ElevatedButton(
+          style: style,
+          onPressed: onOpenPlayerSearch,
+          child: icon,
+        ),
+      );
+    }
+    return ElevatedButton.icon(
+      style: style,
+      icon: icon,
+      label: Text(
+        'Players',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+      ),
+      onPressed: onOpenPlayerSearch,
+    );
+  }
+
   Widget _mobileActionTile(
     BuildContext context,
     AppThemeMode theme,
@@ -292,6 +337,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 'Print A4 Booklet',
                 onOpenBookletPrint,
               ),
+              if (onOpenPlayerSearch != null)
+                _mobileActionTile(
+                  sheetContext,
+                  theme,
+                  Icons.person_search,
+                  'Player Appearances',
+                  onOpenPlayerSearch,
+                ),
               _mobileActionTile(
                 sheetContext,
                 theme,
@@ -620,6 +673,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                                     hasSearchedTeam,
                                   ),
                                 ),
+                                if (onOpenPlayerSearch != null) ...[
+                                  const SizedBox(width: 8),
+                                  _buildPlayersButton(theme, iconOnly: true),
+                                ],
                               ],
                             ),
                           ],
@@ -641,6 +698,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                               flex: 3,
                               child: _buildTeamButton(theme, hasSearchedTeam),
                             ),
+                            if (onOpenPlayerSearch != null) ...[
+                              const SizedBox(width: 8),
+                              _buildPlayersButton(theme),
+                            ],
                           ],
                         ),
                     ],

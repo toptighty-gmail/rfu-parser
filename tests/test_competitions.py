@@ -121,3 +121,32 @@ def test_catalog_adds_only_new_divisions_with_unique_names():
     league = Competition(1699, "South West Division", MENS_LEAGUES, "Senior League", False)
     assert catalog.add(league, [DivisionLink(75799, "Counties 2 Tribute Ale Devon")]) == 0
     assert db.patches == [("divisions?id=eq.b", {"rfu_competition_id": 1699, "rfu_division_id": 75799})]
+
+
+def test_catalog_skips_stale_divisions_and_prefers_rows_with_ids():
+    from rfu_parser.competitions import Competition, DivisionLink
+    db = FakeDb([
+        {"id": "dup", "division_name": "Champ Rugby", "rfu_division_id": None, "rfu_competition_id": None,
+         "source_url": "https://x/search-results?competition=173&season=2026-2027&division=76143"},
+        {"id": "real", "division_name": "Championship", "rfu_division_id": 76143, "rfu_competition_id": 173,
+         "source_url": ""},
+    ])
+    catalog = DivisionCatalog(db, "2026-2027", floor=66000)
+    elite = Competition(173, "Champ Rugby", ELITE, "", True)
+    old = Competition(16, "Amlin Challenge Cup", ELITE, "", True)
+    assert catalog.add(elite, [DivisionLink(76143, "Champ Rugby")]) == 0
+    assert db.patches == []  # the row with the id is used; the duplicate isn't "repaired" into a clash
+    assert catalog.add(old, [DivisionLink(7739, "Amlin Challenge Cup Pool 1")]) == 0
+    assert db.upserts == []
+
+
+def test_season_floor_uses_previous_season_range():
+    from discover_competitions import season_floor
+
+    class Db:
+        def get(self, path):
+            if "season=eq.2025-2026" in path:
+                return [{"rfu_division_id": 66400 + i, "source_url": ""} for i in range(40)]
+            return [{"rfu_division_id": 75800 + i, "source_url": ""} for i in range(40)]
+
+    assert 66400 <= season_floor(Db(), "2026-2027") <= 66410

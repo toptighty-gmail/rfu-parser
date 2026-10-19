@@ -107,15 +107,41 @@ def load_competitions(db):
             for r in rows if r.get("category") in CATEGORIES}
 
 
+def division_ids(db, season):
+    rows = db.get(f"divisions?season=eq.{season}&select=rfu_division_id,source_url")
+    return sorted(r.get("rfu_division_id") or query_param(r.get("source_url"), "division") or 0 for r in rows)
+
+
+def season_floor(db, season):
+    """Lowest plausible RFU division id for a season.
+
+    RFU division ids only ever increase, and each season's start higher than
+    the last (2021-22 from ~31,700, 2025-26 from ~66,400). The page of a
+    discontinued competition ignores the season asked for and shows its last
+    divisions (e.g. the old Amlin Challenge Cup's from ~2013), so anything
+    older than the previous season's range is stale. The previous season's
+    range is used, not this one's, because some divisions are created early
+    (the 2025-26 internationals series is 64487).
+    """
+    start = int(season[:4])
+    previous = [i for i in division_ids(db, f"{start - 1}-{start}") if i]
+    if len(previous) >= 20:
+        return previous[len(previous) // 20]  # 5th percentile: ignores the odd misfiled row
+    current = [i for i in division_ids(db, season) if i]
+    return current[len(current) // 20] - 10000 if len(current) >= 20 else 0
+
+
 class DivisionCatalog:
     """Divisions already stored for one season, to add only new ones and keep names unique."""
 
-    def __init__(self, db, season):
-        self.db, self.season = db, season
+    def __init__(self, db, season, floor=0):
+        self.db, self.season, self.floor = db, season, floor
         rows = db.get(f"divisions?season=eq.{season}&select=id,division_name,rfu_division_id,rfu_competition_id,source_url")
         self.by_rfu_id = {}
         self.names = {}
-        for r in rows:
+        # Rows with the id set win over ones that only have it in source_url,
+        # so a duplicate row is never "repaired" into a unique-key clash.
+        for r in sorted(rows, key=lambda r: r.get("rfu_division_id") is not None):
             rfu_id = r.get("rfu_division_id") or query_param(r.get("source_url"), "division")
             if rfu_id:
                 self.by_rfu_id[rfu_id] = r
@@ -132,6 +158,8 @@ class DivisionCatalog:
         """Store new divisions; returns how many were new."""
         new_rows = []
         for link in links:
+            if link.rfu_division_id < self.floor:
+                continue  # a stale division from an earlier season (see season_floor)
             known = self.by_rfu_id.get(link.rfu_division_id)
             url = COMPETITION_PAGE.format(cid=competition.rfu_competition_id, season=self.season) \
                 + f"&division={link.rfu_division_id}"
@@ -207,8 +235,9 @@ def main():
             checked = set()  # dry run before the migration has been applied
         order = sorted(competitions.values(), key=lambda c: (CATEGORIES.index(c.category), c.name.lower()))
         for season in seasons:
-            catalog = DivisionCatalog(db, season)
-            print(f"\n{season}", flush=True)
+            floor = season_floor(db, season)
+            catalog = DivisionCatalog(db, season, floor)
+            print(f"\n{season} (division ids from {floor})", flush=True)
             for comp in order:
                 key_ = (comp.rfu_competition_id, season)
                 if key_ in checked and season != now_season and not args.refresh:
@@ -223,6 +252,10 @@ def main():
                     continue
                 stats["pages"] += 1
                 links = parse_competition_divisions(html, comp.rfu_competition_id, comp.name)
+                stale = [link for link in links if link.rfu_division_id < floor]
+                if stale:
+                    print(f"  {comp.name}: ignoring {len(stale)} divisions from earlier seasons", flush=True)
+                    links = [link for link in links if link.rfu_division_id >= floor]
                 added = catalog.add(comp, links)
                 stats["new_divisions"] += added
                 db.upsert("competition_seasons", [{

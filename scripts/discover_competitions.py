@@ -58,21 +58,34 @@ class Fetcher:
         self.count = 0
 
     def get(self, url, params=None):
-        wait = self.delay - (time.time() - self.last)
-        if wait > 0:
-            time.sleep(wait)
-        try:
-            return get_rfu_page(self.session, url, params)
-        finally:
-            self.last = time.time()
-            self.count += 1
+        """Fetch with the polite delay; a temporary server error (5xx) is
+        retried twice, after 15 and 30 seconds."""
+        for attempt, backoff in enumerate((15, 30, None)):
+            wait = self.delay - (time.time() - self.last)
+            if wait > 0:
+                time.sleep(wait)
+            try:
+                return get_rfu_page(self.session, url, params)
+            except requests.HTTPError as e:
+                status = e.response.status_code if e.response is not None else 0
+                if status < 500 or backoff is None:
+                    raise
+                print(f"    RFU site returned {status}; retrying in {backoff}s", flush=True)
+                time.sleep(backoff)
+            finally:
+                self.last = time.time()
+                self.count += 1
 
 
 def find_competitions(fetcher):
     directory = competitions_from_directory(fetcher.get(FIXTURES_PAGE))
     results = []
     for term in SEARCH_TERMS:
-        body = json.loads(fetcher.get(SEARCH_API, params={"name": term}) or "{}")
+        try:
+            body = json.loads(fetcher.get(SEARCH_API, params={"name": term}) or "{}")
+        except requests.HTTPError as e:
+            print(f"  search '{term}' failed ({e}); skipping that term", flush=True)
+            continue
         results.extend((body or {}).get("data") or [])
     return merge_competitions(results, directory)
 
@@ -172,7 +185,7 @@ def main():
     seasons = args.season or ([f"{y}-{y + 1}" for y in range(start, FIRST_SEASON - 1, -1)]
                               if args.all_seasons else [now_season])
 
-    stats = {"competitions": 0, "pages": 0, "new_divisions": 0, "skipped": 0}
+    stats = {"competitions": 0, "pages": 0, "new_divisions": 0, "skipped": 0, "failed": 0}
     try:
         if args.skip_search:
             competitions = load_competitions(db)
@@ -201,7 +214,13 @@ def main():
                 if key_ in checked and season != now_season and not args.refresh:
                     stats["skipped"] += 1
                     continue
-                html = fetcher.get(COMPETITION_PAGE.format(cid=comp.rfu_competition_id, season=season))
+                try:
+                    html = fetcher.get(COMPETITION_PAGE.format(cid=comp.rfu_competition_id, season=season))
+                except requests.HTTPError as e:
+                    # Not recorded as checked, so the next run tries it again
+                    print(f"  {comp.name}: failed ({e}); will retry next run", flush=True)
+                    stats["failed"] += 1
+                    continue
                 stats["pages"] += 1
                 links = parse_competition_divisions(html, comp.rfu_competition_id, comp.name)
                 added = catalog.add(comp, links)

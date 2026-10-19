@@ -103,6 +103,8 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
 
   String _badge(DivisionCatalogEntry e) {
     switch (e.category) {
+      case 'Elite':
+        return 'ELT';
       case 'Internationals':
         return 'INT';
       case 'Merit Tables':
@@ -183,6 +185,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
           children: [
             TextField(
               controller: _filterController,
+              autofocus: true,
               style: TextStyle(color: theme.textPrimary, fontSize: 14),
               onChanged: (_) => _applyFilters(),
               decoration: InputDecoration(
@@ -311,7 +314,7 @@ class _DivisionsDirectoryDialogState extends State<DivisionsDirectoryDialog> {
                               ),
                             ),
                             title: Text(
-                              entry.name,
+                              entry.shortName,
                               style: TextStyle(
                                 color: isSelected ? theme.goldAccent : theme.textPrimary,
                                 fontSize: 13,

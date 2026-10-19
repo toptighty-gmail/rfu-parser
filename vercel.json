@@ -4,7 +4,8 @@
   "outputDirectory": "build/web",
   "functions": {
     "api/index.py": {
-      "excludeFiles": "{flutter_sdk/**,build/**,.dart_tool/**,lib/**,assets/**,web/**,windows/**,linux/**,macos/**,android/**,ios/**,test/**,tests/**,scripts/**,scratch/**,backups/**,node_modules/**,*.bundle,pubspec.*}"
+      "excludeFiles": "{flutter_sdk/**,build/**,.dart_tool/**,lib/**,assets/**,web/**,windows/**,linux/**,macos/**,android/**,ios/**,test/**,tests/**,scripts/**,scratch/**,backups/**,node_modules/**,*.bundle,pubspec.*}",
+      "maxDuration": 60
     }
   },
   "rewrites": [

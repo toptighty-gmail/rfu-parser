@@ -60,6 +60,37 @@ class ApiService {
     return null;
   }
 
+  /// Runs one time-limited batch of the server-side lineup sync for a
+  /// division (only [team]'s matches when given). The response says whether
+  /// the sync is `enabled` on the server, whether it is `done`, and how many
+  /// matches are still `remaining`. Null on network or server failure.
+  static Future<Map<String, dynamic>?> syncLineups({
+    required String season,
+    required int rfuDivisionId,
+    String? team,
+  }) async {
+    try {
+      final response = await http
+          .post(
+            _buildUri('/api/lineups/sync'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'season': season,
+              'rfu_division_id': rfuDivisionId,
+              if (team != null && team.isNotEmpty) 'team': team,
+            }),
+          )
+          // The server stops starting new match fetches after ~40s
+          .timeout(const Duration(seconds: 75));
+      if (response.statusCode != 200) return null;
+      final body = json.decode(response.body);
+      return body is Map<String, dynamic> ? body : null;
+    } catch (e) {
+      debugPrint('Lineup sync batch failed: $e');
+      return null;
+    }
+  }
+
   static Future<bool> verifyAdminPassword(String password) async {
     final clean = password.trim();
     // 1. Instant local verification (handles rugby2026 and Rugby2026)

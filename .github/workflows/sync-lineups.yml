@@ -1,0 +1,61 @@
+# Keeps player lineups (players / matches / appearances) up to date for the
+# current season across every tracked division, so the player search has data
+# without anyone having to open each team first. Already-stored matches are
+# skipped (except the last 14 days, to pick up late or corrected match cards),
+# so after the first run each one only fetches the latest games.
+#
+# Needs repository secrets SUPABASE_URL and SUPABASE_SECRET_KEY
+# (Settings -> Secrets and variables -> Actions); skips until they are set.
+# If the RFU site's firewall challenges the runner, the run stops at once
+# (exit code 2) with everything fetched so far saved.
+name: Sync player lineups
+
+on:
+  schedule:
+    # Mondays after the weekend's games, Thursdays for late-filed match cards (UTC)
+    - cron: "0 3 * * 1"
+    - cron: "0 3 * * 4"
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Season, e.g. 2025-2026 (blank = current season)"
+        required: false
+      competition:
+        description: "Only this RFU competition id, e.g. 1699 (blank = all)"
+        required: false
+
+concurrency:
+  group: sync-lineups
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    # A first run over a whole season can take hours; a run that hits this
+    # limit is safe to repeat - the next one carries on where it stopped.
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Sync lineups
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEASON: ${{ inputs.season }}
+          COMPETITION: ${{ inputs.competition }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then
+            echo "SUPABASE_URL / SUPABASE_SECRET_KEY repository secrets are not set; skipping."
+            exit 0
+          fi
+          args=()
+          if [ -n "$SEASON" ]; then args+=(--season "$SEASON"); fi
+          if [ -n "$COMPETITION" ]; then args+=(--competition "$COMPETITION"); fi
+          python scripts/sync_lineups.py "${args[@]}"

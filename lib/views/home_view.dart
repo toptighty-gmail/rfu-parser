@@ -76,6 +76,14 @@ class _HomeViewState extends State<HomeView> {
 
   bool _isLoading = false;
   bool _isAdmin = false;
+
+  /// Matches still waiting for their lineups in the background sync for the
+  /// division on screen; null when no sync is running.
+  int? _lineupSyncRemaining;
+
+  /// Bumped per load, so a background sync stops once another team or
+  /// division is opened.
+  int _lineupSyncToken = 0;
   DivisionData? _divisionData;
   Map<String, String> _customLogosMap = {};
 
@@ -323,6 +331,47 @@ class _HomeViewState extends State<HomeView> {
         }
         _isLoading = false;
       });
+    }
+
+    final bool isRealData = !data.isOfflineGenerated &&
+        (data.sourceUrl ?? '').trim().isNotEmpty &&
+        data.sourceUrl!.trim() != 'https://www.englandrugby.com/fixtures-and-results';
+    if (isRealData) {
+      _syncLineupsInBackground(data, hasTeam ? team : null);
+    } else {
+      _lineupSyncToken++;
+      if (mounted) setState(() => _lineupSyncRemaining = null);
+    }
+  }
+
+  /// Fills in player lineups for the division just opened (only [team]'s
+  /// matches after a team search), one server batch at a time, so the
+  /// player search has its appearances. Stops when the server reports done,
+  /// when sync isn't enabled there, on failure, or when another team or
+  /// division is opened.
+  Future<void> _syncLineupsInBackground(DivisionData data, String? team) async {
+    final token = ++_lineupSyncToken;
+    final rfuDivisionId = data.rfuDivisionId ??
+        int.tryParse(Uri.tryParse(data.sourceUrl!)?.queryParameters['division'] ?? '');
+    if (rfuDivisionId == null) return;
+
+    // Each batch fetches ~10 matches; a division is ~130, so this caps one
+    // visit at a full division. Whatever is left is picked up next time.
+    for (var batch = 0; batch < 15; batch++) {
+      final result = await ApiService.syncLineups(
+        season: data.season,
+        rfuDivisionId: rfuDivisionId,
+        team: team,
+      );
+      if (!mounted || token != _lineupSyncToken) return;
+      final remaining = result?['remaining'];
+      if (result == null || result['enabled'] != true || result['done'] == true || remaining is! int) {
+        break;
+      }
+      setState(() => _lineupSyncRemaining = remaining);
+    }
+    if (mounted && token == _lineupSyncToken) {
+      setState(() => _lineupSyncRemaining = null);
     }
   }
 
@@ -655,6 +704,33 @@ class _HomeViewState extends State<HomeView> {
                                           color: AppTheme.textMuted,
                                         ),
                                       ),
+                                      if (_lineupSyncRemaining != null) ...[
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 12,
+                                              height: 12,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 1.6,
+                                                color: AppTheme.goldAccent,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                'Fetching player lineups: '
+                                                '$_lineupSyncRemaining '
+                                                '${_lineupSyncRemaining == 1 ? 'match' : 'matches'} to go',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppTheme.textMuted,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                       if (_divisionData?.sourceUrl != null &&
                                           _divisionData!
                                               .sourceUrl!

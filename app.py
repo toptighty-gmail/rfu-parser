@@ -1,9 +1,11 @@
 import os
+import re
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, session
 from rfu_parser.scraper import RFUParser
 from rfu_parser.exporter import DataExporter
 from rfu_parser.storage import CustomFixtureStorage
 from rfu_parser.logo_storage import CustomLogoStorage
+from rfu_parser.lineup_sync import LineupSync, RfuBlocked, SupabaseRest, query_param
 
 import time
 
@@ -43,6 +45,10 @@ rfu_parser = RFUParser()
 
 suggestions_cache = SimpleCache(ttl_seconds=3600)  # 1 hour
 crawl_cache = SimpleCache(ttl_seconds=600)        # 10 minutes
+
+# Seconds of match fetching per /api/lineups/sync call; keep well inside the
+# function's maxDuration in vercel.json.
+LINEUP_SYNC_BUDGET_SECONDS = int(os.environ.get("LINEUP_SYNC_BUDGET_SECONDS", "40"))
 
 FLUTTER_WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "web")
 
@@ -427,6 +433,79 @@ def suggest_teams():
     fallback_items = search_teams_fallback(q)
     return jsonify({"status": "success", "data": fallback_items})
 
+SEASON_PATTERN = re.compile(r"^\d{4}-\d{4}$")
+
+
+@app.route("/api/lineups/sync", methods=["POST"])
+def api_sync_lineups():
+    """Fetch missing player lineups for one division (optionally one team in
+    it) within a time budget. The app calls this repeatedly in the background
+    after a team or division is opened, until it reports done.
+
+    Body: {"season": "2025-2026", "rfu_division_id": 66453, "team": "Plymstock Oaks"?}
+    """
+    supabase_url = os.environ.get("SUPABASE_URL", "")
+    # Writes to players/matches/appearances need a secret key; the anon key is read-only there.
+    # Deliberately only the new sb_secret_ key: the feature stays off until one is configured.
+    secret_key = os.environ.get("SUPABASE_SECRET_KEY")
+    if not supabase_url or not secret_key:
+        return jsonify({"enabled": False, "done": True, "reason": "lineup sync is not configured"})
+
+    body = request.get_json(silent=True) or {}
+    season = str(body.get("season", "")).strip()
+    team = str(body.get("team") or "").strip() or None
+    try:
+        rfu_division_id = int(body.get("rfu_division_id"))
+    except (TypeError, ValueError):
+        rfu_division_id = None
+    if not SEASON_PATTERN.match(season) or rfu_division_id is None:
+        return jsonify({"error": "season (YYYY-YYYY) and rfu_division_id are required"}), 400
+
+    db = SupabaseRest(supabase_url, secret_key)
+    # Only divisions we already track can be synced; the fixtures URL comes from our table, never the caller.
+    divisions = db.get(
+        f"divisions?season=eq.{season}&select=id,division_name,season,source_url,rfu_competition_id,rfu_division_id"
+    )
+    division = next(
+        (d for d in divisions
+         if (d.get("source_url") or "").startswith("https://www.englandrugby.com/")
+         and (d.get("rfu_division_id") or query_param(d["source_url"], "division")) == rfu_division_id),
+        None,
+    )
+    if division is None:
+        return jsonify({"error": "unknown division"}), 404
+
+    sync = LineupSync(
+        db,
+        delay=2.0,
+        recheck_days=0,  # only matches not stored yet; the weekly job re-checks late match cards
+        refresh=False,
+        limit=None,
+        teams=[team] if team else None,
+        time_budget=LINEUP_SYNC_BUDGET_SECONDS,
+    )
+    try:
+        sync.sync_division(division)
+    except RfuBlocked as e:
+        # Stop the app's batches; hammering a challenged site only extends the block.
+        safe_print(f"Lineup sync stopped, RFU challenge: {e}")
+        return jsonify({"enabled": True, "done": True, "blocked": True, "fetched": sync.stats["fetched"]})
+    except Exception as e:
+        safe_print(f"Lineup sync error for {division['division_name']} ({season}): {e}")
+        return jsonify({"enabled": True, "done": True, "error": "RFU fetch failed"}), 502
+
+    stats = sync.stats
+    return jsonify({
+        "enabled": True,
+        "done": stats["remaining"] == 0,
+        "remaining": stats["remaining"],
+        "fetched": stats["fetched"],
+        "stored": stats["with_lineup"],
+        "already_stored": stats["skipped"],
+        "errors": stats["errors"],
+    })
+
+
 @app.route("/api/index.py", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 def vercel_router():
     path = request.args.get("path", "").strip("/")
@@ -439,6 +518,8 @@ def vercel_router():
         return api_suggest_teams()
     elif path == "admin/login":
         return api_admin_login()
+    elif path == "lineups/sync":
+        return api_sync_lineups()
     elif path == "fixtures/custom":
         if request.method == "GET":
             return get_custom_fixtures()

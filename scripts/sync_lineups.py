@@ -86,8 +86,9 @@ def main():
     if args.division:
         divisions = [d for d in divisions
                      if (d.get("rfu_division_id") or query_param(d["source_url"], "division")) == args.division]
-    if args.team:
-        # Only the divisions whose league table lists one of the teams
+    if args.team and not args.division:
+        # Only the divisions whose league table lists one of the teams (an
+        # explicit --division is used as given: its table may not be stored)
         names = ",".join('"' + _normalize_team_name(t).replace('"', '') + '"' for t in args.team)
         team_divs = {s["division_id"] for s in db.get(f"standings?team_name=in.({quote(names)})&select=division_id")}
         divisions = [d for d in divisions if d["id"] in team_divs]

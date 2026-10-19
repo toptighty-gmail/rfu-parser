@@ -5,7 +5,10 @@ import requests
 import concurrent.futures
 
 SUPABASE_URL = 'https://tgexkxrhcyxvnqafbdff.supabase.co'
-SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXhreHJoY3l4dm5xYWZiZGZmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTI1MTkzMCwiZXhwIjoyMTAwODI3OTMwfQ.76Xky0DgpllldhRuMCjMFSkELciJCw_cSIIqQYNauoc'
+import os, sys  # noqa: E401
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rfu_parser.env import supabase_secret_key  # noqa: E402
+SERVICE_KEY = supabase_secret_key()  # from .env; never hard-code keys (public repo)
 
 headers = {
     'apikey': SERVICE_KEY,

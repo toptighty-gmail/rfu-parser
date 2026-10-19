@@ -6,6 +6,7 @@ class SupabaseConfig {
   // Supabase project URL
   static const String fallbackUrl = 'https://tgexkxrhcyxvnqafbdff.supabase.co';
 
-  // Supabase project anon public key
-  static const String fallbackAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXhreHJoY3l4dm5xYWZiZGZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNTE5MzAsImV4cCI6MjEwMDgyNzkzMH0.jmXajfI3FSJRAzwSTcuDaJ83e7WRIMDoNXI1z6c66mM';
+  // Supabase publishable key (sb_publishable_...). Public by design: it
+  // only grants what the database's row-level security allows anyone.
+  static const String fallbackAnonKey = 'sb_publishable_Iav9Fvuy4VNJUGRcfV7tLg_E7VcF4Dl';
 }

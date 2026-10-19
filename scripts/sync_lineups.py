@@ -29,24 +29,9 @@ from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from rfu_parser.env import load_env_file
 from rfu_parser.lineup_sync import LineupSync, RfuBlocked, SupabaseRest, current_season, query_param
 from rfu_parser.scraper import _normalize_team_name
-
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def load_env_file(path):
-    """Minimal .env loader; variables already set in the environment win."""
-    if not os.path.exists(path):
-        return
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            key, value = line.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
-
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -67,7 +52,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="scrape and print, but write nothing to Supabase")
     args = ap.parse_args()
 
-    load_env_file(os.path.join(REPO_ROOT, ".env"))
+    load_env_file()
     url = os.environ.get("SUPABASE_URL", "")
     key = (os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
            or (args.dry_run and os.environ.get("SUPABASE_ANON_KEY")))

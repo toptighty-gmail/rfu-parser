@@ -97,7 +97,9 @@ class RFUParser:
         # 1. Resolve Team Name to Team ID via live search API
         search_url = f"https://www.englandrugby.com/api/fixtures-and-result/search?name={quote(team_name)}"
         try:
-            r = requests.get(search_url, headers=self.headers, timeout=10)
+            # cloudscraper, like fetch_url: the RFU firewall turns away plain requests
+            import cloudscraper
+            r = cloudscraper.create_scraper().get(search_url, timeout=10)
             if r.status_code != 200:
                 print("CRAWLER ERROR (step 1 - resolve status):", r.status_code)
                 return None

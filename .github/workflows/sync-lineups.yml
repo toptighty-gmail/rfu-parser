@@ -23,6 +23,9 @@ on:
       competition:
         description: "Only this RFU competition id, e.g. 1699 (blank = all)"
         required: false
+      division:
+        description: "Only this RFU division id, e.g. 75799 (blank = all)"
+        required: false
 
 concurrency:
   group: sync-lineups
@@ -50,6 +53,7 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SEASON: ${{ inputs.season }}
           COMPETITION: ${{ inputs.competition }}
+          DIVISION: ${{ inputs.division }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then
             echo "SUPABASE_URL / SUPABASE_SECRET_KEY repository secrets are not set; skipping."
@@ -58,4 +62,5 @@ jobs:
           args=()
           if [ -n "$SEASON" ]; then args+=(--season "$SEASON"); fi
           if [ -n "$COMPETITION" ]; then args+=(--competition "$COMPETITION"); fi
+          if [ -n "$DIVISION" ]; then args+=(--division "$DIVISION"); fi
           python scripts/sync_lineups.py "${args[@]}"

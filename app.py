@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, session
@@ -5,10 +6,12 @@ from rfu_parser.scraper import RFUParser
 from rfu_parser.exporter import DataExporter
 from rfu_parser.storage import CustomFixtureStorage
 from rfu_parser.logo_storage import CustomLogoStorage
+from rfu_parser.competitions import SEARCH_API as RFU_SEARCH_API
 from rfu_parser.lineup_sync import (
     LineupSync,
     RfuBlocked,
     SupabaseRest,
+    get_rfu_page,
     is_senior_division,
     query_param,
     senior_competition_ids,
@@ -52,6 +55,19 @@ rfu_parser = RFUParser()
 
 suggestions_cache = SimpleCache(ttl_seconds=3600)  # 1 hour
 crawl_cache = SimpleCache(ttl_seconds=600)        # 10 minutes
+
+_rfu_session = None
+
+
+def rfu_session():
+    """One cloudscraper session per server instance: the RFU site's firewall
+    turns away plain requests, which cloudscraper gets past."""
+    global _rfu_session
+    if _rfu_session is None:
+        import cloudscraper
+        _rfu_session = cloudscraper.create_scraper()
+    return _rfu_session
+
 
 # Seconds of match fetching per /api/lineups/sync call; keep well inside the
 # function's maxDuration in vercel.json.
@@ -415,20 +431,13 @@ def suggest_teams():
     if cached_res:
         return jsonify(cached_res)
 
-    import requests
-    from urllib.parse import quote
-    search_url = f"https://www.englandrugby.com/api/fixtures-and-result/search?name={quote(q)}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    }
     items = []
     try:
-        r = requests.get(search_url, headers=headers, timeout=4)
-        if r.status_code == 200:
-            res_data = r.json()
-            items = res_data.get("data", [])
+        body = get_rfu_page(rfu_session(), RFU_SEARCH_API, params={"name": q})
+        # The search also returns competitions and divisions; only teams belong here
+        items = [i for i in (json.loads(body or "{}").get("data") or []) if i.get("listType") == "TeamType"]
     except Exception as e:
-        safe_print("Suggest teams error:", e)
+        safe_print(f"Suggest teams error for {q!r}: {type(e).__name__}: {e}")
 
     if items:
         items_sorted = sorted(items, key=lambda x: x.get("name", "").lower())
@@ -436,8 +445,12 @@ def suggest_teams():
         suggestions_cache.set(q, res)
         return jsonify(res)
 
-    # Instant fallback to local RFU teams DB
-    fallback_items = search_teams_fallback(q)
+    # Fallback to the built-in list of well-known teams
+    try:
+        fallback_items = search_teams_fallback(q)
+    except Exception as e:
+        safe_print(f"Suggest teams fallback error: {type(e).__name__}: {e}")
+        fallback_items = []
     return jsonify({"status": "success", "data": fallback_items})
 
 SEASON_PATTERN = re.compile(r"^\d{4}-\d{4}$")
@@ -525,9 +538,9 @@ def vercel_router():
     elif path == "parse":
         return api_parse()
     elif path == "suggest-teams":
-        return api_suggest_teams()
+        return suggest_teams()
     elif path == "admin/login":
-        return api_admin_login()
+        return admin_login()
     elif path == "lineups/sync":
         return api_sync_lineups()
     elif path == "fixtures/custom":

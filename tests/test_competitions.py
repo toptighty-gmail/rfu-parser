@@ -173,3 +173,27 @@ def test_windows_one_season_per_division():
     assert not w.accepts(72339, "2026-2027", international=True)  # already 2025-26's
     w.claim(79000, "2026-2027")
     assert w.accepts(79000, "2026-2027")                       # re-reading the same season is fine
+
+
+def test_fixtures_in_season_checks_dates():
+    import datetime
+    from types import SimpleNamespace
+    import discover_competitions as dc
+    from rfu_parser.competitions import Competition, DivisionLink
+
+    assert dc.season_of(datetime.date(2022, 6, 18)) == "2021-2022"
+    assert dc.season_of(datetime.date(2022, 9, 3)) == "2022-2023"
+
+    def fetcher_for(dates):
+        cards = "".join(
+            f'<div class="resultWrapper"><div class="coh-style-card-left-date">{d}</div>'
+            f'<div class="coh-style-card-body"><div class="coh-style-card-scores">'
+            f'<div class="coh-style-hometeam"><a>Home</a></div><div class="coh-style-away-team"><a>Away</a></div>'
+            f'</div></div></div>' for d in dates)
+        return SimpleNamespace(get=lambda url, params=None: cards)
+
+    prem = Competition(5, "Gallagher Prem", ELITE, "", False)
+    link = DivisionLink(75971, "1")
+    assert dc.fixtures_in_season(fetcher_for(["Saturday, 21 May 2022", "Saturday, 18 Jun 2022"]), prem, link, "2021-2022")
+    assert not dc.fixtures_in_season(fetcher_for(["Saturday, 21 May 2022"]), prem, link, "2026-2027")
+    assert not dc.fixtures_in_season(fetcher_for([]), prem, link, "2021-2022")

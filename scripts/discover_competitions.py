@@ -46,7 +46,15 @@ from rfu_parser.competitions import (
     parse_competition_divisions,
 )
 from rfu_parser.env import load_env_file
-from rfu_parser.lineup_sync import RfuBlocked, SupabaseRest, current_season, get_rfu_page, query_param
+from rfu_parser.lineup_sync import (
+    RfuBlocked,
+    SupabaseRest,
+    current_season,
+    get_rfu_page,
+    parse_fixture_date,
+    query_param,
+)
+from rfu_parser.scraper import RFUParser
 
 FIRST_SEASON = 2021  # the app's earliest season
 
@@ -167,13 +175,42 @@ class SeasonWindows:
         upper = following - SAME_BATCH_MARGIN if following is not None else float("inf")
         return lower, upper
 
-    def accepts(self, rfu_id, season, international=False):
+    def in_window(self, rfu_id, season, international=False):
         lower, upper = self.window(season, international)
-        earlier = any(s < season for s in self.seasons_of.get(rfu_id, ()))
-        return lower <= rfu_id < upper and not earlier
+        return lower <= rfu_id < upper
+
+    def claimed_earlier(self, rfu_id, season):
+        return any(s < season for s in self.seasons_of.get(rfu_id, ()))
+
+    def accepts(self, rfu_id, season, international=False):
+        return self.in_window(rfu_id, season, international) and not self.claimed_earlier(rfu_id, season)
 
     def claim(self, rfu_id, season):
         self.seasons_of.setdefault(rfu_id, set()).add(season)
+
+
+def season_of(day):
+    """Season a date falls in: seasons run August to July."""
+    start = day.year if day.month >= 8 else day.year - 1
+    return f"{start}-{start + 1}"
+
+
+def fixtures_in_season(fetcher, competition, link, season):
+    """Whether most fixtures on a division's page fall in season.
+
+    A division with no dated fixtures yet can't be confirmed, so it counts
+    as not in season.
+    """
+    url = COMPETITION_PAGE.format(cid=competition.rfu_competition_id, season=season) \
+        + f"&division={link.rfu_division_id}"
+    try:
+        html = fetcher.get(url)
+    except requests.HTTPError:
+        return False
+    days = [d for f in RFUParser().parse_fixtures(html) if (d := parse_fixture_date(f.date))]
+    if not days:
+        return False
+    return sum(season_of(d) == season for d in days) * 2 > len(days)
 
 
 class DivisionCatalog:
@@ -300,9 +337,20 @@ def main():
                 stats["pages"] += 1
                 links = parse_competition_divisions(html, comp.rfu_competition_id, comp.name)
                 international = comp.category == INTERNATIONALS
-                kept = [link for link in links if windows.accepts(link.rfu_division_id, season, international)]
-                if len(kept) < len(links):
-                    print(f"  {comp.name}: ignoring {len(links) - len(kept)} divisions from other seasons", flush=True)
+                fresh = [link for link in links if not windows.claimed_earlier(link.rfu_division_id, season)]
+                kept = [link for link in fresh if windows.in_window(link.rfu_division_id, season, international)]
+                outside = [link for link in fresh if link not in kept]
+                # The id window is only a guide: the RFU also re-creates old
+                # divisions under new ids (2021-22 Premiership is 75970+). One
+                # outside division's fixture dates settle it for the batch.
+                if outside and fixtures_in_season(fetcher, comp, outside[0], season):
+                    print(f"  {comp.name}: {len(outside)} divisions outside the id range confirmed "
+                          f"by fixture dates", flush=True)
+                    kept += outside
+                    outside = []
+                ignored = len(links) - len(kept)
+                if ignored:
+                    print(f"  {comp.name}: ignoring {ignored} divisions from other seasons", flush=True)
                 links = kept
                 added = catalog.add(comp, links)
                 stats["new_divisions"] += added

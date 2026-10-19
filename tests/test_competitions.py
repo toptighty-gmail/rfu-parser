@@ -123,7 +123,7 @@ def test_catalog_adds_only_new_divisions_with_unique_names():
     assert db.patches == [("divisions?id=eq.b", {"rfu_competition_id": 1699, "rfu_division_id": 75799})]
 
 
-def test_catalog_skips_stale_divisions_and_prefers_rows_with_ids():
+def test_catalog_prefers_rows_with_ids():
     from rfu_parser.competitions import Competition, DivisionLink
     db = FakeDb([
         {"id": "dup", "division_name": "Champ Rugby", "rfu_division_id": None, "rfu_competition_id": None,
@@ -131,22 +131,45 @@ def test_catalog_skips_stale_divisions_and_prefers_rows_with_ids():
         {"id": "real", "division_name": "Championship", "rfu_division_id": 76143, "rfu_competition_id": 173,
          "source_url": ""},
     ])
-    catalog = DivisionCatalog(db, "2026-2027", floor=66000)
+    catalog = DivisionCatalog(db, "2026-2027")
     elite = Competition(173, "Champ Rugby", ELITE, "", True)
-    old = Competition(16, "Amlin Challenge Cup", ELITE, "", True)
     assert catalog.add(elite, [DivisionLink(76143, "Champ Rugby")]) == 0
     assert db.patches == []  # the row with the id is used; the duplicate isn't "repaired" into a clash
-    assert catalog.add(old, [DivisionLink(7739, "Amlin Challenge Cup Pool 1")]) == 0
-    assert db.upserts == []
 
 
-def test_season_floor_uses_previous_season_range():
-    from discover_competitions import season_floor
+def _windows(rows):
+    from discover_competitions import SeasonWindows
 
     class Db:
         def get(self, path):
-            if "season=eq.2025-2026" in path:
-                return [{"rfu_division_id": 66400 + i, "source_url": ""} for i in range(40)]
-            return [{"rfu_division_id": 75800 + i, "source_url": ""} for i in range(40)]
+            return rows
 
-    assert 66400 <= season_floor(Db(), "2026-2027") <= 66410
+    return SeasonWindows(Db())
+
+
+LEAGUES = [{"season": s, "rfu_division_id": i, "rfu_competition_id": 1699, "source_url": ""}
+           for s, i in [("2024-2025", 56483), ("2025-2026", 66415), ("2026-2027", 75773)]]
+
+
+def test_windows_reject_other_seasons_divisions():
+    w = _windows(LEAGUES)
+    assert w.accepts(75800, "2026-2027")                       # this season's league batch
+    assert w.accepts(75771, "2026-2027")                       # merit table made just before the leagues
+    assert not w.accepts(75566, "2026-2027")                   # last season's county championship final
+    assert not w.accepts(7739, "2026-2027")                    # discontinued cup from years ago
+    assert w.accepts(75566, "2025-2026")
+    assert not w.accepts(75800, "2025-2026")                   # next season's division
+
+
+def test_windows_internationals_created_early():
+    w = _windows(LEAGUES)
+    assert w.accepts(64487, "2025-2026", international=True)   # tour series made before the leagues
+    assert not w.accepts(64487, "2025-2026")
+
+
+def test_windows_one_season_per_division():
+    w = _windows(LEAGUES + [{"season": "2025-2026", "rfu_division_id": 72339, "rfu_competition_id": 3,
+                             "source_url": ""}])
+    assert not w.accepts(72339, "2026-2027", international=True)  # already 2025-26's
+    w.claim(79000, "2026-2027")
+    assert w.accepts(79000, "2026-2027")                       # re-reading the same season is fine

@@ -37,6 +37,7 @@ from rfu_parser.competitions import (
     CATEGORIES,
     COMPETITION_PAGE,
     FIXTURES_PAGE,
+    INTERNATIONALS,
     SEARCH_API,
     SEARCH_TERMS,
     Competition,
@@ -107,35 +108,79 @@ def load_competitions(db):
             for r in rows if r.get("category") in CATEGORIES}
 
 
-def division_ids(db, season):
-    rows = db.get(f"divisions?season=eq.{season}&select=rfu_division_id,source_url")
-    return sorted(r.get("rfu_division_id") or query_param(r.get("source_url"), "division") or 0 for r in rows)
+CORE_LEAGUES = {1605, 1699, 261, 1597, 1623}  # National + the four divisional league competitions
+# Merit tables etc. are created in the same batch, just before the leagues
+# (2026-27: 75771 vs 75773); last season's finals come a little earlier
+# (PWR final 2025-26: 75654).
+SAME_BATCH_MARGIN = 100
 
 
-def season_floor(db, season):
-    """Lowest plausible RFU division id for a season.
+class SeasonWindows:
+    """Which RFU division ids can belong to which season.
 
-    RFU division ids only ever increase, and each season's start higher than
-    the last (2021-22 from ~31,700, 2025-26 from ~66,400). The page of a
-    discontinued competition ignores the season asked for and shows its last
-    divisions (e.g. the old Amlin Challenge Cup's from ~2013), so anything
-    older than the previous season's range is stale. The previous season's
-    range is used, not this one's, because some divisions are created early
-    (the 2025-26 internationals series is 64487).
+    Many competition pages ignore the season asked for and show their latest
+    divisions instead: a discontinued cup shows ones from years ago, a cup
+    not yet drawn for this season shows last season's rounds. Division ids
+    only ever increase, and each season's leagues are created in one batch
+    before it starts, so a division belongs to season S when its id is from
+    S's league batch onwards and before the next season's.
+    Internationals are created months ahead, so their lower limit is the
+    previous season's league batch instead.
+
+    One RFU division belongs to one season: an id already stored for an
+    earlier season is never added to a later one. Seasons are read oldest
+    first, so each id settles in the earliest season it fits.
     """
-    start = int(season[:4])
-    previous = [i for i in division_ids(db, f"{start - 1}-{start}") if i]
-    if len(previous) >= 20:
-        return previous[len(previous) // 20]  # 5th percentile: ignores the odd misfiled row
-    current = [i for i in division_ids(db, season) if i]
-    return current[len(current) // 20] - 10000 if len(current) >= 20 else 0
+
+    def __init__(self, db):
+        rows = db.get("divisions?select=season,rfu_division_id,rfu_competition_id,source_url,"
+                      "competitions(category)")
+        self.league_start = {}
+        self.seasons_of = {}
+        ids = []
+        for r in rows:
+            rfu_id = r.get("rfu_division_id") or query_param(r.get("source_url"), "division")
+            if not rfu_id:
+                continue
+            ids.append((rfu_id, r))
+            comp = r.get("rfu_competition_id") or query_param(r.get("source_url"), "competition")
+            if comp in CORE_LEAGUES:
+                self.league_start[r["season"]] = min(self.league_start.get(r["season"], rfu_id), rfu_id)
+        # Rows stored under the wrong season by older scripts don't count as a
+        # claim, or they would keep the division out of its real season.
+        for rfu_id, r in ids:
+            international = ((r.get("competitions") or {}).get("category")) == INTERNATIONALS
+            lower, upper = self.window(r["season"], international)
+            if lower <= rfu_id < upper:
+                self.seasons_of.setdefault(rfu_id, set()).add(r["season"])
+
+    def window(self, season, international=False):
+        """(lowest, highest + 1) division id that can belong to season."""
+        start = int(season[:4])
+        previous = self.league_start.get(f"{start - 1}-{start}")
+        own = self.league_start.get(season)
+        following = self.league_start.get(f"{start + 1}-{start + 2}")
+        if international or own is None:
+            lower = previous if previous is not None else (own - 10000 if own else 0)
+        else:
+            lower = own - SAME_BATCH_MARGIN
+        upper = following - SAME_BATCH_MARGIN if following is not None else float("inf")
+        return lower, upper
+
+    def accepts(self, rfu_id, season, international=False):
+        lower, upper = self.window(season, international)
+        earlier = any(s < season for s in self.seasons_of.get(rfu_id, ()))
+        return lower <= rfu_id < upper and not earlier
+
+    def claim(self, rfu_id, season):
+        self.seasons_of.setdefault(rfu_id, set()).add(season)
 
 
 class DivisionCatalog:
     """Divisions already stored for one season, to add only new ones and keep names unique."""
 
-    def __init__(self, db, season, floor=0):
-        self.db, self.season, self.floor = db, season, floor
+    def __init__(self, db, season, windows=None):
+        self.db, self.season, self.windows = db, season, windows
         rows = db.get(f"divisions?season=eq.{season}&select=id,division_name,rfu_division_id,rfu_competition_id,source_url")
         self.by_rfu_id = {}
         self.names = {}
@@ -158,8 +203,6 @@ class DivisionCatalog:
         """Store new divisions; returns how many were new."""
         new_rows = []
         for link in links:
-            if link.rfu_division_id < self.floor:
-                continue  # a stale division from an earlier season (see season_floor)
             known = self.by_rfu_id.get(link.rfu_division_id)
             url = COMPETITION_PAGE.format(cid=competition.rfu_competition_id, season=self.season) \
                 + f"&division={link.rfu_division_id}"
@@ -174,6 +217,8 @@ class DivisionCatalog:
             self.names[name.lower()] = link.rfu_division_id
             self.by_rfu_id[link.rfu_division_id] = {"rfu_competition_id": competition.rfu_competition_id,
                                                     "rfu_division_id": link.rfu_division_id}
+            if self.windows:
+                self.windows.claim(link.rfu_division_id, self.season)
             new_rows.append({
                 "division_name": name,
                 "season": self.season,
@@ -210,8 +255,9 @@ def main():
 
     now_season = current_season()
     start = int(now_season[:4])
-    seasons = args.season or ([f"{y}-{y + 1}" for y in range(start, FIRST_SEASON - 1, -1)]
+    seasons = args.season or ([f"{y}-{y + 1}" for y in range(FIRST_SEASON, start + 1)]
                               if args.all_seasons else [now_season])
+    seasons = sorted(set(seasons))  # oldest first: see SeasonWindows
 
     stats = {"competitions": 0, "pages": 0, "new_divisions": 0, "skipped": 0, "failed": 0}
     try:
@@ -226,6 +272,7 @@ def main():
         by_cat = {cat: sum(1 for c in competitions.values() if c.category == cat) for cat in CATEGORIES}
         print(f"{len(competitions)} senior competitions: {by_cat}", flush=True)
 
+        windows = SeasonWindows(db)
         try:
             checked = {(r["rfu_competition_id"], r["season"])
                        for r in db.get("competition_seasons?select=rfu_competition_id,season")}
@@ -235,9 +282,9 @@ def main():
             checked = set()  # dry run before the migration has been applied
         order = sorted(competitions.values(), key=lambda c: (CATEGORIES.index(c.category), c.name.lower()))
         for season in seasons:
-            floor = season_floor(db, season)
-            catalog = DivisionCatalog(db, season, floor)
-            print(f"\n{season} (division ids from {floor})", flush=True)
+            catalog = DivisionCatalog(db, season, windows)
+            lower, upper = windows.window(season)
+            print(f"\n{season} (division ids {lower} to {upper})", flush=True)
             for comp in order:
                 key_ = (comp.rfu_competition_id, season)
                 if key_ in checked and season != now_season and not args.refresh:
@@ -252,10 +299,11 @@ def main():
                     continue
                 stats["pages"] += 1
                 links = parse_competition_divisions(html, comp.rfu_competition_id, comp.name)
-                stale = [link for link in links if link.rfu_division_id < floor]
-                if stale:
-                    print(f"  {comp.name}: ignoring {len(stale)} divisions from earlier seasons", flush=True)
-                    links = [link for link in links if link.rfu_division_id >= floor]
+                international = comp.category == INTERNATIONALS
+                kept = [link for link in links if windows.accepts(link.rfu_division_id, season, international)]
+                if len(kept) < len(links):
+                    print(f"  {comp.name}: ignoring {len(links) - len(kept)} divisions from other seasons", flush=True)
+                links = kept
                 added = catalog.add(comp, links)
                 stats["new_divisions"] += added
                 db.upsert("competition_seasons", [{

@@ -881,7 +881,8 @@ class RFUParser:
                 )
                 if resp.status_code == 200:
                     rows = resp.json()
-                    if rows and rows[0].get("rfu_competition_id") and rows[0].get("rfu_division_id"):
+                    # "is not None": the men's internationals competition id is 0
+                    if rows and rows[0].get("rfu_competition_id") is not None and rows[0].get("rfu_division_id"):
                         comp_id = str(rows[0]["rfu_competition_id"])
                         div_id = str(rows[0]["rfu_division_id"])
             except Exception as e:

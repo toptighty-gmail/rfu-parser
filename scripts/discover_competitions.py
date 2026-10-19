@@ -244,7 +244,7 @@ class DivisionCatalog:
             url = COMPETITION_PAGE.format(cid=competition.rfu_competition_id, season=self.season) \
                 + f"&division={link.rfu_division_id}"
             if known:
-                if not known.get("rfu_competition_id") or not known.get("rfu_division_id"):
+                if known.get("rfu_competition_id") is None or not known.get("rfu_division_id"):  # id 0 is valid
                     self.db.patch(f"divisions?id=eq.{known['id']}", {
                         "rfu_competition_id": competition.rfu_competition_id,
                         "rfu_division_id": link.rfu_division_id,

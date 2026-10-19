@@ -13,11 +13,12 @@ from datetime import date, datetime, timedelta, timezone
 import cloudscraper
 import requests
 
+from rfu_parser.competitions import AGE_GRADE_NAME, CATEGORIES
 from rfu_parser.lineups import (
     match_centre_url,
     parse_lineup,
     parse_match_info,
-    parse_player_match_ids,
+    parse_player_matches,
     player_stats_url,
 )
 from rfu_parser.scraper import RFUParser, _normalize_team_name
@@ -29,6 +30,42 @@ class RfuBlocked(RuntimeError):
     Every further request would be challenged too, and keeping on only extends
     the block, so a run stops at the first one. Try again later, more slowly.
     """
+
+
+def get_rfu_page(session, url, params=None):
+    """GET an englandrugby.com page or API response body, raising RfuBlocked
+    on the site's firewall challenge.
+
+    The WAF challenge comes back as a small "202 Accepted" page that a script
+    can't pass; treating it as a normal page would quietly record matches as
+    having no lineup, or competitions as having no divisions.
+    """
+    resp = session.get(url, params=params, timeout=30)
+    if resp.status_code in (202, 429) or "awsWafCookieDomainList" in resp.text[:4000]:
+        raise RfuBlocked(f"RFU site challenged the request (HTTP {resp.status_code}) for {url}")
+    resp.raise_for_status()
+    return resp.text
+
+
+# Competition groups whose lineups may be stored: the senior display groups,
+# plus the labels competitions carried before the full catalogue existed.
+SENIOR_CATEGORIES = set(CATEGORIES) | {"Senior Mens", "Elite Men", "Elite Women"}
+
+
+def senior_competition_ids(db):
+    """RFU ids of competitions whose lineups may be stored (never age grade)."""
+    rows = db.get("competitions?select=rfu_competition_id,category")
+    return {r["rfu_competition_id"] for r in rows if r.get("category") in SENIOR_CATEGORIES}
+
+
+def is_senior_division(division, senior_ids):
+    """A division of a known senior competition, without an age-grade name.
+
+    Divisions can reach the table from a live crawl of any team the app is
+    asked for (e.g. a colts side), so lineup syncs check before fetching.
+    """
+    comp = division.get("rfu_competition_id") or query_param(division.get("source_url"), "competition")
+    return comp in senior_ids and not AGE_GRADE_NAME.search(division.get("division_name") or "")
 
 
 def current_season(today=None):
@@ -80,6 +117,15 @@ class SupabaseRest:
         if resp.status_code not in (200, 201, 204):
             raise RuntimeError(f"upsert {table} failed: {resp.status_code} {resp.text[:300]}")
 
+    def patch(self, path, values):
+        """Update the rows matching a PostgREST filter, e.g. patch("divisions?id=eq.X", {...})."""
+        if self.dry_run:
+            return
+        resp = requests.patch(f"{self.base}/{path}", json=values,
+                              headers={**self.headers, "Prefer": "return=minimal"}, timeout=30)
+        if resp.status_code not in (200, 204):
+            raise RuntimeError(f"patch {path} failed: {resp.status_code} {resp.text[:300]}")
+
     def delete(self, path):
         if self.dry_run:
             return
@@ -112,16 +158,9 @@ class LineupSync:
         if wait > 0:
             time.sleep(wait)
         try:
-            resp = self.rfu.get(url, timeout=30)
+            return get_rfu_page(self.rfu, url)
         finally:
             self.last_request = time.time()
-        # The WAF challenge comes back as a small "202 Accepted" page that a
-        # script can't pass; treating it as an empty page would quietly
-        # record matches as having no lineup.
-        if resp.status_code in (202, 429) or "awsWafCookieDomainList" in resp.text[:4000]:
-            raise RfuBlocked(f"RFU site challenged the request (HTTP {resp.status_code}) for {url}")
-        resp.raise_for_status()
-        return resp.text
 
     def should_stop(self):
         """Out of --limit or time budget."""
@@ -198,7 +237,12 @@ class LineupSync:
     def sync_player(self, player_id):
         """Fetch every match on a player's RFU stats page (all seasons, any
         club), storing each match's full lineups."""
-        match_ids = parse_player_match_ids(self.fetch(player_stats_url(player_id)))
+        rows = parse_player_matches(self.fetch(player_stats_url(player_id)))
+        # Age-grade matches (colts, youth, schools) are never stored: those
+        # lineups are mostly children's names.
+        match_ids = [mid for mid, competition in rows if not AGE_GRADE_NAME.search(competition)]
+        if len(match_ids) < len(rows):
+            print(f"  - player {player_id}: skipping {len(rows) - len(match_ids)} age-grade matches", flush=True)
         existing = {}
         for i in range(0, len(match_ids), 100):
             chunk = ",".join(str(m) for m in match_ids[i:i + 100])

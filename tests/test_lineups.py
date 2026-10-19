@@ -158,3 +158,14 @@ def test_parse_player_match_ids_dedupes_in_page_order():
     <a href="/fixtures-and-results/search-results?team=111">Home RFC</a>
     """
     assert parse_player_match_ids(html) == [300, 200]
+
+
+def test_parse_player_matches_reads_competition_per_row():
+    from rfu_parser.lineups import parse_player_matches
+
+    def row(mid, comp):
+        return (f'<tr><td>Sep 6, 25</td><td><a href="/fixtures-and-results/match-centre-community?playerId=5'
+                f'&amp;matchId={mid}">A vs B</a></td><td>{comp}</td><td>20 - 14</td></tr>')
+
+    html = "<table>" + row(300, "South West Division") + row(200, "Devon Colts Competitions") + "</table>"
+    assert parse_player_matches(html) == [(300, "South West Division"), (200, "Devon Colts Competitions")]

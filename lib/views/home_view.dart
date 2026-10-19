@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../models/division_catalog_entry.dart';
 import '../models/division_data.dart';
 import '../models/fixture.dart';
 import '../services/api_service.dart';
@@ -76,6 +77,27 @@ class _HomeViewState extends State<HomeView> {
 
   bool _isLoading = false;
   bool _isAdmin = false;
+
+  /// Each season's division catalogue (every league, merit table, cup round
+  /// and international series), loaded once per season.
+  final Map<String, List<DivisionCatalogEntry>> _catalogBySeason = {};
+
+  Future<List<DivisionCatalogEntry>> _catalogFor(String season) async {
+    final cached = _catalogBySeason[season];
+    if (cached != null && cached.isNotEmpty) return cached;
+    final rows = await SupabaseService.fetchDivisionsCatalog(season: season);
+    final entries = rows.map(DivisionCatalogEntry.fromJson).where((e) => e.name.isNotEmpty).toList();
+    _catalogBySeason[season] = entries;
+    return entries;
+  }
+
+  /// Whether [division] is a real RFU division in [season]'s catalogue. Real
+  /// divisions must never be shown made-up demo data: a cup round or an
+  /// international series simply has no league table.
+  Future<bool> _isCatalogDivision(String division, String season) async {
+    final name = division.trim().toLowerCase();
+    return (await _catalogFor(season)).any((e) => e.name.toLowerCase() == name);
+  }
 
   /// Matches still waiting for their lineups in the background sync for the
   /// division on screen; null when no sync is running.
@@ -195,16 +217,17 @@ class _HomeViewState extends State<HomeView> {
     // matches (e.g. a Friday-night fixture) don't sit unrefreshed indefinitely
     // just because *some* standings row already exists for that division.
     const staleAfter = Duration(hours: 3);
+    bool hasNoData(DivisionData? d) =>
+        d == null || (d.standings.isEmpty && d.fixtures.isEmpty);
     final isStale =
-        data != null &&
-        data.standings.isNotEmpty &&
-        (data.lastSyncedAt == null ||
+        !hasNoData(data) &&
+        (data!.lastSyncedAt == null ||
             DateTime.now().difference(data.lastSyncedAt!) > staleAfter);
 
     // 2. Secondary: Crawl live RFU web data if not cached in Supabase, or if
     // the cached copy is stale (falls back to the stale data below if this
     // live crawl fails, rather than losing it).
-    if (data == null || data.standings.isEmpty || isStale) {
+    if (hasNoData(data) || isStale) {
       final crawledData = await ApiService.crawlAndSyncLiveRFUData(
         division: targetTeam == null ? targetDivision : null,
         team: targetTeam,
@@ -227,7 +250,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     // 3. Fallback to parse endpoint if live crawl is still completing
-    if (data == null || data.standings.isEmpty) {
+    if (hasNoData(data)) {
       final parsedData = await ApiService.fetchDivisionData(
         division: targetTeam == null ? targetDivision : null,
         team: targetTeam,
@@ -249,8 +272,11 @@ class _HomeViewState extends State<HomeView> {
       }
     }
 
-    // 4. Final Fallback: Offline Mock Data Provider
-    if ((data == null || data.standings.isEmpty) && targetDivision != null) {
+    // 4. Final Fallback: Offline Mock Data Provider - only for names that
+    // aren't real RFU divisions; a real one with nothing yet shows empty.
+    final isRealDivision = targetDivision != null &&
+        await _isCatalogDivision(targetDivision, _selectedSeason);
+    if (hasNoData(data) && targetDivision != null && !isRealDivision) {
       data = DivisionDataProvider.generateDivisionData(
         targetDivision,
         _selectedSeason,
@@ -258,7 +284,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     // 4b. Ensure Fixtures are always populated even if database only had standings
-    if (data != null && data.fixtures.isEmpty && targetDivision != null) {
+    if (data != null && data.fixtures.isEmpty && targetDivision != null && !isRealDivision) {
       final fallbackData = DivisionDataProvider.generateDivisionData(
         targetDivision,
         _selectedSeason,
@@ -328,6 +354,10 @@ class _HomeViewState extends State<HomeView> {
             data.divisionName.isNotEmpty &&
             !data.divisionName.startsWith('Team:')) {
           _selectedDivision = data.divisionName;
+        }
+        // Cup rounds and internationals have fixtures but no table
+        if (data != null && data.standings.isEmpty && data.fixtures.isNotEmpty) {
+          _activeTab = 'Fixtures';
         }
         _isLoading = false;
       });
@@ -1269,25 +1299,24 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _openDivisionsDirectory() async {
-    Map<String, int?> divisionIds = {};
+    var entries = <DivisionCatalogEntry>[];
     try {
-      final catalog = await SupabaseService.fetchDivisionsCatalog(
-        season: _selectedSeason,
-      );
-      divisionIds = {
-        for (final row in catalog)
-          (row['division_name'] ?? '').toString().toLowerCase().trim():
-              int.tryParse((row['rfu_division_id'] ?? '').toString()),
-      };
+      entries = await _catalogFor(_selectedSeason);
     } catch (_) {}
+    // Offline: fall back to the built-in shortlist
+    if (entries.isEmpty) {
+      entries = _divisions
+          .where((d) => d != 'ALL / Select Division')
+          .map((d) => DivisionCatalogEntry(name: d))
+          .toList();
+    }
 
     if (!mounted) return;
     showDialog(
       context: context,
       builder: (_) => DivisionsDirectoryDialog(
-        divisions: _divisions,
+        entries: entries,
         selectedDivision: _selectedDivision,
-        divisionIds: divisionIds,
         onSelectDivision: (div) {
           setState(() {
             _selectedDivision = div;

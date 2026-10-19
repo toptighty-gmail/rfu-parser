@@ -1,0 +1,62 @@
+# Fills the competitions/divisions catalogue with every senior RFU competition
+# (men's and women's leagues, merit tables, cups, internationals, elite) for
+# the chosen seasons. Run by hand; the scheduled "Sync player lineups" job
+# refreshes the current season on its own.
+#
+# A run that hits the RFU firewall stops with everything read so far saved;
+# start it again later and it carries on. Seasons already read are skipped.
+name: Discover RFU competitions
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Seasons, space separated, e.g. 2025-2026 2024-2025 ('all' = 2021-22 to now, blank = current)"
+        required: false
+      competition:
+        description: "Only this RFU competition id (blank = all)"
+        required: false
+      skip_search:
+        description: "Reuse the stored competition list instead of searching the RFU site"
+        type: boolean
+        default: false
+
+concurrency:
+  group: rfu-site
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Discover competitions and divisions
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEASONS: ${{ inputs.seasons }}
+          COMPETITION: ${{ inputs.competition }}
+          SKIP_SEARCH: ${{ inputs.skip_search }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then
+            echo "SUPABASE_URL / SUPABASE_SECRET_KEY repository secrets are not set; skipping."
+            exit 0
+          fi
+          args=()
+          if [ "$SEASONS" = "all" ]; then
+            args+=(--all-seasons)
+          else
+            for s in $SEASONS; do args+=(--season "$s"); done
+          fi
+          if [ -n "$COMPETITION" ]; then args+=(--competition "$COMPETITION"); fi
+          if [ "$SKIP_SEARCH" = "true" ]; then args+=(--skip-search); fi
+          python scripts/discover_competitions.py "${args[@]}"

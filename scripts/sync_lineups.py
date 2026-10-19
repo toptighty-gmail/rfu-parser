@@ -30,7 +30,15 @@ from urllib.parse import quote
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from rfu_parser.env import load_env_file
-from rfu_parser.lineup_sync import LineupSync, RfuBlocked, SupabaseRest, current_season, query_param
+from rfu_parser.lineup_sync import (
+    LineupSync,
+    RfuBlocked,
+    SupabaseRest,
+    current_season,
+    is_senior_division,
+    query_param,
+    senior_competition_ids,
+)
 from rfu_parser.scraper import _normalize_team_name
 
 def main():
@@ -69,7 +77,9 @@ def main():
         f"divisions?season=eq.{args.season}"
         "&select=id,division_name,season,source_url,rfu_competition_id,rfu_division_id&order=division_name"
     )
-    divisions = [d for d in divisions if (d.get("source_url") or "").startswith("http")]
+    senior_ids = senior_competition_ids(db)
+    divisions = [d for d in divisions
+                 if (d.get("source_url") or "").startswith("http") and is_senior_division(d, senior_ids)]
     if args.competition:
         divisions = [d for d in divisions
                      if (d.get("rfu_competition_id") or query_param(d["source_url"], "competition")) == args.competition]

@@ -16,7 +16,7 @@ carry no lineup in the HTML and parse to an empty list.
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -116,12 +116,25 @@ def parse_match_info(html_content: str) -> Optional[MatchInfo]:
 
 def parse_player_match_ids(html_content: str) -> List[int]:
     """Every matchId on a player-stats page (all seasons), oldest last."""
-    seen = []
-    for m in re.finditer(r"match-centre-community\?[^\"']*?matchId=(\d+)", html_content):
-        mid = int(m.group(1))
-        if mid not in seen:
-            seen.append(mid)
-    return seen
+    return [mid for mid, _ in parse_player_matches(html_content)]
+
+
+def parse_player_matches(html_content: str) -> List[Tuple[int, str]]:
+    """(matchId, competition name) for every match on a player-stats page.
+
+    Each match is a table row: date, match, competition, score, stats. The
+    competition is "" if a row doesn't have that layout.
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    seen: dict = {}
+    for a in soup.find_all("a", href=re.compile(r"match-centre-community\?[^\"']*?matchId=\d+")):
+        mid = int(re.search(r"matchId=(\d+)", a["href"]).group(1))
+        if mid in seen:
+            continue
+        row = a.find_parent("tr")
+        cells = row.find_all("td") if row else []
+        seen[mid] = " ".join(cells[2].get_text(" ", strip=True).split()) if len(cells) > 2 else ""
+    return list(seen.items())
 
 
 def clean_player_name(raw: str) -> str:

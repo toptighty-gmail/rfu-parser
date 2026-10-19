@@ -939,7 +939,8 @@ class RFUParser:
                     rfu_competition_id=int(comp_id) if comp_id and comp_id.isdigit() else None,
                     rfu_division_id=int(div_id) if div_id and div_id.isdigit() else None
                 )
-                if parsed and parsed.standings:
+                # Cup rounds and internationals have fixtures but no league table
+                if parsed and (parsed.standings or parsed.fixtures):
                     parsed.season = season_str
                     parsed.standings = self.format_standings_for_season(parsed.standings, season_str)
                     parsed.fixtures = self.format_fixtures_for_season(parsed.fixtures, season_str)

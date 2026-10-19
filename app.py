@@ -5,7 +5,14 @@ from rfu_parser.scraper import RFUParser
 from rfu_parser.exporter import DataExporter
 from rfu_parser.storage import CustomFixtureStorage
 from rfu_parser.logo_storage import CustomLogoStorage
-from rfu_parser.lineup_sync import LineupSync, RfuBlocked, SupabaseRest, query_param
+from rfu_parser.lineup_sync import (
+    LineupSync,
+    RfuBlocked,
+    SupabaseRest,
+    is_senior_division,
+    query_param,
+    senior_competition_ids,
+)
 
 import time
 
@@ -474,6 +481,9 @@ def api_sync_lineups():
     )
     if division is None:
         return jsonify({"error": "unknown division"}), 404
+    if not is_senior_division(division, senior_competition_ids(db)):
+        # Age-grade (or unclassified) competitions: never store those lineups
+        return jsonify({"enabled": True, "done": True, "skipped": "not a senior competition"})
 
     sync = LineupSync(
         db,

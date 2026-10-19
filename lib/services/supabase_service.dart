@@ -144,7 +144,8 @@ class SupabaseService {
       dynamic filter = client
           .from('divisions')
           .select(
-            'id, division_name, rfu_competition_id, rfu_division_id, tier_level, region, season',
+            'id, division_name, rfu_competition_id, rfu_division_id, tier_level, region, season, '
+            'competitions(name, category)',
           );
       if (competitionId != null) {
         filter = filter.eq('rfu_competition_id', competitionId);
@@ -1154,15 +1155,25 @@ class SupabaseService {
           division != null &&
           division.trim().isNotEmpty &&
           division != 'ALL / Select Division') {
+        // Exact name first: with cup rounds in the catalogue many names share
+        // words ("... - Round 1"), so a loose match could open the wrong one.
         // Use limit(1) instead of maybeSingle() to handle cases where multiple rows match
-        final divRespList = await client
+        const divisionColumns =
+            'id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region';
+        var divRespList = await client
             .from('divisions')
-            .select(
-              'id, division_name, season, source_url, rfu_competition_id, rfu_division_id, tier_level, region',
-            )
-            .ilike('division_name', '%${division.trim()}%')
+            .select(divisionColumns)
+            .eq('division_name', division.trim())
             .eq('season', season)
             .limit(1);
+        if ((divRespList as List).isEmpty) {
+          divRespList = await client
+              .from('divisions')
+              .select(divisionColumns)
+              .ilike('division_name', '%${division.trim()}%')
+              .eq('season', season)
+              .limit(1);
+        }
 
         final divResp = (divRespList as List).isNotEmpty
             ? divRespList.first
@@ -1236,8 +1247,10 @@ class SupabaseService {
         }
 
         if (standings.isNotEmpty || fixtures.isNotEmpty) {
+          // Newest refresh of either table: cup rounds and internationals
+          // have fixtures but no standings.
           DateTime? lastSyncedAt;
-          for (final row in standingsResp as List) {
+          for (final row in [...standingsResp as List, ...fixturesResp as List]) {
             final dt = DateTime.tryParse(row['updated_at']?.toString() ?? '');
             if (dt != null &&
                 (lastSyncedAt == null || dt.isAfter(lastSyncedAt))) {

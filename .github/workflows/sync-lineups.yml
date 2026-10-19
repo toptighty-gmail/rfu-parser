@@ -27,8 +27,9 @@ on:
         description: "Only this RFU division id, e.g. 75799 (blank = all)"
         required: false
 
+# Shared with "Discover RFU competitions": one job on the RFU site at a time
 concurrency:
-  group: sync-lineups
+  group: rfu-site
   cancel-in-progress: false
 
 jobs:
@@ -46,6 +47,17 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
+
+      # Scheduled runs first refresh the current season's catalogue, so new
+      # cup rounds and newly published divisions get their lineups too.
+      - name: Refresh competitions and divisions (current season)
+        if: github.event_name == 'schedule'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then exit 0; fi
+          python scripts/discover_competitions.py
 
       - name: Sync lineups
         env:

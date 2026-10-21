@@ -16,7 +16,7 @@ carry no lineup in the HTML and parse to an empty list.
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -53,6 +53,25 @@ class MatchInfo:
     season: Optional[str]  # "2025-2026"
     rfu_competition_id: Optional[int]
     rfu_division_id: Optional[int]
+
+
+@dataclass
+class MatchEvent:
+    """A scoring or disciplinary event from a match page's "key match events"."""
+    kind: str  # one of EVENT_KINDS
+    player_name: str
+
+
+# c042-event-item class suffix -> MatchEvent.kind. Penalty tries have no
+# scorer, so they aren't listed.
+EVENT_KINDS = {
+    "try": "try",
+    "conversion": "conversion",
+    "penalty": "penalty",
+    "drop-goal": "drop_goal",
+    "yellow-card": "yellow_card",
+    "red-card": "red_card",
+}
 
 
 def match_centre_url(match_id: int) -> str:
@@ -112,6 +131,42 @@ def parse_match_info(html_content: str) -> Optional[MatchInfo]:
         rfu_competition_id=competition,
         rfu_division_id=division,
     )
+
+
+def parse_match_events(html_content: str) -> Dict[int, List[MatchEvent]]:
+    """Tries, conversions, penalties, drop goals and cards per RFU team id.
+
+    The key-events accordion has three c042-key-match-events-accordion-body-info
+    columns: home events, an empty middle one, then away events. Each event
+    names the player only ("Freddie Fuller  21'"), so it is matched to the
+    lineup by name. Teams come from the header links, home first. Returns {}
+    when the page has no events or no team ids.
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    team_ids = []
+    for a in soup.find_all("a", class_="c042-team"):
+        m = re.search(r"[?&]team=(\d+)", a.get("href", ""))
+        if m:
+            team_ids.append(int(m.group(1)))
+    columns = soup.find_all(class_="c042-key-match-events-accordion-body-info")
+    if len(team_ids) < 2 or len(columns) < 2:
+        return {}
+
+    events: Dict[int, List[MatchEvent]] = {}
+    for team_id, column in ((team_ids[0], columns[0]), (team_ids[1], columns[-1])):
+        team_events = events.setdefault(team_id, [])
+        for item in column.find_all(class_="c042-key-match-events-items"):
+            icon = item.find(class_="c042-event-item")
+            label = item.find(class_="key-match-events-item")
+            if not icon or not label:
+                continue
+            kind = next((EVENT_KINDS[c[len("c042-"):]] for c in icon.get("class", [])
+                         if c[len("c042-"):] in EVENT_KINDS), None)
+            # Drop the minute and its prime mark after the name
+            name = clean_player_name(re.sub(r"\s\d+\D*$", "", label.get_text()))
+            if kind and name:
+                team_events.append(MatchEvent(kind=kind, player_name=name))
+    return events
 
 
 def parse_player_match_ids(html_content: str) -> List[int]:

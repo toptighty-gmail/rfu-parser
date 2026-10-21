@@ -20,6 +20,7 @@ Examples:
     python scripts/sync_lineups.py --season 2026-2027            # weekly top-up
     python scripts/sync_lineups.py --season 2025-2026 --team "Plymstock Oaks" --team "Plymstock Oaks II"
     python scripts/sync_lineups.py --player "Aiden Taylor"        # whole career, every season and club
+    python scripts/sync_lineups.py --missing-events               # tries/cards for matches stored before them
     python scripts/sync_lineups.py --season 2025-2026 --division 66453 --limit 3 --dry-run
 """
 import argparse
@@ -51,6 +52,9 @@ def main():
     ap.add_argument("--player", action="append",
                     help="sync a player's whole RFU history (every season and club) instead of divisions; "
                          "an RFU playerId, or a name already in the players table (repeatable)")
+    ap.add_argument("--missing-events", action="store_true",
+                    help="instead of divisions, re-fetch every stored match (any season) whose tries, "
+                         "conversions, penalties, drop goals and cards haven't been recorded yet")
     ap.add_argument("--delay", type=float, default=3.0,
                     help="seconds between RFU requests (default 3; the RFU site's firewall challenges fast clients)")
     ap.add_argument("--recheck-days", type=int, default=14,
@@ -71,6 +75,9 @@ def main():
     db = SupabaseRest(url, key, dry_run=args.dry_run)
     if args.player:
         sync_players(db, args)
+        return
+    if args.missing_events:
+        sync_missing_events(db, args)
         return
 
     divisions = db.get(
@@ -162,6 +169,19 @@ def sync_players(db, args):
                 print(f"  ! player {player_id} failed: {e}", flush=True)
     except KeyboardInterrupt:
         print("\nInterrupted - progress so far is saved; re-run to continue.", flush=True)
+    except RfuBlocked as e:
+        stop_blocked(sync, e)
+    print_summary(sync)
+
+
+def sync_missing_events(db, args):
+    print(f"Lineup sync: tries, cards etc. for stored matches{' (dry run)' if args.dry_run else ''}", flush=True)
+    sync = LineupSync(db, args.delay, args.recheck_days, args.refresh, args.limit)
+    try:
+        sync.sync_missing_events()
+    except KeyboardInterrupt:
+        print("
+Interrupted - progress so far is saved; re-run to continue.", flush=True)
     except RfuBlocked as e:
         stop_blocked(sync, e)
     print_summary(sync)

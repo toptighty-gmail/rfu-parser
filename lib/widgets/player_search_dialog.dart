@@ -336,7 +336,8 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
             const SizedBox(height: 8),
             Text(
               'From RFU electronic match cards. Bench = named as a replacement; '
-              'lineups don\'t show whether they came on.',
+              'lineups don\'t show whether they came on. T C D P Y R = tries, conversions, '
+              'drop goals, penalties, yellow and red cards, as listed in each match\'s key events.',
               style: TextStyle(color: theme.textMuted, fontSize: 10.5),
             ),
           ],
@@ -767,6 +768,17 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                             '${_plural(row.starts, 'start')} · ${row.bench} bench',
                             style: TextStyle(color: theme.textMuted, fontSize: 12),
                           ),
+                          if (!row.stats.isEmpty) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              row.stats.summary,
+                              style: TextStyle(
+                                color: theme.goldAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -807,98 +819,113 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     Widget statCell(String text, TextStyle style, {double width = 48}) =>
         SizedBox(width: width, child: Text(text, textAlign: TextAlign.center, style: style));
 
-    return ListView(
-      children: [
-        for (final team in teams) ...[
-          Builder(builder: (_) {
-            final squad = team.value.values.toList()
-              ..sort((a, b) {
-                final apps = b.appearances.compareTo(a.appearances);
-                return apps != 0 ? apps : a.player.displayName.compareTo(b.player.displayName);
-              });
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: theme.goldAccent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.shield, color: theme.goldAccent, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          teamName(team.key),
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: theme.textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _plural(squad.length, 'player'),
-                        style: TextStyle(color: theme.textMuted, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text('PLAYER', style: headerStyle)),
-                      if (_multiSeason) statCell('SEASONS', headerStyle, width: 64),
-                      statCell('APPS', headerStyle),
-                      statCell('START', headerStyle),
-                      statCell('BENCH', headerStyle),
-                      const SizedBox(width: 16),
-                    ],
-                  ),
-                ),
-                for (final line in squad)
-                  InkWell(
-                    onTap: () => _openPlayerDetail(line.player),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              line.player.displayName,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: line.player.nameWithheld ? theme.textMuted : theme.textPrimary,
-                                fontSize: 13,
-                                fontStyle: line.player.nameWithheld ? FontStyle.italic : FontStyle.normal,
-                                fontWeight: FontWeight.w600,
-                              ),
+    return LayoutBuilder(builder: (context, constraints) {
+      // Phones: drop seasons, starts and bench to make room for T C D P Y R
+      final compact = constraints.maxWidth < _compactWidth;
+      return ListView(
+        children: [
+          for (final team in teams) ...[
+            Builder(builder: (_) {
+              final squad = team.value.values.toList()
+                ..sort((a, b) {
+                  final apps = b.appearances.compareTo(a.appearances);
+                  return apps != 0 ? apps : a.player.displayName.compareTo(b.player.displayName);
+                });
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 4, bottom: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: theme.goldAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.shield, color: theme.goldAccent, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            teamName(team.key),
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: theme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (_multiSeason) statCell('${line.seasons.length}', numberStyle, width: 64),
-                          statCell('${line.appearances}', numberStyle.copyWith(fontWeight: FontWeight.bold)),
-                          statCell('${line.starts}', numberStyle),
-                          statCell('${line.bench}', numberStyle),
-                          Icon(Icons.chevron_right, size: 16, color: theme.textMuted),
-                        ],
-                      ),
+                        ),
+                        Text(
+                          _plural(squad.length, 'player'),
+                          style: TextStyle(color: theme.textMuted, fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
-                const SizedBox(height: 10),
-              ],
-            );
-          }),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(child: Text('PLAYER', style: headerStyle)),
+                        if (_multiSeason && !compact) statCell('SEASONS', headerStyle, width: 64),
+                        statCell('APPS', headerStyle, width: compact ? 40 : 48),
+                        if (!compact) ...[
+                          statCell('START', headerStyle),
+                          statCell('BENCH', headerStyle),
+                        ],
+                        ..._scoringHeaderCells(headerStyle),
+                        const SizedBox(width: 16),
+                      ],
+                    ),
+                  ),
+                  for (final line in squad)
+                    InkWell(
+                      onTap: () => _openPlayerDetail(line.player),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: theme.cardBorder, width: 0.6)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                line.player.displayName,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: line.player.nameWithheld ? theme.textMuted : theme.textPrimary,
+                                  fontSize: 13,
+                                  fontStyle: line.player.nameWithheld ? FontStyle.italic : FontStyle.normal,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (_multiSeason && !compact)
+                              statCell('${line.seasons.length}', numberStyle, width: 64),
+                            statCell(
+                              '${line.appearances}',
+                              numberStyle.copyWith(fontWeight: FontWeight.bold),
+                              width: compact ? 40 : 48,
+                            ),
+                            if (!compact) ...[
+                              statCell('${line.starts}', numberStyle),
+                              statCell('${line.bench}', numberStyle),
+                            ],
+                            ..._scoringCells(theme, line.stats, numberStyle),
+                            Icon(Icons.chevron_right, size: 16, color: theme.textMuted),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            }),
+          ],
         ],
-      ],
-    );
+      );
+    });
   }
 
   /// Match-by-match appearances for one player in the selected seasons,
@@ -908,6 +935,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     final starts = matches.where((m) => !m.isSubstitute).length;
     final results = matches.map((m) => m.result).where((r) => r.isNotEmpty).toList();
     String count(String r) => '${results.where((x) => x == r).length}$r';
+    final totalStats = ScoringStats.sum(matches.map((m) => m.stats));
 
     final bySeason = <String, List<PlayerMatchAppearance>>{};
     for (final m in matches) {
@@ -960,6 +988,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                 _countBadge(theme, '${_plural(starts, 'start')} · ${matches.length - starts} bench'),
                 if (results.isNotEmpty)
                   _countBadge(theme, '${count('W')} ${count('D')} ${count('L')}'),
+                if (!totalStats.isEmpty) _countBadge(theme, totalStats.summary),
               ],
             ),
           ),
@@ -975,7 +1004,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                     )
                   : ListView(
                       children: [
-                        if (playedForSeveralTeams || _multiSeason)
+                        if (playedForSeveralTeams || _multiSeason || !totalStats.isEmpty)
                           _buildTeamTotals(theme, matches),
                         for (final season in seasons) ...[
                           Container(
@@ -1041,8 +1070,17 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     Widget cell(String text, TextStyle style, {double width = 48}) =>
         SizedBox(width: width, child: Text(text, textAlign: TextAlign.center, style: style));
 
-    Widget line(String name, String seasonsText, int apps, int starts, int bench, {bool bold = false}) {
+    int startsOf(List<PlayerMatchAppearance> rows) => rows.where((m) => !m.isSubstitute).length;
+
+    Widget line(
+      String name,
+      String seasonsText,
+      List<PlayerMatchAppearance> rows, {
+      required bool compact,
+      bool bold = false,
+    }) {
       final weight = bold ? FontWeight.bold : FontWeight.normal;
+      final starts = startsOf(rows);
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
@@ -1064,9 +1102,16 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                 ],
               ),
             ),
-            cell('$apps', numberStyle.copyWith(fontWeight: FontWeight.bold)),
-            cell('$starts', numberStyle.copyWith(fontWeight: weight)),
-            cell('$bench', numberStyle.copyWith(fontWeight: weight)),
+            cell('${rows.length}', numberStyle.copyWith(fontWeight: FontWeight.bold), width: compact ? 40 : 48),
+            if (!compact) ...[
+              cell('$starts', numberStyle.copyWith(fontWeight: weight)),
+              cell('${rows.length - starts}', numberStyle.copyWith(fontWeight: weight)),
+            ],
+            ..._scoringCells(
+              theme,
+              ScoringStats.sum(rows.map((m) => m.stats)),
+              numberStyle.copyWith(fontWeight: weight),
+            ),
           ],
         ),
       );
@@ -1080,47 +1125,43 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
       return '$span · ${_plural(seasons.length, 'season')}';
     }
 
-    int startsOf(List<PlayerMatchAppearance> rows) => rows.where((m) => !m.isSubstitute).length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 4, bottom: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.goldAccent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
+    return LayoutBuilder(builder: (context, constraints) {
+      final compact = constraints.maxWidth < _compactWidth;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 4, bottom: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: theme.goldAccent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              _allSeasons ? 'All-time totals by team' : 'Totals by team $_seasonsPhrase',
+              style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.bold),
+            ),
           ),
-          child: Text(
-            _allSeasons ? 'All-time totals by team' : 'Totals by team $_seasonsPhrase',
-            style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Row(
+              children: [
+                Expanded(child: Text('TEAM', style: headerStyle)),
+                cell('APPS', headerStyle, width: compact ? 40 : 48),
+                if (!compact) ...[
+                  cell('START', headerStyle),
+                  cell('BENCH', headerStyle),
+                ],
+                ..._scoringHeaderCells(headerStyle),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(child: Text('TEAM', style: headerStyle)),
-              cell('APPS', headerStyle),
-              cell('START', headerStyle),
-              cell('BENCH', headerStyle),
-            ],
-          ),
-        ),
-        for (final rows in teams)
-          line(
-            teamName(rows),
-            seasonSpan(rows),
-            rows.length,
-            startsOf(rows),
-            rows.length - startsOf(rows),
-          ),
-        if (teams.length > 1)
-          line('Total', '', matches.length, startsOf(matches), matches.length - startsOf(matches), bold: true),
-        const SizedBox(height: 12),
-      ],
-    );
+          for (final rows in teams) line(teamName(rows), seasonSpan(rows), rows, compact: compact),
+          if (teams.length > 1) line('Total', '', matches, compact: compact, bold: true),
+          const SizedBox(height: 12),
+        ],
+      );
+    });
   }
 
   Widget _buildMatchRow(AppThemeMode theme, PlayerMatchAppearance m, {required bool showTeam}) {
@@ -1159,9 +1200,17 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (showTeam)
-                  Text(
-                    'for ${m.teamName}',
+                if (showTeam || !m.stats.isEmpty)
+                  Text.rich(
+                    TextSpan(children: [
+                      if (showTeam) TextSpan(text: 'for ${m.teamName}'),
+                      if (showTeam && !m.stats.isEmpty) const TextSpan(text: '  '),
+                      if (!m.stats.isEmpty)
+                        TextSpan(
+                          text: m.stats.summary,
+                          style: TextStyle(color: theme.goldAccent, fontWeight: FontWeight.bold),
+                        ),
+                    ]),
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: theme.textMuted, fontSize: 11),
                   ),
@@ -1231,6 +1280,35 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
 
   static int _total(List<PlayerSeasonAppearance> rows) =>
       rows.fold(0, (sum, r) => sum + r.appearances);
+
+  /// Tables narrower than this show T C D P Y R in place of starts and bench.
+  static const double _compactWidth = 480;
+  static const double _scoringCellWidth = 24;
+
+  /// T C D P Y R column headings, each explained on hover.
+  List<Widget> _scoringHeaderCells(TextStyle style) => [
+        for (var i = 0; i < ScoringStats.labels.length; i++)
+          Tooltip(
+            message: ScoringStats.names[i],
+            child: SizedBox(
+              width: _scoringCellWidth,
+              child: Text(ScoringStats.labels[i], textAlign: TextAlign.center, style: style),
+            ),
+          ),
+      ];
+
+  /// T C D P Y R counts; zeros are muted so the scorers stand out.
+  List<Widget> _scoringCells(AppThemeMode theme, ScoringStats stats, TextStyle style) => [
+        for (final value in stats.values)
+          SizedBox(
+            width: _scoringCellWidth,
+            child: Text(
+              '$value',
+              textAlign: TextAlign.center,
+              style: value == 0 ? style.copyWith(color: theme.textMuted.withValues(alpha: 0.6)) : style,
+            ),
+          ),
+      ];
 }
 
 /// One player's totals for one team, summed over the selected seasons.
@@ -1240,6 +1318,7 @@ class _SquadLine {
   int appearances = 0;
   int starts = 0;
   int bench = 0;
+  ScoringStats stats = ScoringStats.zero;
 
   _SquadLine(this.player);
 
@@ -1248,5 +1327,6 @@ class _SquadLine {
     appearances += row.appearances;
     starts += row.starts;
     bench += row.bench;
+    stats += row.stats;
   }
 }

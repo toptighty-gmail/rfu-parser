@@ -1,6 +1,12 @@
 import os
 
-from rfu_parser.lineups import clean_player_name, parse_lineup, parse_match_info, parse_player_match_ids
+from rfu_parser.lineups import (
+    clean_player_name,
+    parse_lineup,
+    parse_match_events,
+    parse_match_info,
+    parse_player_match_ids,
+)
 from rfu_parser.scraper import RFUParser
 
 SAMPLE_DIR = os.path.join(os.path.dirname(__file__), "sample_data")
@@ -89,6 +95,63 @@ def test_parse_lineup_teams_and_players():
 def test_parse_lineup_without_published_lineup():
     assert parse_lineup(NO_LINEUP_HTML) == []
     assert parse_lineup("<html><body>no lineup markup</body></html>") == []
+
+
+# Trimmed copy of a match page's header and key-events accordion (made-up
+# names): home events, an empty middle column, away events. Each name is
+# followed by two non-breaking spaces, the minute and a prime mark.
+EVENTS_HTML = """
+<a href="/fixtures-and-results/search-results?matchId=9&amp;team=111" class="c042-team">
+  <span class="c042-team-name">Home RFC</span></a>
+<a href="/fixtures-and-results/search-results?matchId=9&amp;team=222" class="c042-team">
+  <span class="c042-team-name">Away II</span></a>
+<div class="c042-key-match-events-accordion-body-info">
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-try"></div>
+    <div class="key-match-events-item">Alex McTest  12′</div>
+  </div>
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-conversion"></div>
+    <div class="key-match-events-item">Alex  McTest   13′</div>
+  </div>
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-penalty-try"></div>
+    <div class="key-match-events-item">  30′</div>
+  </div>
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-yellow-card"></div>
+    <div class="key-match-events-item">SAM UPPERCASE  41′</div>
+  </div>
+</div>
+<div class="c042-key-match-events-accordion-body-info"></div>
+<div class="c042-key-match-events-accordion-body-info">
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-drop-goal"></div>
+    <div class="key-match-events-item">Jo Lowercase  55′</div>
+  </div>
+  <div class="c042-key-match-events-items">
+    <div class="c042-event-item c042-red-card"></div>
+    <div class="key-match-events-item">Jo Lowercase  70′</div>
+  </div>
+</div>
+"""
+
+
+def test_parse_match_events_by_team():
+    events = parse_match_events(EVENTS_HTML)
+    assert [(e.kind, e.player_name) for e in events[111]] == [
+        ("try", "Alex McTest"),
+        ("conversion", "Alex McTest"),
+        ("yellow_card", "Sam Uppercase"),  # penalty try has no scorer
+    ]
+    assert [(e.kind, e.player_name) for e in events[222]] == [
+        ("drop_goal", "Jo Lowercase"),
+        ("red_card", "Jo Lowercase"),
+    ]
+
+
+def test_parse_match_events_without_events():
+    assert parse_match_events("<html><body>no events</body></html>") == {}
 
 
 def test_clean_player_name_keeps_mixed_case():

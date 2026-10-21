@@ -46,3 +46,36 @@ def test_is_senior_division():
                                "source_url": "https://x/search-results?competition=2106&season=2025-2026&division=1"}, senior)
     assert not is_senior_division({"rfu_competition_id": 2024, "division_name": "Devon Colts League"}, senior)
     assert not is_senior_division({"rfu_competition_id": 1699, "division_name": "Devon U16 Boys"}, senior)
+
+
+def test_event_counts_credit_unique_names_only():
+    from rfu_parser.lineup_sync import NO_EVENTS, event_counts
+    from rfu_parser.lineups import LineupPlayer, MatchEvent, TeamLineup
+
+    def player(pid, name):
+        return LineupPlayer(pid, name, name == "Name withheld", "1", 1, False)
+
+    team = TeamLineup(111, "Home RFC", [
+        player(1, "Alex McTest"),
+        player(2, "Jake Jones"), player(2, "Jake Jones"),  # same player listed twice
+        player(3, "Name withheld"), player(4, "Name withheld"),
+    ])
+    counts = event_counts(team, [
+        MatchEvent("try", "Alex McTest"),
+        MatchEvent("try", "alex mctest"),
+        MatchEvent("conversion", "Alex McTest"),
+        MatchEvent("yellow_card", "Jake Jones"),
+        MatchEvent("try", "Name withheld"),  # two withheld players: can't tell which
+        MatchEvent("try", "Not In Lineup"),
+    ])
+    assert counts == {
+        1: {**NO_EVENTS, "tries": 2, "conversions": 1},
+        2: {**NO_EVENTS, "yellow_cards": 1},
+    }
+
+
+def test_needs_fetch_refetches_matches_without_events():
+    sync = make_sync(200, "")
+    assert sync.needs_fetch({"lineup_status": "ok", "events_checked": False}, None)
+    assert not sync.needs_fetch({"lineup_status": "ok", "events_checked": True}, None)
+    assert not sync.needs_fetch({"lineup_status": "none", "events_checked": False}, None)

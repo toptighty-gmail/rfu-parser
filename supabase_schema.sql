@@ -272,6 +272,8 @@ CREATE TABLE IF NOT EXISTS public.matches (
     away_score INT,
     lineup_status TEXT NOT NULL DEFAULT 'none' CHECK (lineup_status IN ('ok', 'none')),
     lineup_checked_at TIMESTAMPTZ,
+    -- Tries, cards etc. read into its appearances (migrations/2026-10-21_appearance_scoring.sql)
+    events_checked BOOLEAN NOT NULL DEFAULT FALSE,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -295,6 +297,13 @@ CREATE TABLE IF NOT EXISTS public.appearances (
     shirt_number INT,
     -- Named on the bench (S1, S2, ...). The lineup doesn't say whether they came on.
     is_substitute BOOLEAN NOT NULL DEFAULT FALSE,
+    -- From the match page's key events, matched to the lineup by name
+    tries INT NOT NULL DEFAULT 0,
+    conversions INT NOT NULL DEFAULT 0,
+    penalties INT NOT NULL DEFAULT 0,
+    drop_goals INT NOT NULL DEFAULT 0,
+    yellow_cards INT NOT NULL DEFAULT 0,
+    red_cards INT NOT NULL DEFAULT 0,
     PRIMARY KEY (rfu_match_id, rfu_player_id)
 );
 
@@ -320,7 +329,13 @@ SELECT
     COUNT(*) FILTER (WHERE NOT a.is_substitute) AS starts,
     COUNT(*) FILTER (WHERE a.is_substitute) AS bench,
     MIN(a.match_date) AS first_match_date,
-    MAX(a.match_date) AS last_match_date
+    MAX(a.match_date) AS last_match_date,
+    SUM(a.tries) AS tries,
+    SUM(a.conversions) AS conversions,
+    SUM(a.penalties) AS penalties,
+    SUM(a.drop_goals) AS drop_goals,
+    SUM(a.yellow_cards) AS yellow_cards,
+    SUM(a.red_cards) AS red_cards
 FROM public.appearances a
 JOIN public.players p ON p.rfu_player_id = a.rfu_player_id
 GROUP BY a.season, a.rfu_player_id, p.display_name, p.name_withheld, a.rfu_team_id;

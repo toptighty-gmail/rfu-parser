@@ -1,3 +1,71 @@
+/// Tries, conversions, drop goals, penalties and cards, from the "key match
+/// events" on RFU match pages, credited to a player by name (an event whose
+/// name matches no one, or several people, in the lineup isn't counted).
+class ScoringStats {
+  final int tries;
+  final int conversions;
+  final int dropGoals;
+  final int penalties;
+  final int yellowCards;
+  final int redCards;
+
+  const ScoringStats({
+    this.tries = 0,
+    this.conversions = 0,
+    this.dropGoals = 0,
+    this.penalties = 0,
+    this.yellowCards = 0,
+    this.redCards = 0,
+  });
+
+  static const zero = ScoringStats();
+
+  /// Column headings for [values], with what each stands for.
+  static const labels = ['T', 'C', 'D', 'P', 'Y', 'R'];
+  static const names = [
+    'Tries',
+    'Conversions',
+    'Drop goals',
+    'Penalties',
+    'Yellow cards',
+    'Red cards',
+  ];
+
+  factory ScoringStats.fromJson(Map<String, dynamic> json) {
+    int toInt(dynamic v) => v == null ? 0 : int.tryParse(v.toString()) ?? 0;
+    return ScoringStats(
+      tries: toInt(json['tries']),
+      conversions: toInt(json['conversions']),
+      dropGoals: toInt(json['drop_goals']),
+      penalties: toInt(json['penalties']),
+      yellowCards: toInt(json['yellow_cards']),
+      redCards: toInt(json['red_cards']),
+    );
+  }
+
+  /// In [labels] order: T, C, D, P, Y, R.
+  List<int> get values => [tries, conversions, dropGoals, penalties, yellowCards, redCards];
+
+  bool get isEmpty => values.every((v) => v == 0);
+
+  /// e.g. "2T 1C 1Y"; "" when there's nothing.
+  String get summary => [
+        for (var i = 0; i < labels.length; i++)
+          if (values[i] > 0) '${values[i]}${labels[i]}',
+      ].join(' ');
+
+  ScoringStats operator +(ScoringStats other) => ScoringStats(
+        tries: tries + other.tries,
+        conversions: conversions + other.conversions,
+        dropGoals: dropGoals + other.dropGoals,
+        penalties: penalties + other.penalties,
+        yellowCards: yellowCards + other.yellowCards,
+        redCards: redCards + other.redCards,
+      );
+
+  static ScoringStats sum(Iterable<ScoringStats> all) => all.fold(zero, (a, b) => a + b);
+}
+
 /// One player's season totals for one team, from the
 /// `player_season_appearances` view (lineups scraped by scripts/sync_lineups.py).
 class PlayerSeasonAppearance {
@@ -17,6 +85,7 @@ class PlayerSeasonAppearance {
   final int bench;
   final DateTime? firstMatchDate;
   final DateTime? lastMatchDate;
+  final ScoringStats stats;
 
   const PlayerSeasonAppearance({
     required this.season,
@@ -30,6 +99,7 @@ class PlayerSeasonAppearance {
     required this.bench,
     this.firstMatchDate,
     this.lastMatchDate,
+    this.stats = ScoringStats.zero,
   });
 
   factory PlayerSeasonAppearance.fromJson(Map<String, dynamic> json) {
@@ -51,6 +121,7 @@ class PlayerSeasonAppearance {
       bench: toInt(json['bench']),
       firstMatchDate: toDate(json['first_match_date']),
       lastMatchDate: toDate(json['last_match_date']),
+      stats: ScoringStats.fromJson(json),
     );
   }
 
@@ -76,6 +147,7 @@ class PlayerMatchAppearance {
 
   /// Whether the player's team was the home side.
   final bool isHome;
+  final ScoringStats stats;
 
   const PlayerMatchAppearance({
     required this.season,
@@ -89,6 +161,7 @@ class PlayerMatchAppearance {
     required this.homeScore,
     required this.awayScore,
     required this.isHome,
+    this.stats = ScoringStats.zero,
   });
 
   factory PlayerMatchAppearance.fromJson(Map<String, dynamic> json) {
@@ -114,6 +187,7 @@ class PlayerMatchAppearance {
       isHome: (teamId != null && homeId != null)
           ? teamId == homeId
           : teamName.toLowerCase() == homeTeam.toLowerCase(),
+      stats: ScoringStats.fromJson(json),
     );
   }
 

@@ -17,6 +17,7 @@ from rfu_parser.competitions import AGE_GRADE_NAME, CATEGORIES
 from rfu_parser.lineups import (
     match_centre_url,
     parse_lineup,
+    parse_match_events,
     parse_match_info,
     parse_player_matches,
     player_stats_url,
@@ -134,6 +135,37 @@ class SupabaseRest:
             raise RuntimeError(f"delete {path} failed: {resp.status_code} {resp.text[:300]}")
 
 
+# appearances columns, keyed by MatchEvent.kind
+EVENT_COLUMNS = {
+    "try": "tries",
+    "conversion": "conversions",
+    "penalty": "penalties",
+    "drop_goal": "drop_goals",
+    "yellow_card": "yellow_cards",
+    "red_card": "red_cards",
+}
+NO_EVENTS = {column: 0 for column in EVENT_COLUMNS.values()}
+
+
+def event_counts(team, events):
+    """{rfu_player_id: {"tries": n, ...}} for one team's match events.
+
+    Events only give a name, so each is credited to the player with that name
+    in the team's lineup, and left out when no player, or more than one
+    (namesakes, or several withheld names), has it.
+    """
+    ids_by_name = {}
+    for p in team.players:
+        ids_by_name.setdefault(p.display_name.lower(), set()).add(p.rfu_player_id)
+    counts = {}
+    for e in events:
+        ids = ids_by_name.get(e.player_name.lower(), set())
+        if len(ids) == 1:
+            row = counts.setdefault(next(iter(ids)), dict(NO_EVENTS))
+            row[EVENT_COLUMNS[e.kind]] += 1
+    return counts
+
+
 class LineupSync:
     def __init__(self, db, delay, recheck_days, refresh, limit, teams=None, time_budget=None):
         self.db = db
@@ -172,6 +204,9 @@ class LineupSync:
     def needs_fetch(self, existing, match_date):
         if existing is None or self.refresh:
             return True
+        # Stored before tries, cards etc. were recorded: fetch once more for them
+        if existing.get("lineup_status") == "ok" and existing.get("events_checked") is False:
+            return True
         return match_date is not None and match_date >= self.recheck_cutoff
 
     def sync_division(self, div):
@@ -188,7 +223,7 @@ class LineupSync:
             played = [f for f in played
                       if {_normalize_team_name(f.home_team).lower(), _normalize_team_name(f.away_team).lower()} & self.teams]
         try:
-            known = self.db.get(f"matches?division_id=eq.{div['id']}&select=rfu_match_id,lineup_status")
+            known = self.db.get(f"matches?division_id=eq.{div['id']}&select=rfu_match_id,lineup_status,events_checked")
         except requests.HTTPError:
             if not self.db.dry_run:
                 raise
@@ -218,11 +253,12 @@ class LineupSync:
     def sync_match(self, div, fixture, match_date):
         """Fetch and store one match found on a division's fixtures page."""
         match_id = fixture.rfu_match_id
-        lineups = parse_lineup(self.fetch(match_centre_url(match_id)))
+        html = self.fetch(match_centre_url(match_id))
         self.stats["fetched"] += 1
         self.store_match(
             match_id,
-            lineups,
+            parse_lineup(html),
+            parse_match_events(html),
             season=div["season"],
             division_id=div["id"],
             rfu_competition_id=div.get("rfu_competition_id") or query_param(div.get("source_url"), "competition"),
@@ -247,7 +283,8 @@ class LineupSync:
         for i in range(0, len(match_ids), 100):
             chunk = ",".join(str(m) for m in match_ids[i:i + 100])
             for m in self.db.get(f"matches?rfu_match_id=in.({chunk})"
-                                 "&select=rfu_match_id,match_date,division_id,rfu_competition_id,rfu_division_id"):
+                                 "&select=rfu_match_id,match_date,lineup_status,events_checked,"
+                                 "division_id,rfu_competition_id,rfu_division_id"):
                 existing[m["rfu_match_id"]] = m
         todo = []
         for match_id in match_ids:
@@ -264,33 +301,57 @@ class LineupSync:
                 self.stats["remaining"] += len(todo) - i
                 return
             try:
-                html = self.fetch(match_centre_url(match_id))
-                self.stats["fetched"] += 1
-                info = parse_match_info(html)
-                if info is None or not info.season:
-                    raise RuntimeError("no match header on page")
-                # A page opened by matchId alone doesn't name its division; keep
-                # whatever an earlier division sync recorded for this match.
-                known = existing.get(match_id) or {}
-                rfu_division_id = info.rfu_division_id or known.get("rfu_division_id")
-                self.store_match(
-                    match_id,
-                    parse_lineup(html),
-                    season=info.season,
-                    division_id=self.division_uuid(info.season, rfu_division_id) or known.get("division_id"),
-                    rfu_competition_id=info.rfu_competition_id or known.get("rfu_competition_id"),
-                    rfu_division_id=rfu_division_id,
-                    match_date=info.match_date,
-                    home_team=info.home_team,
-                    away_team=info.away_team,
-                    home_score=info.home_score,
-                    away_score=info.away_score,
-                )
+                self.sync_match_id(match_id, existing.get(match_id))
             except RfuBlocked:
                 raise
             except Exception as e:  # keep going; the match is retried on the next run
                 self.stats["errors"] += 1
                 print(f"      ! match {match_id}: {e}", flush=True)
+
+    def sync_missing_events(self):
+        """Re-fetch stored matches that have a lineup but were synced before
+        tries, cards etc. were recorded, newest first."""
+        todo = self.db.get("matches?lineup_status=eq.ok&events_checked=is.false"
+                           "&select=rfu_match_id,division_id,rfu_competition_id,rfu_division_id"
+                           "&order=match_date.desc")
+        print(f"  - {len(todo)} stored matches without tries, cards etc.", flush=True)
+        for i, known in enumerate(todo):
+            if self.should_stop():
+                self.stats["remaining"] += len(todo) - i
+                return
+            try:
+                self.sync_match_id(known["rfu_match_id"], known)
+            except RfuBlocked:
+                raise
+            except Exception as e:  # keep going; the match is retried on the next run
+                self.stats["errors"] += 1
+                print(f"      ! match {known['rfu_match_id']}: {e}", flush=True)
+
+    def sync_match_id(self, match_id, known=None):
+        """Fetch and store one match by id, reading its details from the page."""
+        html = self.fetch(match_centre_url(match_id))
+        self.stats["fetched"] += 1
+        info = parse_match_info(html)
+        if info is None or not info.season:
+            raise RuntimeError("no match header on page")
+        # A page opened by matchId alone doesn't name its division; keep
+        # whatever an earlier division sync recorded for this match.
+        known = known or {}
+        rfu_division_id = info.rfu_division_id or known.get("rfu_division_id")
+        self.store_match(
+            match_id,
+            parse_lineup(html),
+            parse_match_events(html),
+            season=info.season,
+            division_id=self.division_uuid(info.season, rfu_division_id) or known.get("division_id"),
+            rfu_competition_id=info.rfu_competition_id or known.get("rfu_competition_id"),
+            rfu_division_id=rfu_division_id,
+            match_date=info.match_date,
+            home_team=info.home_team,
+            away_team=info.away_team,
+            home_score=info.home_score,
+            away_score=info.away_score,
+        )
 
     def division_uuid(self, season, rfu_division_id):
         """Our divisions.id for an RFU division in a season, if we track it."""
@@ -304,7 +365,7 @@ class LineupSync:
                     self._divisions[(d["season"], rfu_id)] = d["id"]
         return self._divisions.get((season, rfu_division_id))
 
-    def store_match(self, match_id, lineups, *, season, division_id, rfu_competition_id, rfu_division_id,
+    def store_match(self, match_id, lineups, events, *, season, division_id, rfu_competition_id, rfu_division_id,
                     match_date, home_team, away_team, home_score, away_score):
         iso_date = match_date.isoformat() if match_date else None
         now = datetime.now(timezone.utc).isoformat()
@@ -326,6 +387,7 @@ class LineupSync:
             "away_score": away_score,
             "lineup_status": "ok" if lineups else "none",
             "lineup_checked_at": now,
+            "events_checked": True,
             "updated_at": now,
         }
         # Leave unknown division details out so the upsert doesn't blank ones
@@ -338,6 +400,7 @@ class LineupSync:
         players, appearances = {}, []
         for team in lineups:
             team_name = _normalize_team_name(team.team_name)
+            counts = event_counts(team, events.get(team.rfu_team_id, []))
             for p in team.players:
                 players[p.rfu_player_id] = {
                     "rfu_player_id": p.rfu_player_id,
@@ -356,6 +419,7 @@ class LineupSync:
                     "shirt": p.shirt,
                     "shirt_number": p.shirt_number,
                     "is_substitute": p.is_substitute,
+                    **counts.get(p.rfu_player_id, NO_EVENTS),
                 })
         # A player listed twice on one card (data-entry slip) would break the batch's primary key
         appearances = list({a["rfu_player_id"]: a for a in appearances}.values())

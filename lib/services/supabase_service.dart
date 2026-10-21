@@ -257,6 +257,7 @@ class SupabaseService {
           .from('appearances')
           .select(
             'season,match_date,rfu_team_id,team_name,shirt,is_substitute,'
+            'tries,conversions,penalties,drop_goals,yellow_cards,red_cards,'
             'matches(home_team,away_team,home_team_id,away_team_id,home_score,away_score)',
           )
           .eq('rfu_player_id', playerId);

@@ -180,8 +180,7 @@ def sync_missing_events(db, args):
     try:
         sync.sync_missing_events()
     except KeyboardInterrupt:
-        print("
-Interrupted - progress so far is saved; re-run to continue.", flush=True)
+        print("\nInterrupted - progress so far is saved; re-run to continue.", flush=True)
     except RfuBlocked as e:
         stop_blocked(sync, e)
     print_summary(sync)

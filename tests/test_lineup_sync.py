@@ -67,10 +67,13 @@ def test_event_counts_credit_unique_names_only():
         MatchEvent("yellow_card", "Jake Jones"),
         MatchEvent("try", "Name withheld"),  # two withheld players: can't tell which
         MatchEvent("try", "Not In Lineup"),
+        MatchEvent("try", "Name withheld", rfu_player_id=4),  # timeline events credit by id
+        MatchEvent("try", "Not In Lineup", rfu_player_id=99),
     ])
     assert counts == {
         1: {**NO_EVENTS, "tries": 2, "conversions": 1},
         2: {**NO_EVENTS, "yellow_cards": 1},
+        4: {**NO_EVENTS, "tries": 1},
     }
 
 

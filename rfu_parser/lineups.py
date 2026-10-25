@@ -57,9 +57,11 @@ class MatchInfo:
 
 @dataclass
 class MatchEvent:
-    """A scoring or disciplinary event from a match page's "key match events"."""
+    """A scoring or disciplinary event from a match page's "key match events"
+    or timeline."""
     kind: str  # one of EVENT_KINDS
     player_name: str
+    rfu_player_id: Optional[int] = None  # only the timeline links the player
 
 
 # c042-event-item class suffix -> MatchEvent.kind. Penalty tries have no
@@ -148,9 +150,12 @@ def parse_match_events(html_content: str) -> Dict[int, List[MatchEvent]]:
         m = re.search(r"[?&]team=(\d+)", a.get("href", ""))
         if m:
             team_ids.append(int(m.group(1)))
-    columns = soup.find_all(class_="c042-key-match-events-accordion-body-info")
-    if len(team_ids) < 2 or len(columns) < 2:
+    if len(team_ids) < 2:
         return {}
+    columns = soup.find_all(class_="c042-key-match-events-accordion-body-info")
+    if len(columns) < 2:
+        # Some pages only have the minute-by-minute timeline
+        return _parse_timeline_events(soup, team_ids)
 
     events: Dict[int, List[MatchEvent]] = {}
     for team_id, column in ((team_ids[0], columns[0]), (team_ids[1], columns[-1])):
@@ -166,6 +171,29 @@ def parse_match_events(html_content: str) -> Dict[int, List[MatchEvent]]:
             name = clean_player_name(re.sub(r"\s\d+\D*$", "", label.get_text()))
             if kind and name:
                 team_events.append(MatchEvent(kind=kind, player_name=name))
+    return events
+
+
+def _parse_timeline_events(soup, team_ids) -> Dict[int, List[MatchEvent]]:
+    """Events from the c084 timeline: one <li class="home-team|away-team"> per
+    event, with a c084_<kind> icon and a player-stats link carrying the
+    playerId. Misses ("c084_conversion_miss"), substitutions and events
+    entered without a player are left out. {} when there is no timeline."""
+    timeline = soup.find(class_="c084_timeline")
+    if timeline is None:
+        return {}
+    events: Dict[int, List[MatchEvent]] = {team_ids[0]: [], team_ids[1]: []}
+    for item in timeline.find_all("li"):
+        classes = item.get("class", [])
+        team_id = team_ids[0] if "home-team" in classes else team_ids[1] if "away-team" in classes else None
+        icon = next((c[len("c084_"):].replace("_", "-") for el in item.find_all("div")
+                     for c in el.get("class", []) if c.startswith("c084_")), None)
+        link = item.find("a", class_="c084-link")
+        m = re.search(r"[?&]playerId=(\d+)", link.get("href", "")) if link else None
+        if team_id is None or icon not in EVENT_KINDS or not m:
+            continue
+        events[team_id].append(MatchEvent(kind=EVENT_KINDS[icon], player_name=clean_player_name(link.get_text()),
+                                          rfu_player_id=int(m.group(1))))
     return events
 
 

@@ -150,16 +150,21 @@ NO_EVENTS = {column: 0 for column in EVENT_COLUMNS.values()}
 def event_counts(team, events):
     """{rfu_player_id: {"tries": n, ...}} for one team's match events.
 
-    Events only give a name, so each is credited to the player with that name
-    in the team's lineup, and left out when no player, or more than one
-    (namesakes, or several withheld names), has it.
+    Timeline events link the player's id; key-events ones only give a name,
+    so each is credited to the player with that name in the team's lineup,
+    and left out when no player, or more than one (namesakes, or several
+    withheld names), has it.
     """
     ids_by_name = {}
     for p in team.players:
         ids_by_name.setdefault(p.display_name.lower(), set()).add(p.rfu_player_id)
+    lineup_ids = {p.rfu_player_id for p in team.players}
     counts = {}
     for e in events:
-        ids = ids_by_name.get(e.player_name.lower(), set())
+        if e.rfu_player_id is not None:
+            ids = {e.rfu_player_id} & lineup_ids
+        else:
+            ids = ids_by_name.get(e.player_name.lower(), set())
         if len(ids) == 1:
             row = counts.setdefault(next(iter(ids)), dict(NO_EVENTS))
             row[EVENT_COLUMNS[e.kind]] += 1

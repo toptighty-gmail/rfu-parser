@@ -150,6 +150,49 @@ def test_parse_match_events_by_team():
     ]
 
 
+# Trimmed copy of a match page with only the c084 timeline (made-up names):
+# home events put the icon after the name, away events before it.
+TIMELINE_HTML = """
+<a href="/fixtures-and-results/search-results?matchId=9&amp;team=111" class="c042-team">
+  <span class="c042-team-name">Home RFC</span></a>
+<a href="/fixtures-and-results/search-results?matchId=9&amp;team=222" class="c042-team">
+  <span class="c042-team-name">Away II</span></a>
+<div class="c084_timeline"><div class="timeline"><ul>
+  <li class="home-team"><div class="time_in_minutes home-team-time">3'</div>
+    <div class="timeline-content"><div class="event-info align-right">
+      <span class="event-header">Try</span>
+      <a href="/fixtures-and-results/player-stats?matchId=9&amp;playerId=5" class="c084-link">Alex
+        McTest</a></div><div class="c084_try"></div></div></li>
+  <li class="home-team"><div class="timeline-content"><div class="event-info align-right">
+      <span class="event-header">Conversion Miss</span>
+      <a href="/fixtures-and-results/player-stats?matchId=9&amp;playerId=6" class="c084-link">Sam
+        Kicker</a></div><div class="c084_conversion_miss"></div></div></li>
+  <li class="home-team"><div class="timeline-content"><div class="event-info align-right">
+      <span class="event-header">On</span>
+      <a href="/fixtures-and-results/player-stats?matchId=9&amp;playerId=7" class="c084-link">Sub
+        Player</a></div><div class="c084_substitute_on"></div></div></li>
+  <li class="away-team"><div class="timeline-content"><div class="c084_penalty"></div>
+    <div class="event-info align-left"><span class="event-header">Penalty</span>
+      <a href="/fixtures-and-results/player-stats?matchId=9&amp;playerId" class="c084-link">
+        </a></div></div></li>
+  <li class="away-team"><div class="timeline-content"><div class="c084_yellow_card"></div>
+    <div class="event-info align-left"><span class="event-header">Foul Play Yellow Card</span>
+      <a href="/fixtures-and-results/player-stats?matchId=9&amp;playerId=8" class="c084-link">Jo
+        Lowercase</a></div></div></li>
+</ul></div></div>
+"""
+
+
+def test_parse_match_events_from_timeline():
+    events = parse_match_events(TIMELINE_HTML)
+    assert [(e.kind, e.player_name, e.rfu_player_id) for e in events[111]] == [
+        ("try", "Alex McTest", 5),  # miss and substitution left out
+    ]
+    assert [(e.kind, e.player_name, e.rfu_player_id) for e in events[222]] == [
+        ("yellow_card", "Jo Lowercase", 8),  # penalty without a player left out
+    ]
+
+
 def test_parse_match_events_without_events():
     assert parse_match_events("<html><body>no events</body></html>") == {}
 

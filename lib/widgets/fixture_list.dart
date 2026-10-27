@@ -49,6 +49,11 @@ class FixtureList extends StatelessWidget {
     final qtHasIV = RegExp(r'\b(iv|4th)\b').hasMatch(qt);
     if (ftHasIV != qtHasIV) return false;
 
+    // Women's sides never match the men's side of the same club.
+    final ftIsWomen = RegExp(r'\b(women|womens|ladies)\b').hasMatch(ft);
+    final qtIsWomen = RegExp(r'\b(women|womens|ladies)\b').hasMatch(qt);
+    if (ftIsWomen != qtIsWomen) return false;
+
     // Base name normalization (strip RFC, Club, XV)
     String normalizeBase(String s) {
       return s

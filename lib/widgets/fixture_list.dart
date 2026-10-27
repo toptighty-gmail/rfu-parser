@@ -66,6 +66,38 @@ class FixtureList extends StatelessWidget {
         baseQt.contains(baseFt);
   }
 
+  /// Whether a custom (manually added) fixture belongs on [team]'s list.
+  ///
+  /// The fixture's context team is authoritative, so an entry deliberately
+  /// filed under another squad (e.g. a Club XV game under the II team) stays
+  /// there. But when the context team is one of the two sides playing - which
+  /// is what the add dialog falls back to with no club selected - the fixture
+  /// belongs to both sides, so the opponent sees it too.
+  static bool isCustomFixtureForTeam(Fixture f, String team) {
+    final targetTeamId = RfuTeamRegistry.lookupTeamId(team.toLowerCase());
+    // A mismatch doesn't rule the fixture out: the `teams` table can carry
+    // more than one row (and ID) for the same club.
+    if (targetTeamId != null &&
+        f.rfuTeamId != null &&
+        f.rfuTeamId == targetTeamId) {
+      return true;
+    }
+
+    final context = f.contextTeam?.trim();
+    if (context == null || context.isEmpty) {
+      return isExactTeamMatch(f.homeTeam, team) ||
+          isExactTeamMatch(f.awayTeam, team);
+    }
+    if (isExactTeamMatch(context, team)) return true;
+    if (isExactTeamMatch(f.homeTeam, context)) {
+      return isExactTeamMatch(f.awayTeam, team);
+    }
+    if (isExactTeamMatch(f.awayTeam, context)) {
+      return isExactTeamMatch(f.homeTeam, team);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final cleanFilter = filterTeam?.trim();
@@ -74,17 +106,7 @@ class FixtureList extends StatelessWidget {
     final activeFixtures = isTeamFiltered
         ? fixtures.where((f) {
             // For custom fixtures (e.g. Friendlies / Cup entries):
-            if (f.isCustom) {
-              final targetTeamId = RfuTeamRegistry.lookupTeamId(
-                cleanFilter.toLowerCase(),
-              );
-              if (targetTeamId != null && f.rfuTeamId != null) {
-                return f.rfuTeamId == targetTeamId;
-              }
-              if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
-                return isExactTeamMatch(f.contextTeam!, cleanFilter);
-              }
-            }
+            if (f.isCustom) return isCustomFixtureForTeam(f, cleanFilter);
             return isExactTeamMatch(f.homeTeam, cleanFilter) ||
                 isExactTeamMatch(f.awayTeam, cleanFilter);
           }).toList()

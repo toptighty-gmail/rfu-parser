@@ -360,34 +360,10 @@ class SupabaseService {
       return [];
     }
 
-    final cleanTeamLower = cleanTeam.toLowerCase();
-    final targetTeamId = RfuTeamRegistry.lookupTeamId(cleanTeamLower);
     final cleanSeason = season?.trim();
 
     return allFixtures.where((f) {
-      final matchesTeam = () {
-        // 1. Primary: If both have rfu_team_id and they agree, that's authoritative.
-        // A mismatch here doesn't necessarily mean "different team" though - the
-        // `teams` table can carry more than one row for the same club (e.g. a
-        // "Club RFC" row and a bare "Club" row with different IDs), so a fixture
-        // tagged under one ID and a live lookup resolving to the other must still
-        // fall through to the name-based checks below rather than being rejected.
-        if (targetTeamId != null &&
-            f.rfuTeamId != null &&
-            f.rfuTeamId == targetTeamId) {
-          return true;
-        }
-
-        // 2. Secondary: If context_team is present, match strictly using isExactTeamMatch
-        if (f.contextTeam != null && f.contextTeam!.trim().isNotEmpty) {
-          return FixtureList.isExactTeamMatch(f.contextTeam!, cleanTeam);
-        }
-
-        // 3. Fallback: Check home/away team with strict squad matching
-        return FixtureList.isExactTeamMatch(f.homeTeam, cleanTeam) ||
-            FixtureList.isExactTeamMatch(f.awayTeam, cleanTeam);
-      }();
-      if (!matchesTeam) return false;
+      if (!FixtureList.isCustomFixtureForTeam(f, cleanTeam)) return false;
 
       // Custom fixtures carry no season column in the DB, so a team's manually
       // added friendlies/cup games from every season would otherwise all show

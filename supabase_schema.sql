@@ -143,6 +143,8 @@ CREATE TABLE IF NOT EXISTS public.custom_fixtures (
     status TEXT DEFAULT 'Scheduled',
     notes TEXT DEFAULT '',
     is_custom BOOLEAN DEFAULT TRUE,
+    competition TEXT,
+    round_num TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

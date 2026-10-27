@@ -454,6 +454,8 @@ class SupabaseService {
           'status': fixture.status,
           'notes': fixture.venue,
           'is_custom': true,
+          'competition': fixture.competition,
+          'round_num': fixture.roundNum,
           'context_team': fixture.contextTeam ?? fixture.homeTeam,
           if (ctxId != null) 'rfu_team_id': ctxId,
           'created_at': DateTime.now().toIso8601String(),
@@ -567,6 +569,8 @@ class SupabaseService {
         'score': scoreStr,
         'status': updatedFixture.status,
         'notes': updatedFixture.venue,
+        'competition': updatedFixture.competition,
+        'round_num': updatedFixture.roundNum,
         if (updatedFixture.contextTeam != null)
           'context_team': updatedFixture.contextTeam,
         if (ctxId != null) 'rfu_team_id': ctxId,

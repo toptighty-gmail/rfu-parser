@@ -54,16 +54,10 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      # Scheduled runs first refresh the current season's catalogue, so new
-      # cup rounds and newly published divisions get their lineups too.
-      - name: Refresh competitions and divisions (current season)
-        if: github.event_name == 'schedule'
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-        run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then exit 0; fi
-          python scripts/discover_competitions.py
+      # The full competition catalogue is no longer refreshed here: reading
+      # ~140 competitions tripped the RFU firewall and failed the whole job
+      # before any lineups were synced. Run "Discover RFU competitions" by hand
+      # when new divisions need adding.
 
       - name: Sync lineups
         env:

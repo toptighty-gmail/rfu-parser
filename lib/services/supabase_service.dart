@@ -780,6 +780,38 @@ class SupabaseService {
     }
   }
 
+  /// Teams ticked to be kept up to date by the scheduled sync
+  /// (migrations/2026-11-05_tracked_teams.sql). Empty if the table is missing.
+  static Future<Set<String>> fetchTrackedTeams() async {
+    final client = _client;
+    if (client == null) return {};
+    try {
+      final res = await client.from('tracked_teams').select('team_name');
+      return (res as List).map((r) => r['team_name'].toString()).toSet();
+    } catch (e) {
+      debugPrint('fetchTrackedTeams failed: $e');
+      return {};
+    }
+  }
+
+  /// Ticks or unticks [team]; false if the write failed.
+  static Future<bool> setTeamTracked(String team, bool tracked) async {
+    final client = _client;
+    if (client == null) return false;
+    final name = RfuTeamRegistry.normalizeTeamName(team);
+    try {
+      if (tracked) {
+        await client.from('tracked_teams').upsert({'team_name': name});
+      } else {
+        await client.from('tracked_teams').delete().eq('team_name', name);
+      }
+      return true;
+    } catch (e) {
+      debugPrint('setTeamTracked failed: $e');
+      return false;
+    }
+  }
+
   static List<String> _cachedDistinctTeams = [];
 
   static Future<List<String>> fetchAllDistinctTeams() async {

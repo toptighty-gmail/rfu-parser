@@ -1,3 +1,5 @@
+# Only the teams ticked in the app's team list (Admin mode) are kept up to
+# date; run manually with "all_teams" to sync everything in a scope.
 # Keeps player lineups (players / matches / appearances) up to date for the
 # current season across every tracked division, so the player search has data
 # without anyone having to open each team first. Already-stored matches are
@@ -24,8 +26,12 @@ on:
         description: "Only this RFU competition id, e.g. 1699 (blank = all)"
         required: false
       division:
-        description: "Only this RFU division id, e.g. 75799 (blank = all)"
+        description: "Only this RFU division id, e.g. 75799 (blank = the tracked teams' divisions)"
         required: false
+      all_teams:
+        description: "Sync every team in the chosen scope, not just the ticked ones"
+        type: boolean
+        default: false
 
 # Shared with "Discover RFU competitions": one job on the RFU site at a time
 concurrency:
@@ -66,6 +72,7 @@ jobs:
           SEASON: ${{ inputs.season }}
           COMPETITION: ${{ inputs.competition }}
           DIVISION: ${{ inputs.division }}
+          ALL_TEAMS: ${{ inputs.all_teams }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SECRET_KEY" ]; then
             echo "SUPABASE_URL / SUPABASE_SECRET_KEY repository secrets are not set; skipping."
@@ -75,4 +82,7 @@ jobs:
           if [ -n "$SEASON" ]; then args+=(--season "$SEASON"); fi
           if [ -n "$COMPETITION" ]; then args+=(--competition "$COMPETITION"); fi
           if [ -n "$DIVISION" ]; then args+=(--division "$DIVISION"); fi
+          # Scheduled runs (and manual ones by default) only cover the teams
+          # ticked in the app, so the RFU firewall sees far fewer requests
+          if [ "$ALL_TEAMS" != "true" ]; then args+=(--tracked); fi
           python scripts/sync_lineups.py "${args[@]}"

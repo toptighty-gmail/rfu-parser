@@ -8,7 +8,16 @@ class TeamsDirectoryDialog extends StatefulWidget {
   final ValueChanged<String> onSelectTeam;
   final String? season;
 
-  const TeamsDirectoryDialog({super.key, required this.onSelectTeam, this.season});
+  /// Admin mode shows a tick box on each team to choose which ones the
+  /// scheduled sync keeps up to date.
+  final bool isAdmin;
+
+  const TeamsDirectoryDialog({
+    super.key,
+    required this.onSelectTeam,
+    this.season,
+    this.isAdmin = false,
+  });
 
   @override
   State<TeamsDirectoryDialog> createState() => _TeamsDirectoryDialogState();
@@ -21,6 +30,7 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
   List<String> _filteredTeams = [];
   List<String> _dbTeams = [];
   bool _isLoading = false;
+  Set<String> _trackedTeams = {};
 
   final List<String> _indexedTeams = [
     // Championship & National Leagues
@@ -59,6 +69,9 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
     _filteredTeams = List.from(_indexedTeams)
       ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     _loadDatabaseTeams();
+    SupabaseService.fetchTrackedTeams().then((tracked) {
+      if (mounted) setState(() => _trackedTeams = tracked);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
     });
@@ -93,6 +106,22 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
         });
       }
     } catch (_) {}
+  }
+
+  bool _isTracked(String team) =>
+      _trackedTeams.contains(RfuTeamRegistry.normalizeTeamName(team));
+
+  Future<void> _toggleTracked(String team, bool tracked) async {
+    final name = RfuTeamRegistry.normalizeTeamName(team);
+    setState(() => tracked ? _trackedTeams.add(name) : _trackedTeams.remove(name));
+    final ok = await SupabaseService.setTeamTracked(team, tracked);
+    if (!ok && mounted) {
+      // Put the tick back and say so
+      setState(() => tracked ? _trackedTeams.remove(name) : _trackedTeams.add(name));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save the change for $team')),
+      );
+    }
   }
 
   void _filter(String query) async {
@@ -281,10 +310,36 @@ class _TeamsDirectoryDialogState extends State<TeamsDirectoryDialog> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          trailing: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 12,
-                            color: theme.textMuted,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (widget.isAdmin)
+                                Tooltip(
+                                  message: 'Keep this team up to date',
+                                  child: Checkbox(
+                                    value: _isTracked(teamName),
+                                    activeColor: theme.goldAccent,
+                                    visualDensity: VisualDensity.compact,
+                                    onChanged: (v) =>
+                                        _toggleTracked(teamName, v ?? false),
+                                  ),
+                                )
+                              else if (_isTracked(teamName))
+                                Tooltip(
+                                  message: 'Kept up to date',
+                                  child: Icon(
+                                    Icons.sync,
+                                    size: 14,
+                                    color: theme.goldAccent,
+                                  ),
+                                ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 12,
+                                color: theme.textMuted,
+                              ),
+                            ],
                           ),
                           onTap: () {
                             Navigator.of(context).pop();

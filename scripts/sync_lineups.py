@@ -19,6 +19,7 @@ Examples:
     python scripts/sync_lineups.py --season 2025-2026 --competition 1699
     python scripts/sync_lineups.py --season 2026-2027            # weekly top-up
     python scripts/sync_lineups.py --season 2025-2026 --team "Plymstock Oaks" --team "Plymstock Oaks II"
+    python scripts/sync_lineups.py --tracked                      # only the teams ticked in the app (Admin mode)
     python scripts/sync_lineups.py --player "Aiden Taylor"        # whole career, every season and club
     python scripts/sync_lineups.py --missing-events               # tries/cards for matches stored before them
     python scripts/sync_lineups.py --season 2025-2026 --division 66453 --limit 3 --dry-run
@@ -27,6 +28,8 @@ import argparse
 import os
 import sys
 from urllib.parse import quote
+
+import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -49,6 +52,9 @@ def main():
     ap.add_argument("--division", type=int, help="only this RFU division id, e.g. 66453")
     ap.add_argument("--team", action="append",
                     help="only matches involving this team (exact name, repeatable), e.g. --team \"Plymstock Oaks\"")
+    ap.add_argument("--tracked", action="store_true",
+                    help="only the teams ticked in the app's team list (tracked_teams table); "
+                         "adds to any --team given, and does nothing if none are ticked")
     ap.add_argument("--player", action="append",
                     help="sync a player's whole RFU history (every season and club) instead of divisions; "
                          "an RFU playerId, or a name already in the players table (repeatable)")
@@ -79,6 +85,17 @@ def main():
     if args.missing_events:
         sync_missing_events(db, args)
         return
+
+    if args.tracked:
+        try:
+            tracked = [r["team_name"] for r in db.get("tracked_teams?select=team_name")]
+        except requests.HTTPError as e:
+            sys.exit(f"Could not read tracked_teams ({e}); has migrations/2026-11-05_tracked_teams.sql been run?")
+        if not tracked and not args.team:
+            print("No teams are ticked to be kept up to date (tick them in the app's team list in "
+                  "Admin mode); nothing to sync.", flush=True)
+            return
+        args.team = (args.team or []) + tracked
 
     divisions = db.get(
         f"divisions?season=eq.{args.season}"

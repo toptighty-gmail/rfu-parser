@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/player_appearance.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/player_stats_pdf.dart';
 
 enum PlayerSearchMode { player, team }
 
@@ -43,6 +45,7 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
   List<PlayerSeasonAppearance> _results = [];
   bool _isLoading = false;
   bool _hasSearched = false;
+  bool _printing = false;
 
   /// Teams with synced lineups in the selected seasons (team dropdown).
   List<AppearanceTeam> _teams = [];
@@ -229,6 +232,63 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
     });
   }
 
+  // --- Print --------------------------------------------------------------
+
+  bool get _canPrint {
+    if (_printing) return false;
+    if (_detailPlayer != null) return !_detailLoading && _detailMatches.isNotEmpty;
+    return _hasSearched && _results.isNotEmpty;
+  }
+
+  /// Prints whatever the dialog is showing (player detail, team squads or
+  /// player results) to PDF via the print dialog.
+  Future<void> _printCurrent() async {
+    if (!_canPrint) return;
+    setState(() => _printing = true);
+    try {
+      final label = _allSeasons ? 'All seasons' : _selectedSeasons.toList().join(', ');
+      final Uint8List bytes;
+      final String name;
+      final detail = _detailPlayer;
+      if (detail != null) {
+        bytes = await PlayerStatsPdf.playerDetail(
+          player: detail,
+          matches: _detailMatches,
+          seasonsLabel: label,
+          multiSeason: _multiSeason,
+        );
+        name = PlayerStatsPdf.fileNameFor('${detail.displayName}_stats');
+      } else if (_mode == PlayerSearchMode.team) {
+        bytes = await PlayerStatsPdf.teamSquads(
+          results: _results,
+          seasonsLabel: label,
+          multiSeason: _multiSeason,
+        );
+        name = PlayerStatsPdf.fileNameFor('${_selectedTeam?.teamName ?? 'squads'}_stats');
+      } else {
+        bytes = await PlayerStatsPdf.playerResults(
+          results: _results,
+          seasonsLabel: label,
+          multiSeason: _multiSeason,
+        );
+        name = PlayerStatsPdf.fileNameFor('${_playerController.text.trim()}_stats');
+      }
+      await PlayerStatsPdf.output(bytes, name);
+    } catch (e) {
+      debugPrint('Player stats PDF error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating PDF: $e'),
+            backgroundColor: AppTheme.rubyAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _printing = false);
+    }
+  }
+
   // --- Text helpers -------------------------------------------------------
 
   /// "2025-2026" -> "2025-26"
@@ -300,6 +360,17 @@ class _PlayerSearchDialogState extends State<PlayerSearchDialog> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          IconButton(
+            tooltip: 'Print / save as PDF',
+            icon: _printing
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: theme.goldAccent),
+                  )
+                : Icon(Icons.picture_as_pdf, color: theme.goldAccent),
+            onPressed: _canPrint ? _printCurrent : null,
           ),
           IconButton(
             icon: Icon(Icons.close, color: theme.textMuted),

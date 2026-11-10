@@ -25,7 +25,7 @@ import '../utils/fixtures_util.dart' as fixtures_util;
 /// default base-14 font.
 Future<pw.ThemeData>? _pdfSoraThemeFuture;
 
-Future<pw.ThemeData> _loadPdfSoraTheme() {
+Future<pw.ThemeData> loadPdfSoraTheme() {
   return _pdfSoraThemeFuture ??= () async {
     final regularData = await rootBundle.load('assets/fonts/Sora-Regular.ttf');
     final boldData = await rootBundle.load('assets/fonts/Sora-Bold.ttf');
@@ -360,7 +360,7 @@ class BookletPrintView extends StatelessWidget {
     bool isTeamFiltered,
     Map<String, PdfLogoItem> logoCache,
   ) async {
-    final doc = pw.Document(theme: await _loadPdfSoraTheme());
+    final doc = pw.Document(theme: await loadPdfSoraTheme());
 
     // Identify next-match fixtures: single next fixture when team-filtered,
     // or every fixture in the earliest upcoming round for a division-wide view.

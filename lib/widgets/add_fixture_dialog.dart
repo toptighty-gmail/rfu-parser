@@ -27,6 +27,8 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = const TimeOfDay(hour: 15, minute: 0);
   String _fixtureType = 'Friendly'; // 'Friendly' or 'Cup'
+  // How the match ended: 'score' (normal/optional scores), or a walkover.
+  String _result = 'score'; // 'score' | 'HWO' | 'AWO'
 
   late TextEditingController _dateController;
   late TextEditingController _timeController;
@@ -68,6 +70,10 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
           f.competition.toLowerCase().contains('cup') ||
           f.roundNum.toLowerCase().contains('cup');
       _fixtureType = isCup ? 'Cup' : 'Friendly';
+
+      final status = f.status.toLowerCase();
+      if (status == 'hwo') _result = 'HWO';
+      if (status == 'awo') _result = 'AWO';
     }
 
     _dateController = TextEditingController(
@@ -203,6 +209,12 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       final tempScore = _homeScoreController.text;
       _homeScoreController.text = _awayScoreController.text;
       _awayScoreController.text = tempScore;
+
+      if (_result == 'HWO') {
+        _result = 'AWO';
+      } else if (_result == 'AWO') {
+        _result = 'HWO';
+      }
     });
   }
 
@@ -539,26 +551,47 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
               const SizedBox(height: 14),
 
-              // Scores (Optional)
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildInput(
-                      'Home Score (Optional)',
-                      _homeScoreController,
-                      isNumber: true,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildInput(
-                      'Away Score (Optional)',
-                      _awayScoreController,
-                      isNumber: true,
-                    ),
-                  ),
+              // Result type: normal score, or a walkover
+              SegmentedButton<String>(
+                showSelectedIcon: false,
+                segments: const [
+                  ButtonSegment(value: 'score', label: Text('Score')),
+                  ButtonSegment(value: 'HWO', label: Text('Home walkover')),
+                  ButtonSegment(value: 'AWO', label: Text('Away walkover')),
                 ],
+                selected: {_result},
+                onSelectionChanged: (s) => setState(() => _result = s.first),
               ),
+              const SizedBox(height: 12),
+
+              // Scores (Optional) - not applicable to a walkover
+              if (_result == 'score')
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInput(
+                        'Home Score (Optional)',
+                        _homeScoreController,
+                        isNumber: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildInput(
+                        'Away Score (Optional)',
+                        _awayScoreController,
+                        isNumber: true,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Text(
+                  _result == 'HWO'
+                      ? 'Home team awarded the win (walkover) - no score.'
+                      : 'Away team awarded the win (walkover) - no score.',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12.5),
+                ),
               const SizedBox(height: 12),
               _buildInput(
                 'Venue / Location (Optional)',
@@ -765,8 +798,13 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
 
     if (home.isEmpty || away.isEmpty) return;
 
-    final hScore = int.tryParse(_homeScoreController.text.trim());
-    final aScore = int.tryParse(_awayScoreController.text.trim());
+    final isWalkover = _result != 'score';
+    final hScore = isWalkover
+        ? null
+        : int.tryParse(_homeScoreController.text.trim());
+    final aScore = isWalkover
+        ? null
+        : int.tryParse(_awayScoreController.text.trim());
     final dateIso = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     final isCup = _fixtureType == 'Cup';
@@ -801,7 +839,9 @@ class _AddFixtureDialogState extends State<AddFixtureDialog> {
       awayTeam: away,
       homeScore: hScore,
       awayScore: aScore,
-      status: (hScore != null && aScore != null) ? 'Completed' : 'Scheduled',
+      status: isWalkover
+          ? _result
+          : ((hScore != null && aScore != null) ? 'Completed' : 'Scheduled'),
       venue: _venueController.text.trim(),
       competition: competitionName,
       roundNum: roundLabel,

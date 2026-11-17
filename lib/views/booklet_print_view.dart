@@ -833,6 +833,7 @@ class BookletPrintView extends StatelessWidget {
 
                     final isCompleted =
                         f.status.toLowerCase() == 'completed' ||
+                        fixtures_util.isWalkover(f) ||
                         (f.homeScore != null && f.awayScore != null);
 
                     final isNextUpcoming = nextFixtures.contains(f);
@@ -1064,7 +1065,9 @@ class BookletPrintView extends StatelessWidget {
                             ),
                             child: pw.Text(
                               isCompleted
-                                  ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
+                                  ? (fixtures_util.isWalkover(f)
+                                        ? f.status.toUpperCase()
+                                        : '${f.homeScore ?? 0} - ${f.awayScore ?? 0}')
                                   : 'VS',
                               style: pw.TextStyle(
                                 fontSize: 8.5,
@@ -1432,8 +1435,7 @@ class BookletPrintView extends StatelessWidget {
                                 const SizedBox(height: 3),
                                 if (isTeamFiltered) ...[
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
@@ -2026,6 +2028,7 @@ class BookletPrintView extends StatelessWidget {
 
               final isCompleted =
                   f.status.toLowerCase() == 'completed' ||
+                  fixtures_util.isWalkover(f) ||
                   (f.homeScore != null && f.awayScore != null);
 
               final isNextUpcoming = nextFixtures.contains(f);
@@ -2248,7 +2251,9 @@ class BookletPrintView extends StatelessWidget {
                       child: Center(
                         child: Text(
                           isCompleted
-                              ? '${f.homeScore ?? 0} - ${f.awayScore ?? 0}'
+                              ? (fixtures_util.isWalkover(f)
+                                    ? f.status.toUpperCase()
+                                    : '${f.homeScore ?? 0} - ${f.awayScore ?? 0}')
                               : 'VS',
                           style: TextStyle(
                             fontSize: 11,

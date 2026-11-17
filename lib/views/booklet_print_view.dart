@@ -834,6 +834,7 @@ class BookletPrintView extends StatelessWidget {
                     final isCompleted =
                         f.status.toLowerCase() == 'completed' ||
                         fixtures_util.isWalkover(f) ||
+                        fixtures_util.isAbandoned(f) ||
                         (f.homeScore != null && f.awayScore != null);
 
                     final isNextUpcoming = nextFixtures.contains(f);
@@ -1064,10 +1065,8 @@ class BookletPrintView extends StatelessWidget {
                               ),
                             ),
                             child: pw.Text(
-                              isCompleted
-                                  ? (fixtures_util.isWalkover(f)
-                                        ? f.status.toUpperCase()
-                                        : '${f.homeScore ?? 0} - ${f.awayScore ?? 0}')
+                              (isCompleted || fixtures_util.isPostponed(f))
+                                  ? fixtures_util.fixtureScoreText(f)
                                   : 'VS',
                               style: pw.TextStyle(
                                 fontSize: 8.5,
@@ -2029,6 +2028,7 @@ class BookletPrintView extends StatelessWidget {
               final isCompleted =
                   f.status.toLowerCase() == 'completed' ||
                   fixtures_util.isWalkover(f) ||
+                  fixtures_util.isAbandoned(f) ||
                   (f.homeScore != null && f.awayScore != null);
 
               final isNextUpcoming = nextFixtures.contains(f);
@@ -2250,10 +2250,8 @@ class BookletPrintView extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          isCompleted
-                              ? (fixtures_util.isWalkover(f)
-                                    ? f.status.toUpperCase()
-                                    : '${f.homeScore ?? 0} - ${f.awayScore ?? 0}')
+                          (isCompleted || fixtures_util.isPostponed(f))
+                              ? fixtures_util.fixtureScoreText(f)
                               : 'VS',
                           style: TextStyle(
                             fontSize: 11,
